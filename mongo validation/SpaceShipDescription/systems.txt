@@ -1,0 +1,42 @@
+db.createCollection("systems", {
+   validator: {
+      $jsonSchema: {
+         bsonType: "object",
+         required: ["name", "type", "dateOfLaunch", "dateOfLastChecking", "personInCharge", "state"],
+         properties: {
+            name: {
+				bsonType: "string",
+				description: "must be a string and is required"
+            },
+            type: {
+				bsonType: "object",
+				description: "DBRef to systemTipes collection"
+            },
+			serialNumber: {
+				bsonType: "double",
+				minimum: 0,
+				maximum: 100,
+				exclusiveMinimum: true,
+				description: "must be a double between 1 and 100"
+            },
+            dateOfLaunch: {
+				bsonType: "date",
+				description: "must be a date and is not required"
+            },
+			dateOfLastChecking: {
+				bsonType: "date",
+				description: "must be a date and is not required"
+				 
+			},
+            personInCharge: {
+				bsonType: "object",
+				description: "DBRef to people collection"
+            },
+			state: {
+				bsonType: "object",
+				description: "DBRef to states collection"
+            }
+         }
+      }
+   }
+})

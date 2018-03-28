@@ -1,0 +1,21 @@
+db.createCollection("departments", {
+   validator: {
+      $jsonSchema: {
+         bsonType: "object",
+         required: ["name"],
+         properties: {
+            name: {
+               enum: [ "pilot", "system control", "properties control", "head"],
+               description: "can only be one of the enum values and is required"
+            },
+            hrefToVkCommunity: {
+               bsonType: "string",
+			   pattern : "^(https?://)?vk\.com/.+$",
+               description: "must match with pattern. examples:https://vk.com/name_of_your_group, http://vk.com/name_of_your_group, vk.com/name_of_your_group"
+            }
+         }
+      }
+   }
+})
+
+

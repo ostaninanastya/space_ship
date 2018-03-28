@@ -1,0 +1,29 @@
+db.createCollection("specialozations", {
+   validator: {
+      $jsonSchema: {
+         bsonType: "object",
+         required: ["name"],
+         properties: {
+            name: {
+               enum: [ "mechanics", "control", "navigation", "pilot" ],
+               description: "can only be one of the enum values and is required"
+            }
+         }
+      }
+   }
+})
+
+
+
+Usage:
+
+>db.specialozations.insert({ name : "control"})
+WriteResult({ "nInserted" : 1 })
+>db.specialozations.insert({ name : "fly"})
+WriteResult({
+        "nInserted" : 0,
+        "writeError" : {
+                "code" : 121,
+                "errmsg" : "Document failed validation"
+        }
+})

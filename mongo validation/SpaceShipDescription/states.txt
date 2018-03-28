@@ -1,0 +1,33 @@
+db.createCollection("states", {
+   validator: {
+      $jsonSchema: {
+         bsonType: "object",
+         required: ["name"],
+         properties: {
+            name: {
+               enum: [ "ready", "repair", "not working" ],
+               description: "can only be one of the enum values and is required"
+            },
+            description: {
+               bsonType: "string",
+               description: "must be a string"
+            }			
+         }
+      }
+   }
+})
+
+
+Usage:
+
+>db.states.insert({ name : "ready", decsription : "the system is fully operational" })
+WriteResult({ "nInserted" : 1 })
+
+>db.states.insert({ name : "not ready", decsription : "the system is fully operational" })
+WriteResult({
+        "nInserted" : 0,
+        "writeError" : {
+                "code" : 121,
+                "errmsg" : "Document failed validation"
+        }
+})
