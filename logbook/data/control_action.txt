@@ -1,0 +1,18 @@
+1522343970.0 :: AC:B5:7D:F9:68:85 :: commander :: go :: down left :: ok
+1522343972.0 :: AC:B5:7D:F9:68:85 :: commander :: get :: --sensor=STADDLE N23 --value_name=hot_dark_matter_concentration :: 63.272269175045196 TeV
+1522343993.0 :: AC:B5:7D:F9:68:85 :: commander :: get :: --sensor=MINAS_MORGUL T400 --value_name=hot_dark_matter_concentration :: 12.048219661918713 TeV
+1522344005.0 :: AC:B5:7D:F9:68:85 :: commander :: get :: --sensor=VALMAR 17 --value_name=warm_dark_matter_concentration :: 4.924028149945096 eV
+1522344014.0 :: AC:B5:7D:F9:68:85 :: commander :: get :: --sensor=STADDLE N23 --value_name=cold_dark_matter_concentration :: 2.199371549456815 CeV
+1522344015.0 :: AC:B5:7D:F9:68:85 :: commander :: go :: up left :: ok
+1522344018.0 :: AC:B5:7D:F9:68:85 :: commander :: go :: up right :: ok
+1522344042.0 :: AC:B5:7D:F9:68:85 :: commander :: go :: up left :: ok
+1522344045.0 :: AC:B5:7D:F9:68:85 :: commander :: go :: down left :: ok
+1522344059.0 :: AC:B5:7D:F9:68:85 :: commander :: get :: --sensor=MINAS_MORGUL T400 --value_name=hot_dark_matter_concentration :: 37.85361821628682 TeV
+1522344062.0 :: AC:B5:7D:F9:68:85 :: commander :: get :: --sensor=VALMAR 17 --value_name=warm_dark_matter_concentration :: 11.590657140766616 eV
+1522344066.0 :: AC:B5:7D:F9:68:85 :: commander :: go :: up left :: ok
+1522344071.0 :: AC:B5:7D:F9:68:85 :: commander :: get :: --sensor=VALMAR 17 --value_name=hot_dark_matter_concentration :: 26.796771730402035 TeV
+1522344074.0 :: AC:B5:7D:F9:68:85 :: commander :: get :: --sensor=STADDLE N23 --value_name=space_radiation :: 22.914245993568073 keV
+1522344086.0 :: AC:B5:7D:F9:68:85 :: commander :: get :: --sensor=VALMAR 17 --value_name=hot_dark_matter_concentration :: 31.385921628147074 TeV
+1522344089.0 :: AC:B5:7D:F9:68:85 :: commander :: get :: --sensor=MINAS_MORGUL T400 --value_name=warm_dark_matter_concentration :: 8.681619617517423 eV
+1522344113.0 :: AC:B5:7D:F9:68:85 :: commander :: get :: --sensor=VALMAR 17 --value_name=warm_dark_matter_concentration :: 1.4725039682564098 eV
+1522344114.0 :: AC:B5:7D:F9:68:85 :: commander :: go :: up right :: ok
