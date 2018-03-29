@@ -76,6 +76,51 @@ Cобственно сервер, на котором будет лежать б
 
     DB_URL=http://127.0.0.1:8123 DB_NAME=logbook python3 explore.py
   
+## Communications
 
+### Entities
+
+### Prerequisites
+
+Требуются установленные:
+
+#### neo4j server
+
+Cобственно сервер, на котором будет лежать база данных
+
+Установка производится так:
+
+    wget --no-check-certificate -O - https://debian.neo4j.org/neotechnology.gpg.key | sudo apt-key add -
+    echo 'deb http://debian.neo4j.org/repo stable/' | sudo tee /etc/apt/sources.list.d/neo4j.list
+    sudo apt update
+    sudo apt install neo4j
+
+#### neomodel
+
+Модуль для python, с помощью которого идет взаимодействие с БД
+
+Устанавливается командой
+
+    pip install neomodel
+  
+### Running
+
+#### Server
+
+Выполнить команду
+
+    sudo service neo4j start
+  
+#### Client
+
+Для выполнения запросов в web интерфейсе и просмотра полученного графа. Запускается в браузере по адресу
+
+    http://localhost:7474
+  
+#### Scripts
+
+Тестовый скрипт создает классы смены, операции, человека и устанавливает базовые коммуникации между тем, формируя простейший граф
+
+    USERNAME=neo4j PASSWORD=neo4j python3 test.py
 
   
