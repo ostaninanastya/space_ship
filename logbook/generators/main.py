@@ -1,11 +1,19 @@
 from random import random
 from random import randint
+from random import shuffle
 import math
 import datetime
 import time
 import os
 
+from operations import generate_prometheus_operation
+from operations import get_outer_area_composition
+from shifts import generate_shift
+
 DELIMITER = ' :: '
+
+SHIFT_STATE_DATA_PATH = '../data/shift_state.txt'
+OPERATION_STATE_DATA_PATH = '../data/operation_state.txt'
 
 #position
 
@@ -77,7 +85,6 @@ def get_command_params(attack_angle, direction_angle):
 		result += 'right'
 
 	return result
-
 
 def generate(number_of_values):
 
@@ -154,9 +161,13 @@ def generate(number_of_values):
 	system_state_log.close()
 	sensor_data_log.close()
 
-
 def main():
-	generate(50)
+	#generate_shift(datetime.datetime.now(), 17, 50, [0.2, 0.3, 0.3, 0.3, 0], [0, 0.5, 0.6, 0.4, 0.4], SHIFT_STATE_DATA_PATH)
+	#generate(50)
+	generate_prometheus_operation(50, datetime.datetime.now(), 17, 13, get_outer_area_composition(118, None, None), OPERATION_STATE_DATA_PATH)
+	#initial = get_outer_area_composition(118, None, None)
+	#print(stringify_area_composition(initial))
+	#print(stringify_area_composition(get_outer_area_composition(118, initial, 1)))
 
 if __name__ == '__main__':
 	main()
