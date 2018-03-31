@@ -1,19 +1,28 @@
-import sys
+import sys, os
+from datetime import datetime
 
-from infi.clickhouse_orm.models import Model
-from infi.clickhouse_orm.fields import *
-from infi.clickhouse_orm.engines import Memory
+from cassandra.cqlengine import columns
+from cassandra.cqlengine.models import Model
+from cassandra.cqlengine import ValidationError
 
-sys.path.append('entities/field_types')
+sys.path.append('adapters')
+
+import mongo_adapter
 
 class ControlAction(Model):
-	
-	time = DateTimeField()
-	
-	mac_address = StringField()
-	user = StringField()
-	command = StringField()
-	params = StringField()
-	result = StringField()
+    time = columns.DateTime(required = True, primary_key = True)
+    mac_address = columns.Bytes(required = True, primary_key = True)
+    user_id = columns.Bytes(required = True, primary_key = True)
+    
+    command = columns.Text(required = True)
+    params = columns.Text()
+    result = columns.Text()
 
-	engine = Memory()
+    def validate(self):
+        super(ControlAction, self).validate()
+        
+        if len(self.mac_address) != 6:
+            raise ValidationError('not a valid mac address')
+
+        if len(self.user_id) != 12 or not mongo_adapter.is_valid_foreign_id('user_test', self.user_id.hex()):
+        	raise ValidationError('not a valid user id')

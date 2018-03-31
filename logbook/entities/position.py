@@ -1,21 +1,23 @@
-import sys
+import sys, os
+from datetime import datetime
 
-from infi.clickhouse_orm.models import Model
-from infi.clickhouse_orm.fields import *
-from infi.clickhouse_orm.engines import Memory
-
-sys.path.append('entities/field_types')
+from cassandra.cqlengine import columns
+from cassandra.cqlengine.models import Model
+from cassandra.cqlengine import ValidationError
 
 class Position(Model):
-	
-	time = DateTimeField()
-	
-	x = Float64Field()
-	y = Float64Field()
-	z = Float64Field()
+    time = columns.DateTime(required = True, primary_key = True)
 
-	speed = Float64Field()
-	atack_angle = Float64Field()
-	direction_angle = Float64Field()
+    x = columns.Double(required = True, primary_key = True)
+    y = columns.Double(required = True, primary_key = True)
+    z = columns.Double(required = True, primary_key = True)
 
-	engine = Memory()
+    speed = columns.Double(required = True, primary_key = True)
+    attack_angle = columns.Double(required = True, primary_key = True)
+    direction_angle = columns.Double(required = True, primary_key = True)
+
+    def validate(self):
+        super(Position, self).validate()
+        
+        self.attack_angle %= 360
+        self.direction_angle %= 360

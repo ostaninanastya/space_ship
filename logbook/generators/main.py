@@ -27,18 +27,18 @@ REQUEST_DELAY = 2
 
 COMMAND_DATA_PATH = '../data/control_action.txt'
 
-ROOT_MAC_ADDRESS = 'AC:B5:7D:F9:68:85'
-ROOT_USER = 'commander'
+ROOT_MAC_ADDRESS = 'ACB57DF96885'
+ROOT_USER = '5abfdba6ee6b7f5eec83a1ca'
 
 PROBABILITY_OF_CHANGING_DIRECTION = 0.2
 PROBABILITY_OF_REQUESTING_VALUE = 0.2
 
 #system_state
 
-SYSTEM_STATE_DATA_PATH = '../data/system_state.txt'
+SYSTEM_STATE_DATA_PATH = '../data/system_test.txt'
 
 SYSTEM_NAMES = ['fuel system', 'main engine', 'spare engine', 'main thrusters', 'spare thrusters', 'power system']
-SYSTEM_INDEXES = [0, 1, 2, 4, 5, 8]
+SYSTEM_INDEXES = ["5abfbb95e1cd5bdb23b93336", "5abfbbc6e1cd5bdb23b93337", "5abfcafaa75ef28692553913", "5abfcb09a75ef28692553914", "5abfcb1aa75ef28692553915", "5abfcb61ee6b7f5eec83a1c9"]
 SYSTEM_STATES = ['working', 'fail', 'being_fixed', 'testing']
 SYSTEM_PROBABILITIES = [[0.2, 0.5, 0.8, 0.95], \
 						[0.4, 0.2, 0.8, 0.95], \
@@ -52,7 +52,8 @@ SYSTEM_CURRENT_STATES = [0, 0, 0, 0, 0, 0]
 
 SENSOR_DATA_DATA_PATH = '../data/sensor_data.txt'
 
-SENSORS = ['MINAS_MORGUL T400', 'STADDLE N23', 'VALMAR 17']
+#SENSORS = ['MINAS_MORGUL T400', 'STADDLE N23', 'VALMAR 17']
+SENSORS = ['5abfebc7520148bec1b9006c', '5abfebca520148bec1b9006d', '5abfebcc520148bec1b9006e']
 LOCATIONS = ['top_edge', 'left_side', 'laboratory']
 
 VALUE_TYPES = ['cold_dark_matter_concentration', 'hot_dark_matter_concentration', 'warm_dark_matter_concentration', 'space_radiation']
@@ -131,7 +132,7 @@ def generate(number_of_values):
 				str(random() * VALUE_RANDOM_KOEFFICIENTS[value_id]) + ' ' + VALUE_UNITS[value_id] + '\n')
 
 			sensor_data_log.write(str(datetime_to_unix_time(time) - REQUEST_DELAY) + DELIMITER + SENSORS[sensor_id] + DELIMITER + \
-				LOCATIONS[sensor_id] + DELIMITER + 'request' + DELIMITER + VALUE_TYPES[value_id] + DELIMITER + \
+				'request' + DELIMITER + VALUE_TYPES[value_id] + DELIMITER + \
 				str(random() * VALUE_RANDOM_KOEFFICIENTS[value_id]) + DELIMITER + VALUE_UNITS[value_id] + '\n')
 
 
@@ -144,13 +145,13 @@ def generate(number_of_values):
 				DELIMITER + get_command_params(attack_angle_delta, direction_angle_delta) + DELIMITER + 'ok' + '\n')
 
 			for i in range(len(SYSTEM_INDEXES)):
-				system_state_log.write(str(datetime_to_unix_time(time)) + DELIMITER + SYSTEM_NAMES[i] + DELIMITER + str(SYSTEM_INDEXES[i]) + \
-					DELIMITER + SYSTEM_STATES[SYSTEM_CURRENT_STATES[i]] + '\n')
-				try_switch_system_state(i)
+				system_state_log.write(str(datetime_to_unix_time(time))  + DELIMITER + str(SYSTEM_INDEXES[i]) + \
+					DELIMITER + str(random() * 50 + 50) + '\n')
+				#try_switch_system_state(i)
 
 			for i in range(len(VALUE_TYPES)):
 				for j in range(len(SENSORS)):
-					sensor_data_log.write(str(datetime_to_unix_time(time)) + DELIMITER + SENSORS[j] + DELIMITER + LOCATIONS[j] + DELIMITER + 'timeout' + \
+					sensor_data_log.write(str(datetime_to_unix_time(time)) + DELIMITER + SENSORS[j] + DELIMITER + 'timeout' + \
 					DELIMITER + VALUE_TYPES[i] + DELIMITER + str(random() * VALUE_RANDOM_KOEFFICIENTS[i]) + DELIMITER + VALUE_UNITS[i] + '\n')
 
 			attack_angle += attack_angle_delta
@@ -162,9 +163,9 @@ def generate(number_of_values):
 	sensor_data_log.close()
 
 def main():
-	#generate_shift(datetime.datetime.now(), 17, 50, [0.2, 0.3, 0.3, 0.3, 0], [0, 0.5, 0.6, 0.4, 0.4], SHIFT_STATE_DATA_PATH)
+	generate_shift(datetime.datetime.now(), '5abfebc7520148bec1b9006c', 50, [0.2, 0.3, 0.3, 0.3, 0], [0, 0.5, 0.6, 0.4, 0.4], SHIFT_STATE_DATA_PATH)
 	#generate(50)
-	generate_prometheus_operation(50, datetime.datetime.now(), 17, 13, get_outer_area_composition(118, None, None), OPERATION_STATE_DATA_PATH)
+	#generate_prometheus_operation(50, datetime.datetime.now(), 17, 13, get_outer_area_composition(118, None, None), OPERATION_STATE_DATA_PATH)
 	#initial = get_outer_area_composition(118, None, None)
 	#print(stringify_area_composition(initial))
 	#print(stringify_area_composition(get_outer_area_composition(118, initial, 1)))

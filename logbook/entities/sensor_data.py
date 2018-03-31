@@ -1,27 +1,39 @@
-import sys
+import sys, os
+from datetime import datetime
 
-from enum import Enum
+from cassandra.cqlengine import columns
+from cassandra.cqlengine.models import Model
+from cassandra.cqlengine import ValidationError
 
-from infi.clickhouse_orm.models import Model
-from infi.clickhouse_orm.fields import *
-from infi.clickhouse_orm.engines import Memory
+sys.path.append('adapters')
 
-sys.path.append('entities/field_types')
+import mongo_adapter
+from data_adapters import get_strings
 
-SensorLocations = Enum('SensorLocations', 'top_edge left_side right_side bottom_edge laboratory internal_area semi_internal_area')
-SensorEvent = Enum('SensorEvent', 'timeout request')
-SensorValueName = Enum('SensorValueName', 'cold_dark_matter_concentration hot_dark_matter_concentration warm_dark_matter_concentration space_radiation')
-SensorValueUnits = Enum('SensorValueUnits', 'CeV TeV eV keV')
+EVENTS = get_strings('enums/sensor_events')
+VALUE_TYPES = get_strings('enums/value_types')
+VALUE_UNITS = get_strings('enums/units')
 
 class SensorData(Model):
-	
-	time = DateTimeField()
-	
-	source = StringField()
-	location = Enum8Field(SensorLocations)
-	event = Enum8Field(SensorEvent)
-	value_name = Enum8Field(SensorValueName)
-	value = Float64Field()
-	units = Enum8Field(SensorValueUnits)
+    time = columns.DateTime(required = True, primary_key = True)
+    source_id = columns.Bytes(required = True, primary_key = True)
+    event = columns.Text(required = True)
+    value_name = columns.Text(required = True)
+    value = columns.Double(required = True)
+    units = columns.Text(required = True)
 
-	engine = Memory()
+    def validate(self):
+        super(SensorData, self).validate()
+
+        if len(self.source_id) != 12 or not mongo_adapter.is_valid_foreign_id('source_test', self.source_id.hex()):
+        	raise ValidationError('not a valid source id')
+
+        if self.event not in EVENTS:
+        	raise ValidationError('not a valid event')
+
+        if self.value_name not in VALUE_TYPES:
+        	raise ValidationError('not a valid value type')
+
+        if self.units not in VALUE_UNITS:
+        	raise ValidationError('not a valid value units')
+

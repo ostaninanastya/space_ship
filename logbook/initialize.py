@@ -1,27 +1,35 @@
 import sys, os
+import configparser
+import datetime
+import re
 
-from infi.clickhouse_orm.database import Database
-from infi.clickhouse_orm.models import Model
-from infi.clickhouse_orm.fields import *
-from infi.clickhouse_orm.engines import Memory
+from cassandra.cqlengine import connection
+from cassandra.cqlengine.management import sync_table
+from cassandra import cqlengine
 
 sys.path.append('entities')
 
-from position import Position
-from system_state import SystemState
+from system_test import SystemTest
 from control_action import ControlAction
+from position import Position
 from sensor_data import SensorData
+from shift_state import ShiftState
 
-DB_URL = os.environ['DB_URL']
-DB_NAME = os.environ['DB_NAME']
+config = configparser.ConfigParser()
+config.read('../databases.config')
+
+DB_URL = os.environ.get('DB_URL') if os.environ.get('DB_URL') else config['CASSANDRA']['host']
+DB_NAME = os.environ.get('DB_NAME') if os.environ.get('DB_NAME') else config['CASSANDRA']['db_name']
 
 def main():
-	db = Database(DB_NAME, db_url = DB_URL)
-
-	db.create_table(Position)
-	db.create_table(SystemState)
-	db.create_table(ControlAction)
-	db.create_table(SensorData)
+	connection.setup([DB_URL], DB_NAME)
+	
+	sync_table(SystemTest)
+	sync_table(ControlAction)
+	sync_table(Position)
+	sync_table(SensorData)
+	sync_table(ShiftState)
 
 if __name__ == '__main__':
 	main()
+
