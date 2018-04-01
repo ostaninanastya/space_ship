@@ -28,6 +28,3 @@ def is_valid_foreign_id(label, id):
 
 if __name__ == '__main__':
 	print(is_valid_foreign_id('Shift', 'a983d357069f4363803f87b5cc7c8f7d'))
-
-
-int.from_bytes(bytearray.fromhex(' '.join(re.findall('..', '5abfdba6ee6b7f5eec83a1ca'))), 'big')

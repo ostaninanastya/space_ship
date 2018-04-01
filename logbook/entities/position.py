@@ -1,5 +1,6 @@
 import sys, os
 from datetime import datetime
+import math
 
 from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
@@ -18,6 +19,6 @@ class Position(Model):
 
     def validate(self):
         super(Position, self).validate()
-        
-        self.attack_angle %= 360
-        self.direction_angle %= 360
+
+        self.attack_angle -= math.floor(self.attack_angle / (2 * math.pi)) * 2 * math.pi
+        self.direction_angle -= math.floor(self.direction_angle / (2 * math.pi)) * 2 * math.pi

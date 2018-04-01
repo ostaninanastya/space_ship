@@ -1,7 +1,15 @@
-from neomodel import StructuredNode, IntegerProperty, StringProperty, RelationshipTo, RelationshipFrom, UniqueIdProperty, config, One	
-
-import os
+import os, sys
 import configparser
+
+from neomodel import StructuredNode, IntegerProperty, StringProperty, RelationshipTo, RelationshipFrom, UniqueIdProperty, config, One
+
+sys.path.append('entities')
+
+from department import Department
+from operation import Operation
+from person import Person
+from requirement import Requirement
+from shift import Shift
 
 configp = configparser.ConfigParser()
 configp.read('../databases.config')
@@ -14,53 +22,10 @@ PASSWORD = os.environ.get('NEO4J_DB_PASSWORD') if os.environ.get('NEO4J_DB_PASSW
 
 config.DATABASE_URL = 'bolt://' + USERNAME + ':' + PASSWORD + '@' + NEO4J_DB_URL + ':' + str(NEO4J_DB_PORT)
 
-class Department(StructuredNode):
-    ident = IntegerProperty(unique_index = True)
-    name = StringProperty()
-    room = IntegerProperty(unique_index = True)
 
-    shifts = RelationshipFrom('Shift', 'INCORPORATION')
-    operations = RelationshipFrom('Operation', 'INCORPORATION')
-
-    controller = RelationshipFrom('Person', 'DIRECTOR', cardinality=One)
-
-class Person(StructuredNode):
-    ident = IntegerProperty(unique_index = True)
-
-    controlled = RelationshipTo('Department', 'DIRECTOR', cardinality=One)
-
-    executor = RelationshipTo('Operation', 'EXECUTOR')
-    head = RelationshipTo('Operation', 'HEAD', cardinality=One)
-
-    worker = RelationshipTo('Shift', 'WORKER')
-    chief = RelationshipTo('Shift', 'CHIEF', cardinality=One)
-
-class Operation(StructuredNode):
-    ident = UniqueIdProperty()
-
-    department = RelationshipTo('Department', 'INCORPORATION')
-    requirement = RelationshipFrom('Requirement', 'USER')
-
-    persons = RelationshipFrom('Person', 'EXECUTOR')
-    head = RelationshipFrom('Person', 'HEAD', cardinality=One)
-
-class Shift(StructuredNode):
-    ident = UniqueIdProperty()
-
-    requirement = RelationshipFrom('Requirement', 'USER')
-    department = RelationshipTo('Department', 'INCORPORATION')
-
-    workers = RelationshipFrom('Person', 'WORKER')
-    chief = RelationshipFrom('Person', 'CHIEF', cardinality=One)
-
-class Requirement(StructuredNode):
-    ident = UniqueIdProperty()
-    name = StringProperty()
-
-    operations = RelationshipTo('Operation', 'USER')
-    shift = RelationshipTo('Shift', 'USER')
-
-buzz = Person(ident = 1).save()
+buzz = Person(ident = '5abfdba6ee6b7f5eec83a1ca').save() #id will be checked in mongo and saved as array of two ints
+print(buzz.ident_hex) #show identifier as a hex string
+'''
 woody = Person(ident = 2).save()
 jessie = Person(ident = 3).save()
 dangerous_operation = Operation().save()
@@ -90,4 +55,4 @@ next_shift.department.connect(main_department)
 
 stretch = Person(ident = 7).save()
 stretch.controlled.connect(main_department)
-
+'''
