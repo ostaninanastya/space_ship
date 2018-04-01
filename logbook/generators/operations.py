@@ -47,22 +47,38 @@ def get_outer_area_composition(number_of_values, initial, speed):
 	
 	result = []
 
-	if not initial:
+	'''if not initial:'''
 
-		for i in range(number_of_values - 1):
-			result.append(random() * (100 - sum(result)))
+	for i in range(number_of_values - 1):
+		result.append(random() * (100 - sum(result)))
 
-		result.append(100 - sum(result))
+	result.append(100 - sum(result))
 
-		shuffle(result)
+	shuffle(result)
 
-	else:
+	'''else:
 
 		for item in initial:
 
+			item_random_increasing = random() * speed - speed/2
+
+			if item + item_random_increasing < 0:
+				item_increasing = - item
+
+			else if item + item_random_increasing > 100:
+				item_increasing = 100 - item
+
+			else:
+
+				item_increasing = item_random_increasing
+
+
+
+			item_increasing = item_random_increasing if item + item_random_increasing > 0
+
 			new_item = item + (random() * speed - speed/2)
 
-			result.append(new_item if new_item >= 0 else 0)
+			result.append(new_item if new_item >= 0 else 0)'''
 
 	return result
 

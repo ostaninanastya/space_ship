@@ -1,20 +1,30 @@
-#from pymongo import MongoClient
-#import configparser
-#import os
-'''
+from py2neo import Graph
+import configparser
+import os, sys
+
 config = configparser.ConfigParser()
 config.read('../databases.config')
 
-MONGO_DB_URL = os.environ.get('MONGO_DB_URL') if os.environ.get('MONGO_DB_URL') else config['MONGO']['host']
-MONGO_DB_PORT = int(os.environ.get('MONGO_DB_PORT') if os.environ.get('MONGO_DB_PORT') else config['MONGO']['port'])
-MONGO_DB_NAME = os.environ.get('MONGO_DB_NAME') if os.environ.get('MONGO_DB_NAME') else config['MONGO']['db_name']
+NEO4J_DB_URL = os.environ.get('NEO4J_DB_URL') if os.environ.get('NEO4J_DB_URL') else config['NEO4J']['host']
+NEO4J_DB_PORT = int(os.environ.get('NEO4J_DB_PORT') if os.environ.get('NEO4J_DB_PORT') else config['NEO4J']['port'])
 
-db = MongoClient(MONGO_DB_URL, MONGO_DB_PORT)[MONGO_DB_NAME]
-'''
-def is_valid_foreign_id(collection_name, id):
-	#return str(id) in [str(item['_id']) for item in db[collection_name].find({}, { '_id': 1 })]
-	return True
+USERNAME = os.environ.get('NEO4J_DB_USERNAME') if os.environ.get('NEO4J_DB_USERNAME') else config['NEO4J']['username']
+PASSWORD = os.environ.get('NEO4J_DB_PASSWORD') if os.environ.get('NEO4J_DB_PASSWORD') else config['NEO4J']['password']
+
+graph = Graph(bolt = True, user = USERNAME, password = PASSWORD, host = NEO4J_DB_URL, http_port = NEO4J_DB_PORT)
+
+def int_to_mongo_str_id(value):
+	return (value).to_bytes(12, byteorder='big').hex()
+
+def mongo_str_id_to_int(value):
+	return int.from_bytes(bytearray.fromhex(' '.join(re.findall('..', value))), 'big')
+
+def is_valid_foreign_id(label, id):
+	result = [item['item.ident'] for item in graph.data("MATCH (item:%s) RETURN item.ident" % label)]
+	print(label)
+	print(id)
+	print(result)
+	return id in result
 
 if __name__ == '__main__':
-	pass
-	#print(is_valid_foreign_id('127.0.0.1', 27017, 'test', 'system_test', '5abfbb95e1cd5bdb23b93336'))
+	print(is_valid_foreign_id('Shift', 'a983d357069f4363803f87b5cc7c8f7d'))

@@ -14,6 +14,7 @@ from control_action import ControlAction
 from position import Position
 from sensor_data import SensorData
 from shift_state import ShiftState
+from operation_state import OperationState
 
 config = configparser.ConfigParser()
 config.read('../databases.config')
@@ -29,6 +30,7 @@ def main():
 	sync_table(Position)
 	sync_table(SensorData)
 	sync_table(ShiftState)
+	sync_table(OperationState)
 
 if __name__ == '__main__':
 	main()

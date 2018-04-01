@@ -91,7 +91,6 @@ def get_sensors_data(filename):
     return get_file_content(filename, get_sensor_data_tuple)
 
 def get_shift_state_tuple(string_to_parse):
-    print(string_to_parse)
     items = [x.strip() for x in string_to_parse.split('::')]
 
     return (
@@ -106,3 +105,21 @@ def get_shift_state_tuple(string_to_parse):
 
 def get_shift_states(filename):
     return get_file_content(filename, get_shift_state_tuple)
+
+def get_operation_state_tuple(string_to_parse):
+    items = [x.strip() for x in string_to_parse.split('::')]
+
+    result = [string_to_datetime(items[0]), string_to_bytes(items[1]), string_to_bytes(items[2]), items[3]]
+
+    i = 4
+
+    while (i < 125):
+        result.append(float(items[i]))
+        i += 1
+
+    result.append(items[125])
+
+    return tuple(result)
+
+def get_operation_states(filename):
+    return get_file_content(filename, get_operation_state_tuple)

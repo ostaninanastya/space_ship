@@ -26,7 +26,7 @@ class ShiftState(Model):
     def validate(self):
         super(ShiftState, self).validate()
         
-        if len(self.shift_id) != 12 or not neo4j_adapter.is_valid_foreign_id('shift_test', self.shift_id.hex()):
+        if len(self.shift_id) != 16 or not neo4j_adapter.is_valid_foreign_id('Shift', self.shift_id.hex()):
             raise ValidationError('not a valid shift id')
 
         if self.warning_level not in WARNING_LEVELS:

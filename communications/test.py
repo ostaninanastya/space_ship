@@ -1,11 +1,18 @@
-from neomodel import StructuredNode, IntegerProperty, StringProperty, RelationshipTo, RelationshipFrom, config, One	
+from neomodel import StructuredNode, IntegerProperty, StringProperty, RelationshipTo, RelationshipFrom, UniqueIdProperty, config, One	
 
 import os
+import configparser
 
-USERNAME = os.environ['USERNAME']
-PASSWORD = os.environ['PASSWORD']
+configp = configparser.ConfigParser()
+configp.read('../databases.config')
 
-config.DATABASE_URL = 'bolt://' + USERNAME + ':' + PASSWORD + '@localhost:7687'
+NEO4J_DB_URL = os.environ.get('NEO4J_DB_URL') if os.environ.get('NEO4J_DB_URL') else configp['NEO4J']['host']
+NEO4J_DB_PORT = int(os.environ.get('NEO4J_DB_PORT') if os.environ.get('NEO4J_DB_PORT') else configp['NEO4J']['port'])
+
+USERNAME = os.environ.get('NEO4J_DB_USERNAME') if os.environ.get('NEO4J_DB_USERNAME') else configp['NEO4J']['username']
+PASSWORD = os.environ.get('NEO4J_DB_PASSWORD') if os.environ.get('NEO4J_DB_PASSWORD') else configp['NEO4J']['password']
+
+config.DATABASE_URL = 'bolt://' + USERNAME + ':' + PASSWORD + '@' + NEO4J_DB_URL + ':' + str(NEO4J_DB_PORT)
 
 class Department(StructuredNode):
     ident = IntegerProperty(unique_index = True)
@@ -29,7 +36,7 @@ class Person(StructuredNode):
     chief = RelationshipTo('Shift', 'CHIEF', cardinality=One)
 
 class Operation(StructuredNode):
-    ident = IntegerProperty(unique_index = True)
+    ident = UniqueIdProperty()
 
     department = RelationshipTo('Department', 'INCORPORATION')
     requirement = RelationshipFrom('Requirement', 'USER')
@@ -38,7 +45,7 @@ class Operation(StructuredNode):
     head = RelationshipFrom('Person', 'HEAD', cardinality=One)
 
 class Shift(StructuredNode):
-    ident = IntegerProperty(unique_index = True)
+    ident = UniqueIdProperty()
 
     requirement = RelationshipFrom('Requirement', 'USER')
     department = RelationshipTo('Department', 'INCORPORATION')
@@ -47,40 +54,40 @@ class Shift(StructuredNode):
     chief = RelationshipFrom('Person', 'CHIEF', cardinality=One)
 
 class Requirement(StructuredNode):
-    ident = IntegerProperty(unique_index = True)
+    ident = UniqueIdProperty()
     name = StringProperty()
 
     operations = RelationshipTo('Operation', 'USER')
     shift = RelationshipTo('Shift', 'USER')
 
-buzz = Person(ident = 1488).save()
-woody = Person(ident = 228).save()
-jessie = Person(ident = 666).save()
-dangerous_operation = Operation(ident = 17).save()
+buzz = Person(ident = 1).save()
+woody = Person(ident = 2).save()
+jessie = Person(ident = 3).save()
+dangerous_operation = Operation().save()
 
 buzz.executor.connect(dangerous_operation)
 woody.executor.connect(dangerous_operation)
 jessie.head.connect(dangerous_operation)
 
-hamm = Person(ident = 13).save()
-bullseye = Person(ident = 18).save()
-rex = Person(ident = 19).save()
-next_shift = Shift(ident = 77).save()
+hamm = Person(ident = 4).save()
+bullseye = Person(ident = 5).save()
+rex = Person(ident = 6).save()
+next_shift = Shift().save()
 
 hamm.worker.connect(next_shift)
 bullseye.worker.connect(next_shift)
 rex.chief.connect(next_shift)
 
-base_req = Requirement(ident = 1, name='Base requirement').save()
+base_req = Requirement(name='Base requirement').save()
 base_req.operations.connect(dangerous_operation)
 
-low_req = Requirement(ident = 1, name='Low requirement').save()
+low_req = Requirement(name='Low requirement').save()
 low_req.shift.connect(next_shift)
 
 main_department = Department(ident = 123, name = 'Main department', room = 324).save()
 dangerous_operation.department.connect(main_department)
 next_shift.department.connect(main_department)
 
-stretch = Person(ident = 256).save()
+stretch = Person(ident = 7).save()
 stretch.controlled.connect(main_department)
 

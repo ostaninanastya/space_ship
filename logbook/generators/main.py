@@ -163,9 +163,9 @@ def generate(number_of_values):
 	sensor_data_log.close()
 
 def main():
-	generate_shift(datetime.datetime.now(), '5abfebc7520148bec1b9006c', 50, [0.2, 0.3, 0.3, 0.3, 0], [0, 0.5, 0.6, 0.4, 0.4], SHIFT_STATE_DATA_PATH)
+	generate_shift(datetime.datetime.now(), '270d3aa55d2b464aa0d2b682c7e7a829', 50, [0.2, 0.3, 0.3, 0.3, 0], [0, 0.5, 0.6, 0.4, 0.4], SHIFT_STATE_DATA_PATH)
 	#generate(50)
-	#generate_prometheus_operation(50, datetime.datetime.now(), 17, 13, get_outer_area_composition(118, None, None), OPERATION_STATE_DATA_PATH)
+	#generate_prometheus_operation(50, datetime.datetime.now(), '5ac0a85058777f106d30f8bc', '0efd2abee5c74d95a0aba8abbacb17e9', get_outer_area_composition(118, None, None), OPERATION_STATE_DATA_PATH)
 	#initial = get_outer_area_composition(118, None, None)
 	#print(stringify_area_composition(initial))
 	#print(stringify_area_composition(get_outer_area_composition(118, initial, 1)))
