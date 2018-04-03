@@ -1,11 +1,17 @@
 from random import randint
 from random import random
-import os
+import os, sys
 
 import time
 import datetime
 
-WARNING_LEVELS = ['lowest', 'low', 'medium', 'heigh', 'highest']
+import csv
+
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
+from data_adapters import get_strings
+
+WARNING_LEVELS = get_strings('enums/shift_warning_levels')
 
 DELIMITER = ' :: '
 
@@ -21,7 +27,9 @@ def generate_shift(time, shift_id, scale, probabilities_of_changing_level_up, pr
 	except OSError:
 		pass
 
-	log = open(filename,'a+')
+	log = open(filename,'w', newline='')
+
+	log_writer = csv.writer(log, quoting=csv.QUOTE_MINIMAL)
 
 	shift_length = randint(0, scale)
 
@@ -34,6 +42,8 @@ def generate_shift(time, shift_id, scale, probabilities_of_changing_level_up, pr
 	current_level = 0
 
 	shift_id_str = str(shift_id)
+
+	#log_writer.writerow(['time', 'shift id', 'warning level', 'remaining_cartridges', 'remaining_air', 'remaining_electricity'])
 
 	for i in range(shift_length):
 
@@ -48,8 +58,8 @@ def generate_shift(time, shift_id, scale, probabilities_of_changing_level_up, pr
 			if current_level == 0:
 				comment = 'the danger has gone'
 
-		log.write(str(datetime_to_unix_time(time)) + DELIMITER + shift_id_str + DELIMITER + WARNING_LEVELS[current_level] + DELIMITER + str(remaining_cartridges) + \
-		DELIMITER + str(remaining_air) + DELIMITER + str(remaining_electricity) + DELIMITER + comment + '\n')
+		log_writer.writerow([time.strftime("%Y-%m-%d %H:%M:%S.%f"), shift_id_str, WARNING_LEVELS[current_level], remaining_cartridges, \
+		 remaining_air, remaining_electricity, comment])
 
 		remaining_electricity -= random() * max_decreasing_speed
 		remaining_air -= random() * max_decreasing_speed

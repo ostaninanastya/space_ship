@@ -11,8 +11,11 @@ MONGO_DB_NAME = os.environ.get('MONGO_DB_NAME') if os.environ.get('MONGO_DB_NAME
 
 db = MongoClient(MONGO_DB_URL, MONGO_DB_PORT)[MONGO_DB_NAME]
 
+def get_all_ids(collection_name):
+	return [str(item['_id']) for item in db[collection_name].find({}, { '_id': 1 })]
+
 def is_valid_foreign_id(collection_name, id):
-	return str(id) in [str(item['_id']) for item in db[collection_name].find({}, { '_id': 1 })]
+	return str(id) in get_all_ids(collection_name)
 
 if __name__ == '__main__':
-	print(is_valid_foreign_id('127.0.0.1', 27017, 'test', 'system_test', '5abfbb95e1cd5bdb23b93336'))
+	print(get_all_ids('system_test'))

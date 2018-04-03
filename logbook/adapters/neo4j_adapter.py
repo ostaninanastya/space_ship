@@ -1,6 +1,6 @@
 from py2neo import Graph
 import configparser
-import os, sys
+import os, sys, re
 
 config = configparser.ConfigParser()
 config.read('../databases.config')
@@ -19,12 +19,11 @@ def int_to_mongo_str_id(value):
 def mongo_str_id_to_int(value):
 	return int.from_bytes(bytearray.fromhex(' '.join(re.findall('..', value))), 'big')
 
+def get_all_ids(label):
+	return [item['item.ident'] for item in graph.data("MATCH (item:%s) RETURN item.ident" % label)]
+
 def is_valid_foreign_id(label, id):
-	result = [item['item.ident'] for item in graph.data("MATCH (item:%s) RETURN item.ident" % label)]
-	print(label)
-	print(id)
-	print(result)
-	return id in result
+	return id in get_all_ids(label)
 
 if __name__ == '__main__':
 	print(is_valid_foreign_id('Shift', 'a983d357069f4363803f87b5cc7c8f7d'))

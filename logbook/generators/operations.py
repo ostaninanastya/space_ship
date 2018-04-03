@@ -4,6 +4,8 @@ from random import shuffle
 
 import os
 
+import csv
+
 import datetime
 import time
 
@@ -89,7 +91,9 @@ def generate_prometheus_operation(scale, time, boat_id, operation_id, initial_ar
 	except OSError:
 		pass
 
-	log = open(filename,'a+')
+	log = open(filename,'w', newline='')
+
+	log_writer = csv.writer(log, quoting=csv.QUOTE_MINIMAL)
 
 	boat_id_str = str(boat_id)
 	operation_id_str = str(operation_id)
@@ -125,9 +129,8 @@ def generate_prometheus_operation(scale, time, boat_id, operation_id, initial_ar
 			if i in comments_time:
 				comment = comments[j][comments_time.index(i)]
 
-			log.write(str(datetime_to_unix_time(time)) + DELIMITER + boat_id_str + DELIMITER + operation_id_str + DELIMITER + OPERATION_STATUSES[j] + DELIMITER + \
-				str(distance_to_the_ship) + DELIMITER + str(angle) + DELIMITER + str(second_angle) + DELIMITER + \
-				stringify_area_composition(initial_area_composition) + DELIMITER + comment + '\n')
+			log_writer.writerow([time.strftime("%Y-%m-%d %H:%M:%S.%f"), boat_id_str, operation_id_str, OPERATION_STATUSES[j], \
+				distance_to_the_ship, angle, second_angle] + initial_area_composition + [comment])
 
 			initial_area_composition = get_outer_area_composition(118, initial_area_composition, outer_area_speed[j])
 

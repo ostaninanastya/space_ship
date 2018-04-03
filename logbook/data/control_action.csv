@@ -1,0 +1,18 @@
+2018-04-03 20:40:43.000000,ACB57DF96885,5abfdba6ee6b7f5eec83a1ca,get,--sensor=5abfebcc520148bec1b9006e --value_name=warm_dark_matter_concentration,9.704130279292269 eV
+2018-04-03 20:40:53.000000,ACB57DF96885,5abfdba6ee6b7f5eec83a1ca,go,down right,ok
+2018-04-03 20:40:56.000000,ACB57DF96885,5abfdba6ee6b7f5eec83a1ca,go,down right,ok
+2018-04-03 20:40:58.000000,ACB57DF96885,5abfdba6ee6b7f5eec83a1ca,get,--sensor=5abfebcc520148bec1b9006e --value_name=space_radiation,73.9850856763025 keV
+2018-04-03 20:41:14.000000,ACB57DF96885,5abfdba6ee6b7f5eec83a1ca,go,up left,ok
+2018-04-03 20:41:17.000000,ACB57DF96885,5abfdba6ee6b7f5eec83a1ca,go,up left,ok
+2018-04-03 20:41:22.000000,ACB57DF96885,5abfdba6ee6b7f5eec83a1ca,get,--sensor=5abfebc7520148bec1b9006c --value_name=hot_dark_matter_concentration,88.74344208237049 TeV
+2018-04-03 20:41:25.000000,ACB57DF96885,5abfdba6ee6b7f5eec83a1ca,get,--sensor=5abfebcc520148bec1b9006e --value_name=cold_dark_matter_concentration,2.7595179617742978 CeV
+2018-04-03 20:41:37.000000,ACB57DF96885,5abfdba6ee6b7f5eec83a1ca,get,--sensor=5abfebcc520148bec1b9006e --value_name=hot_dark_matter_concentration,49.19782231168141 TeV
+2018-04-03 20:41:49.000000,ACB57DF96885,5abfdba6ee6b7f5eec83a1ca,get,--sensor=5abfebc7520148bec1b9006c --value_name=space_radiation,44.990378651538876 keV
+2018-04-03 20:41:50.000000,ACB57DF96885,5abfdba6ee6b7f5eec83a1ca,go,down right,ok
+2018-04-03 20:41:52.000000,ACB57DF96885,5abfdba6ee6b7f5eec83a1ca,get,--sensor=5abfebc7520148bec1b9006c --value_name=warm_dark_matter_concentration,7.947511666956463 eV
+2018-04-03 20:42:37.000000,ACB57DF96885,5abfdba6ee6b7f5eec83a1ca,get,--sensor=5abfebcc520148bec1b9006e --value_name=space_radiation,95.0744918081608 keV
+2018-04-03 20:42:41.000000,ACB57DF96885,5abfdba6ee6b7f5eec83a1ca,go,up left,ok
+2018-04-03 20:42:43.000000,ACB57DF96885,5abfdba6ee6b7f5eec83a1ca,get,--sensor=5abfebc7520148bec1b9006c --value_name=space_radiation,81.07970883513443 keV
+2018-04-03 20:42:44.000000,ACB57DF96885,5abfdba6ee6b7f5eec83a1ca,go,up right,ok
+2018-04-03 20:42:53.000000,ACB57DF96885,5abfdba6ee6b7f5eec83a1ca,go,up left,ok
+2018-04-03 20:43:11.000000,ACB57DF96885,5abfdba6ee6b7f5eec83a1ca,go,up right,ok

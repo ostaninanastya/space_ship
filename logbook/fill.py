@@ -1,5 +1,8 @@
 import sys, os
 import configparser
+import datetime
+
+import csv
 
 from cassandra.cqlengine import connection
 
@@ -12,12 +15,7 @@ from sensor_data import SensorData
 from shift_state import ShiftState
 from operation_state import OperationState
 
-from data_adapters import get_positions
-from data_adapters import get_system_tests
-from data_adapters import get_control_actions
-from data_adapters import get_sensors_data
-from data_adapters import get_shift_states
-from data_adapters import get_operation_states
+from data_adapters import string_to_bytes
 
 config = configparser.ConfigParser()
 config.read('../databases.config')
@@ -25,58 +23,229 @@ config.read('../databases.config')
 DB_URL = os.environ.get('DB_URL') if os.environ.get('DB_URL') else config['CASSANDRA']['host'] 
 DB_NAME = os.environ.get('DB_NAME') if os.environ.get('DB_NAME') else config['CASSANDRA']['db_name'] 
 
-POSITION_DATA_PATH = 'data/position.txt'
-SYSTEM_TEST_DATA_PATH = 'data/system_test.txt'
-CONTROL_ACTION_DATA_PATH = 'data/control_action.txt'
-SENSOR_DATA_DATA_PATH = 'data/sensor_data.txt'
-SHIFT_STATE_PATH = 'data/shift_state.txt'
-OPERATION_STATE_PATH = 'data/operation_state.txt'
+POSITION_DATA_PATH = 'data/position.csv'
+SYSTEM_TEST_DATA_PATH = 'data/system_test.csv'
+CONTROL_ACTION_DATA_PATH = 'data/control_action.csv'
+SENSOR_DATA_DATA_PATH = 'data/sensor_data.csv'
+SHIFT_STATE_DATA_PATH = 'data/shift_state.csv'
+OPERATION_STATE_DATA_PATH = 'data/operation_state.csv'
+
+TIME_PATTERN = "%Y-%m-%d %H:%M:%S.%f"
 
 def fill_position():
-	for item in get_positions(POSITION_DATA_PATH):
-		Position.create(time = item[0], x = item[1], y = item[2], z = item[3], speed = item[4], attack_angle = item[5], direction_angle = item[6])
+
+	with open(POSITION_DATA_PATH, newline='') as data:
+		
+		data_reader = csv.reader(data)
+
+		for item in data_reader:
+			Position.create(\
+				time = datetime.datetime.strptime(item[0], TIME_PATTERN),\
+				x = float(item[1]),\
+				y = float(item[2]),\
+				z = float(item[3]),\
+				speed = float(item[4]),\
+				attack_angle = float(item[5]),\
+				direction_angle = float(item[6]))
 
 def fill_system_test():
-	for item in get_system_tests(SYSTEM_TEST_DATA_PATH):
-		SystemTest.create(time = item[0], system_id = item[1], result = item[2])
+
+	with open(SYSTEM_TEST_DATA_PATH, newline='') as data:
+		
+		data_reader = csv.reader(data)
+
+		for item in data_reader:
+			SystemTest.create(\
+				time = datetime.datetime.strptime(item[0], TIME_PATTERN),\
+				system_id = string_to_bytes(item[1]),\
+				result = int(float(item[2])))
 
 def fill_control_action():
-	for item in get_control_actions(CONTROL_ACTION_DATA_PATH):
-		ControlAction.create(time = item[0], mac_address = item[1], user_id = item[2], command = item[3], params = item[4], result = item[5])
+
+	with open(CONTROL_ACTION_DATA_PATH, newline='') as data:
+		
+		data_reader = csv.reader(data)
+
+		for item in data_reader:
+			ControlAction.create(\
+				time = datetime.datetime.strptime(item[0], TIME_PATTERN),\
+				mac_address = string_to_bytes(item[1]),\
+				user_id = string_to_bytes(item[2]),
+				command = item[3],\
+				params = item[4],\
+				result = item[5]\
+			)
 
 def fill_sensor_data():
-	for item in get_sensors_data(SENSOR_DATA_DATA_PATH):
-		SensorData.create(time = item[0], source_id = item[1], event = item[2], value_name = item[3], value = item[4], units = item[5])
+
+	with open(SENSOR_DATA_DATA_PATH, newline='') as data:
+		
+		data_reader = csv.reader(data)
+
+		for item in data_reader:
+			SensorData.create(\
+				time = datetime.datetime.strptime(item[0], TIME_PATTERN),\
+				source_id = string_to_bytes(item[1]),\
+				event = item[2],
+				value_name = item[3],\
+				value = float(item[4]),\
+				units = item[5]\
+			)
 
 def fill_shift_state():
-	for item in get_shift_states(SHIFT_STATE_PATH):
-		ShiftState.create(time = item[0], shift_id = item[1], warning_level = item[2], remaining_cartridges = item[3], \
-			remaining_air = item[4], remaining_electricity = item[5], comment = item[6])
+
+	with open(SHIFT_STATE_DATA_PATH, newline='') as data:
+		
+		data_reader = csv.reader(data)
+
+		for item in data_reader:
+			ShiftState.create(\
+				time = datetime.datetime.strptime(item[0], TIME_PATTERN),\
+				shift_id = string_to_bytes(item[1]),\
+				warning_level = item[2],
+				remaining_cartridges = int(float(item[3])),\
+				remaining_air = int(float(item[4])),\
+				remaining_electricity = int(float(item[5])),\
+				comment = item[6]\
+			)
 
 def fill_operation_state():
-	for item in get_operation_states(OPERATION_STATE_PATH):
-		OperationState.create(time = item[0], boat_id = item[1], operation_id = item[2], operation_status = item[3], \
-			distance_to_the_ship = item[4], zenith = item[5], azimuth = item[6], hydrogenium = item[7], helium = item[8], \
-			lithium = item[9], beryllium = item[10], borum = item[11], carboneum = item[12], nitrogenium = item[13], oxygenium = item[14], \
-			fluorum = item[15], neon = item[16], natrium = item[17], magnesium = item[18], aluminium = item[19], silicium = item[20], \
-			phosphorus = item[21], sulfur = item[22], chlorum = item[23], argon = item[24], kalium = item[25], calcium = item[26], \
-			scandium = item[27], titanium = item[28], vanadium = item[29], chromium = item[30], manganum = item[31], ferrum = item[32], \
-			cobaltum = item[33], niccolum = item[34], cuprum = item[35], zincum = item[36], gallium = item[37], germanium = item[38],\
-			arsenicum = item[39], selenium = item[40], bromum = item[41], crypton = item[42], rubidium = item[43], strontium = item[44],\
-			yttrium = item[45], zirconium = item[46], niobium = item[47], molybdaenum = item[48], technetium = item[49], ruthenium = item[50],\
-			rhodium = item[51], palladium = item[52], argentum = item[53], cadmium = item[54], indium = item[55], stannum = item[56],\
-			stibium = item[57], tellurium = item[58], iodium = item[59], xenon = item[60], caesium = item[61], barium = item[62],\
-			lanthanum = item[63], cerium = item[64], praseodymium = item[65], neodymium = item[66], promethium = item[67], samarium = item[68],\
-			europium = item[69], gadolinium = item[70], terbium = item[71], dysprosium = item[72], holmium = item[73], erbium = item[74],\
-			thulium = item[75], ytterbium = item[76], lutetium = item[77], hafnium = item[78], tantalum = item[79], wolframium = item[80],\
-			rhenium = item[81], osmium = item[82], iridium = item[83], platinum = item[84], aurum = item[85], hydrargyrum = item[86],\
-			thallium = item[87], plumbum = item[88], bismuthum = item[89], polonium = item[90], astatum = item[91], radon = item[92],\
-			francium = item[93], radium = item[94], actinium = item[95], thorium = item[96], protactinium = item[97], uranium = item[98],\
-			neptunium = item[99], plutonium = item[100], americium = item[101], curium = item[102], berkelium = item[103], californium = item[104],\
-			einsteinium = item[105], fermium = item[106], mendelevium = item[107], nobelium = item[108], lawrencium = item[109],\
-			rutherfordium = item[110], dubnium = item[111], seaborgium = item[112], bohrium = item[113], hassium = item[114], meitnerium = item[115],\
-			darmstadtium = item[116], roentgenium = item[117], copernicium = item[118], nihonium = item[119], flerovium = item[120], moscovium = item[121],\
-			livermorium = item[122], tennessium = item[123], oganesson = item[124], comment = item[125])
+
+	with open(OPERATION_STATE_DATA_PATH, newline='') as data:
+		
+		data_reader = csv.reader(data)
+
+		for item in data_reader:
+			OperationState.create(\
+				time = datetime.datetime.strptime(item[0], TIME_PATTERN),\
+				boat_id = string_to_bytes(item[1]),\
+				operation_id = string_to_bytes(item[2]),\
+				operation_status = item[3],\
+				distance_to_the_ship = float(item[4]),\
+				zenith = float(item[5]),\
+				azimuth = float(item[6]),\
+
+				hydrogenium = float(item[7]),\
+				helium = float(item[8]),\
+				lithium = float(item[9]),\
+				beryllium = float(item[10]),\
+				borum = float(item[11]),\
+				carboneum = float(item[12]),\
+				nitrogenium = float(item[13]),\
+				oxygenium = float(item[14]),\
+				fluorum = float(item[15]),\
+				neon = float(item[16]),\
+				natrium = float(item[17]),\
+				magnesium = float(item[18]),\
+				aluminium = float(item[19]),\
+				silicium = float(item[20]),\
+				phosphorus = float(item[21]),\
+				sulfur = float(item[22]),\
+				chlorum = float(item[23]),\
+				argon = float(item[24]),\
+				kalium = float(item[25]),\
+				calcium = float(item[26]),\
+				scandium = float(item[27]),\
+				titanium = float(item[28]),\
+				vanadium = float(item[29]),\
+				chromium = float(item[30]),\
+				manganum = float(item[31]),\
+				ferrum = float(item[32]),\
+				cobaltum = float(item[33]),\
+				niccolum = float(item[34]),\
+				cuprum = float(item[35]),\
+				zincum = float(item[36]),\
+				gallium = float(item[37]),\
+				germanium = float(item[38]),\
+				arsenicum = float(item[39]),\
+				selenium = float(item[40]),\
+				bromum = float(item[41]),\
+				crypton = float(item[42]),\
+				rubidium = float(item[43]),\
+				strontium = float(item[44]),\
+				yttrium = float(item[45]),\
+				zirconium = float(item[46]),\
+				niobium = float(item[47]),\
+				molybdaenum = float(item[48]),\
+				technetium = float(item[49]),\
+				ruthenium = float(item[50]),\
+				rhodium = float(item[51]),\
+				palladium = float(item[52]),\
+				argentum = float(item[53]),\
+				cadmium = float(item[54]),\
+				indium = float(item[55]),\
+				stannum = float(item[56]),\
+				stibium = float(item[57]),\
+				tellurium = float(item[58]),\
+				iodium = float(item[59]),\
+				xenon = float(item[60]),\
+				caesium = float(item[61]),\
+				barium = float(item[62]),\
+				lanthanum = float(item[63]),\
+				cerium = float(item[64]),\
+				praseodymium = float(item[65]),\
+				neodymium = float(item[66]),\
+				promethium = float(item[67]),\
+				samarium = float(item[68]),\
+				europium = float(item[69]),\
+				gadolinium = float(item[70]),\
+				terbium = float(item[71]),\
+				dysprosium = float(item[72]),\
+				holmium = float(item[73]),\
+				erbium = float(item[74]),\
+				thulium = float(item[75]),\
+				ytterbium = float(item[76]),\
+				lutetium = float(item[77]),\
+				hafnium = float(item[78]),\
+				tantalum = float(item[79]),\
+				wolframium = float(item[80]),\
+				rhenium = float(item[81]),\
+				osmium = float(item[82]),\
+				iridium = float(item[83]),\
+				platinum = float(item[84]),\
+				aurum = float(item[85]),\
+				hydrargyrum = float(item[86]),\
+				thallium = float(item[87]),\
+				plumbum = float(item[88]),\
+				bismuthum = float(item[89]),\
+				polonium = float(item[90]),\
+				astatum = float(item[91]),\
+				radon = float(item[92]),\
+				francium = float(item[93]),\
+				radium = float(item[94]),\
+				actinium = float(item[95]),\
+				thorium = float(item[96]),\
+				protactinium = float(item[97]),\
+				uranium = float(item[98]),\
+				neptunium = float(item[99]),\
+				plutonium = float(item[100]),\
+				americium = float(item[101]),\
+				curium = float(item[102]),\
+				berkelium = float(item[103]),\
+				californium = float(item[104]),\
+				einsteinium = float(item[105]),\
+				fermium = float(item[106]),\
+				mendelevium = float(item[107]),\
+				nobelium = float(item[108]),\
+				lawrencium = float(item[109]),\
+				rutherfordium = float(item[110]),\
+				dubnium = float(item[111]),\
+				seaborgium = float(item[112]),\
+				bohrium = float(item[113]),\
+				hassium = float(item[114]),\
+				meitnerium = float(item[115]),\
+				darmstadtium = float(item[116]),\
+				roentgenium = float(item[117]),\
+				copernicium = float(item[118]),\
+				nihonium = float(item[119]),\
+				flerovium = float(item[120]),\
+				moscovium = float(item[121]),\
+				livermorium = float(item[122]),\
+				tennessium = float(item[123]),\
+				oganesson = float(item[124]),\
+
+				comment = item[125]\
+			)
 
 def main():
 	connection.setup([DB_URL], DB_NAME)
@@ -85,8 +254,8 @@ def main():
 	#fill_system_test()
 	#fill_control_action()
 	#fill_sensor_data()
-	fill_shift_state()
-	#fill_operation_state()
+	#fill_shift_state()
+	fill_operation_state()
 
 if __name__ == '__main__':
 	main()
