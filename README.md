@@ -2,11 +2,21 @@
 
 ITMO project
 
+[Logbook](#logbook)
+  * [Entities](#logbook-entities)
+  * [Prerequisities](#logbook-prerequisites)
+  
+[Relations](#relations)
+  * [Entities](#relations-entities)
+  * [Prerequisities](#relations-prerequisites)
+
 ## Logbook
 
 Основанный на cassandra db набор журналов, содержащих данные о работе гипотетического космического корабля
 
-### Entities
+<h3 id="logbook-entities">
+Entities
+</h3>
 
 * system_test - предназначена для записи результатов тестирования систем корабля
 
@@ -79,7 +89,9 @@ ITMO project
 |oganesson|double|Процентное содержание оганесона в атмосфере / космической пыли вокруг команды, выполняющей операцию|
 |comment|double|Необязательный комментарий от участников команды, выполняющей операцию|
 
-### Prerequisites
+<h3 id="logbook-prerequisites">
+Prerequisites
+</h3>
 
 Требуются установленные:
 
@@ -157,9 +169,11 @@ ITMO project
 
     python3 explore.py
   
-## Communications
+## Relations
 
-### Entities
+<h3 id="relations-entities">
+Entities
+</h3>
 
 * person - представление члена экипажа в рамках графической модели данных
 
@@ -172,7 +186,9 @@ ITMO project
 |worker|reference|Связь с сущностью Shift, отображающая отношение рядового участника смены (WORKER)|
 |chief|reference|Связь с сущностью Shift, отображающая отношение ответственного за смену (CHIEF)|
 
-### Prerequisites
+<h3 id="relations-prerequisites">
+Prerequisites
+</h3>
 
 Требуются установленные:
 
@@ -245,4 +261,4 @@ Cобственно сервер, на котором будет лежать б
 
     USERNAME=neo4j PASSWORD=neo4j python3 test.py
 
-  
+  [heo](.#Logbook)
