@@ -35,5 +35,14 @@ def mongo_str_id_to_int(value):
 def is_valid_foreign_id(collection_name, id):
 	return str(id) in [str(item['_id']) for item in db[collection_name].find({}, { '_id': 1 })]
 
+def validate_id(collection_name, id):
+    if isinstance(id, str):
+            if is_valid_foreign_id(collection_name, id):
+                return mongo_str_id_to_int(id)
+            else:
+                raise ValueError('invalid {0} id'.format(collection_name))
+    else:
+        return id
+
 if __name__ == '__main__':
 	print(is_valid_foreign_id('127.0.0.1', 27017, 'test', 'system_test', '5abfbb95e1cd5bdb23b93336'))

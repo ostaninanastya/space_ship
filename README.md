@@ -2,21 +2,79 @@
 
 ITMO project
 
-[Logbook](#logbook)
-  * [Entities](#logbook-entities)
-  * [Prerequisities](#logbook-prerequisites)
-  
-[Relations](#relations)
-  * [Entities](#relations-entities)
-  * [Prerequisities](#relations-prerequisites)
+[Prerequisites](#logbook)
 
-## Logbook
+[Entities](#entities)
+  * [Logbook](#entities-logbook)
+  * [Relations](#entities-relations)
 
-Основанный на cassandra db набор журналов, содержащих данные о работе гипотетического космического корабля
+[Running databases](#running-databases)
+  * [Logbook](#running-databases-logbook)
+  * [Relations](#running-databases-relations)
 
-<h3 id="logbook-entities">
-Entities
+[Filling](#filling)
+  * [Logbook](#filling-logbook)
+
+## Prerequisites
+
+### cassandra server
+
+Для установки из debian packages (**изменить версию с 311x на актуальную**)
+
+    echo "deb http://www.apache.org/dist/cassandra/debian 311x main" | sudo tee -a /etc/apt/sources.list.d/cassandra.sources.list
+    curl https://www.apache.org/dist/cassandra/KEYS | sudo apt-key add -
+    sudo apt-get update
+    sudo apt-key adv --keyserver pool.sks-keyservers.net --recv-key A278B781FE4B2BDA
+    sudo apt-get install cassandra
+
+### neo4j server
+
+Установка производится так:
+
+    wget --no-check-certificate -O - https://debian.neo4j.org/neotechnology.gpg.key | sudo apt-key add -
+    echo 'deb http://debian.neo4j.org/repo stable/' | sudo tee /etc/apt/sources.list.d/neo4j.list
+    sudo apt update
+    sudo apt install neo4j
+
+#### cassandra-driver
+
+Модуль для python, с помощью которого идет взаимодействие с БД
+
+Устанавливается командой (может занять несколько минут)
+
+    pip install cassandra-driver
+
+### pymongo
+
+Модуль для python, с помощью которого идет взаимодействие с базой данных, содержащей информацию о корабле (работающей на технологии Mongo DB) для обеспечения консистентности хранимых данных при их изменении
+
+Устанавливается командой 
+    
+    pip install pymongo
+
+### py2neo
+
+Модуль для python, с помощью которого идет взаимодействие с базой данных, содержащей информацию об организации деятельности экипажа (работающей на технологии neo4j) для обеспечения консистентности хранимых данных при их изменении
+
+Устанавливается командой 
+
+    pip install py2neo
+
+### neomodel
+
+ODM для python, с помощью которого идет взаимодействие с neo4j
+
+Устанавливается командой
+
+    pip install neomodel
+
+## Entities
+
+<h3 id="entities-logbook">
+Logbook
 </h3>
+
+Журналы с данными о работе корабля
 
 * system_test - предназначена для записи результатов тестирования систем корабля
 
@@ -89,135 +147,69 @@ Entities
 |oganesson|double|Процентное содержание оганесона в атмосфере / космической пыли вокруг команды, выполняющей операцию|
 |comment|double|Необязательный комментарий от участников команды, выполняющей операцию|
 
-<h3 id="logbook-prerequisites">
-Prerequisites
-</h3>
-
-Требуются установленные:
-
-#### cassandra server
-
-Для установки из debian packages (**изменить версию с 311x на актуальную**)
-
-    echo "deb http://www.apache.org/dist/cassandra/debian 311x main" | sudo tee -a /etc/apt/sources.list.d/cassandra.sources.list
-    curl https://www.apache.org/dist/cassandra/KEYS | sudo apt-key add -
-    sudo apt-get update
-    sudo apt-key adv --keyserver pool.sks-keyservers.net --recv-key A278B781FE4B2BDA
-    sudo apt-get install cassandra
-
-#### cassandra-driver
-
-Модуль для python, с помощью которого идет взаимодействие с БД
-
-Устанавливается командой (может занять несколько минут)
-
-    pip install cassandra-driver
-
-### pymongo
-
-Модуль для python, с помощью которого идет взаимодействие с базой данных, содержащей информацию о корабле (работающей на технологии Mongo DB) для обеспечения консистентности хранимых данных при их изменении
-
-Устанавливается командой 
-    
-    pip install pymongo
-
-### py2neo
-
-Модуль для python, с помощью которого идет взаимодействие с базой данных, содержащей информацию об организации деятельности экипажа (работающей на технологии neo4j) для обеспечения консистентности хранимых данных при их изменении
-
-Устанавливается командой 
-
-    pip install py2neo
-
-### Running
-
-#### Server
-
-Выполнить команду, которая должна завершиться выводом информации о сервере с зеленым словом 'active'
-
-    sudo service cassandra status
-
-Для проверки статуса кластера выполнить
-
-    sudo nodetool status
-
-Должна вывести результат, начинающийся с сочетания **UN** (Up and Normal) в случае успеха
-  
-#### Client
-
-Для выполнения SQL запросов в командной строке. Запускается командой
-
-    cqlsh
-  
-#### Scripts
-
-После запуска сервера необходимо сначала инициализировать базу данных соответствующими таблицами (параметры для подключения к базе данных автоматически считаются из **databases.config** - это поведение может быть изменено при помощи переменных окружения)
-
-    python3 initialize.py
-  
-Заполнить базу данных значениями, если они были заранее сгенерированы
-
-    python3 fill.py
-  
-В противном случае сначла сгенерировать значения (следующая команда запускается из папки **generators**)
-  
-    python3 main.py
-  
-В скрипте можно изменять объем данных для генерации
-  
-Далее можно проверить что все прошло успешно запуском ряда простых манипуляций с данными
-
-    python3 explore.py
-  
-## Relations
-
-<h3 id="relations-entities">
-Entities
+<h3 id="entities-relations">
+Relations
 </h3>
 
 * person - представление члена экипажа в рамках графической модели данных
 
 |property|data type|description|
 |--------|---------|-----------|
-|id|two ints|Идентификатор члена экипажа, соответствующий 12 - байтному идентификатору в базе данных, содержащей информацию о корабле (основанной на Mongo DB)|
+|ident|two ints <sup>[1](#relations-two-ints-note)</sup>|Идентификатор члена экипажа, соответствующий 12 - байтному идентификатору в базе данных, содержащей информацию о корабле (основанной на Mongo DB)|
 |controlled|reference|Связь с сущностью Department, отображающая отношение главенствования над департаментом (DIRECTOR)|
 |executor|reference|Связь с сущностью Operation, отображающая отношение исполнения операции (EXECUTOR)|
 |headed|reference|Связь с сущностью Operation, отображающая отношение руководства операцией (HEAD)|
 |worker|reference|Связь с сущностью Shift, отображающая отношение рядового участника смены (WORKER)|
 |chief|reference|Связь с сущностью Shift, отображающая отношение ответственного за смену (CHIEF)|
 
-<h3 id="relations-prerequisites">
-Prerequisites
-</h3>
+* department - представление департамента в рамках графической модели данных
 
-Требуются установленные:
+|property|data type|description|
+|--------|---------|-----------|
+|ident|two ints <sup>[1](#relations-two-ints-note)</sup>|Идентификатор департамента|
+|shifts|reference|Связь с сущностью Shift, отображающая отношение организации смены департаментом (INCORPORATION)|
+|operations|reference|Связь с сущностью Operation, отображающая отношение организации операции департаментом (INCORPORATION)|
+|controller|reference|Связь с сущностью Person, отображающая отношение руководства департаментом (DIRECTOR)|
 
-#### neo4j server
+* operation - сущность, содержащая основные сведения о планируемой или уже осуществленной операции
 
-Cобственно сервер, на котором будет лежать база данных
+|property|data type|description|
+|--------|---------|-----------|
+|ident|16 bytes|Идентификатор операции|
+|name|text|Название операции|
+|start|datetime|Дата и время начала операции|
+|end|datetime|Дата и время окончания операции|
+|department|reference|Связь с сущностью Operation, отображающая отношение организации операции департаментом (INCORPORATION)|
+|requirement|reference|Связь с сущностью Requirement, отображающая отношение использования набора требований по специализации личного состава для операции (USER)|
+|persons|reference|Связь с сущностью Operation, отображающая отношение исполнения операции (EXECUTOR)|
+|head|reference|Связь с сущностью Operation, отображающая отношение руководства операцией (HEAD)|
 
-Установка производится так:
+* shift - сущность, содержащая основные сведения о прошедшей или предстоящей смене
 
-    wget --no-check-certificate -O - https://debian.neo4j.org/neotechnology.gpg.key | sudo apt-key add -
-    echo 'deb http://debian.neo4j.org/repo stable/' | sudo tee /etc/apt/sources.list.d/neo4j.list
-    sudo apt update
-    sudo apt install neo4j
+|property|data type|description|
+|--------|---------|-----------|
+|ident|16 bytes|Идентификатор смены|
+|start|datetime|Дата и время начала смены|
+|end|datetime|Дата и время окончания смены|
+|department|reference|Связь с сущностью Operation, отображающая отношение организации операции департаментом (INCORPORATION)|
+|requirement|reference|Связь с сущностью Requirement, отображающая отношение использования набора требований по специализации личного состава для смены (USER)|
+|persons|reference|Связь с сущностью Operation, отображающая отношение исполнения операции (EXECUTOR)|
+|head|reference|Связь с сущностью Operation, отображающая отношение руководства операцией (HEAD)|
 
-#### neomodel
+* requirement - набор требований к подготовке личного состава персонала для выполнения операции или образования смены
 
-Модуль для python, с помощью которого идет взаимодействие с БД
+|property|data type|description|
+|--------|---------|-----------|
+|ident|16 bytes|Идентификатор набора|
+|name|text|Название набора|
+|content|array of jsons|Массив объектов json, каждый из которых имеет по крайней мере два поля: **ident** - идентификатор специальности из mongo db <sup>[1](#relations-two-ints-note)</sup> и **quantity** - количество сотрудников с такой специальностью|
+|requirement|reference|Связь с сущностью Requirement, отображающая отношение использования набора требований по специализации личного состава для смены (USER)|
+|operations|reference|Связь с сущностью Operation, отображающая отношение использования операцией набора требований (USER)|
+|shifts|reference|Связь с сущностью Shift, отображающая отношение использования операцией набора требований (USER)|
 
-Устанавливается командой
-
-    pip install neomodel
-
-### pymongo
-
-Модуль для python, с помощью которого идет взаимодействие с базой данных, содержащей информацию о корабле (работающей на технологии Mongo DB) для обеспечения консистентности хранимых данных при их изменении
-
-Устанавливается командой 
-    
-    pip install pymongo
+<h4 id="relations-two-ints-note">
+Note about two ints
+</h4>
 
 Значения в базе данных neo4j, соответствующие индексам mongodb хранятся в виде пар значений целочисленного типа. Для перевода такой пары обратно в 12-байтный индекс, необходимы вычислить значение
 
@@ -240,25 +232,62 @@ Cобственно сервер, на котором будет лежать б
 Обратное преобразование выглядит как
 
     (int(math.pow(2, 48)) * 99780070403691 + 140045671702986).to_bytes(12, byteorder='big').hex()
-  
-### Running
 
-#### Server
+Описанный механизм работает подобно механизму преобразования даты и времени из используемого ODM в число с плавающей точкой для сохранения в базе данных.
+
+## Running databases
+
+<h3 id="running-databases-logbook">
+Logbook
+</h3>
+
+Запуск сервера
+
+    sudo service cassandra start
+
+Выполнить команду, которая должна завершиться выводом информации о сервере с зеленым словом 'active'
+
+    sudo service cassandra status
+
+Для проверки статуса кластера выполнить
+
+    sudo nodetool status
+
+Должна вывести результат, начинающийся с сочетания **UN** (Up and Normal) в случае успеха
+  
+<h3 id="running-databases-relations">
+Relations
+</h3>
 
 Выполнить команду
 
     sudo service neo4j start
-  
-#### Client
 
-Для выполнения запросов в web интерфейсе и просмотра полученного графа. Запускается в браузере по адресу
+Веб-интерфейс станет доступен (стандартно) по адресу
 
     http://localhost:7474
+
+## Filling
+
+<h3 id="filling-logbook">
+Logbook
+</h3>
+
+
+После запуска сервера необходимо сначала инициализировать базу данных соответствующими таблицами (параметры для подключения к базе данных автоматически считаются из **databases.config** - это поведение может быть изменено при помощи переменных окружения)
+
+    python3 initialize.py
   
-#### Scripts
+Заполнить базу данных значениями, если они были заранее сгенерированы
 
-Тестовый скрипт создает классы смены, операции, человека и устанавливает базовые коммуникации между тем, формируя простейший граф
+    python3 fill.py
+  
+В противном случае сначла сгенерировать значения
+  
+    python3 generators/main.py
+  
+В скрипте можно изменять объем данных для генерации
+  
+Далее можно проверить что все прошло успешно запуском ряда простых манипуляций с данными
 
-    USERNAME=neo4j PASSWORD=neo4j python3 test.py
-
-  [heo](.#Logbook)
+    python3 explore.py
