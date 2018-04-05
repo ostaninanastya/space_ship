@@ -180,7 +180,7 @@ def main():
 	pass
 	#generate_shift(datetime.datetime.now(), neo4j_adapter.get_all_ids('Shift')[0], 50, [0.2, 0.3, 0.3, 0.3, 0], [0, 0.5, 0.6, 0.4, 0.4], SHIFT_STATE_DATA_PATH)
 	#generate(50)
-	generate_prometheus_operation(50, datetime.datetime.now(), mongo_adapter.get_all_ids('boat_test')[0], neo4j_adapter.get_all_ids('Operation')[0], get_outer_area_composition(118, None, None), OPERATION_STATE_DATA_PATH)
+	#generate_prometheus_operation(50, datetime.datetime.now(), mongo_adapter.get_all_ids('boat_test')[0], neo4j_adapter.get_all_ids('Operation')[0], get_outer_area_composition(118, None, None), OPERATION_STATE_DATA_PATH)
 	#initial = get_outer_area_composition(118, None, None)
 	#print(stringify_area_composition(initial))
 	#print(stringify_area_composition(get_outer_area_composition(118, initial, 1)))

@@ -16,10 +16,11 @@ OPERATION_STATUSES = get_strings('enums/operation_statuses')
 CHEMICAL_ELEMENTS = get_strings('enums/chemical_elements')
 
 class OperationState(Model):
-    time = columns.DateTime(required = True, primary_key = True)
+    date = columns.Date(required = True, partition_key = True)
+    time = columns.Time(required = True, primary_key = True)
     
-    boat_id = columns.Bytes(primary_key = True)
-    operation_id = columns.Bytes(required = True, primary_key = True)
+    boat_id = columns.Bytes()
+    operation_id = columns.Bytes(required = True)
     
     operation_status = columns.Text(required = True)
     

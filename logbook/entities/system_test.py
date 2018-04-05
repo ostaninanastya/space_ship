@@ -10,8 +10,10 @@ sys.path.append('adapters')
 import mongo_adapter
 
 class SystemTest(Model):
-    time = columns.DateTime(required = True, primary_key = True)
-    system_id = columns.Bytes(required = True, primary_key = True)
+    date = columns.Date(required = True, partition_key = True)
+    time = columns.Time(required = True, primary_key = True)
+    
+    system_id = columns.Bytes(required = True)
     result = columns.TinyInt(required = True)
 
     def validate(self):

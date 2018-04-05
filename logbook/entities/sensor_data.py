@@ -15,8 +15,10 @@ VALUE_TYPES = get_strings('enums/value_types')
 VALUE_UNITS = get_strings('enums/units')
 
 class SensorData(Model):
-    time = columns.DateTime(required = True, primary_key = True)
-    source_id = columns.Bytes(required = True, primary_key = True)
+    date = columns.Date(required = True, partition_key = True)
+    time = columns.Time(required = True, primary_key = True)
+
+    source_id = columns.Bytes(required = True)
     event = columns.Text(required = True)
     value_name = columns.Text(required = True)
     value = columns.Double(required = True)

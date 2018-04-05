@@ -13,8 +13,10 @@ from data_adapters import get_strings
 WARNING_LEVELS = get_strings('enums/shift_warning_levels')
 
 class ShiftState(Model):
-    time = columns.DateTime(required = True, primary_key = True)
-    shift_id = columns.Bytes(required = True, primary_key = True)
+    date = columns.Date(required = True, partition_key = True)
+    time = columns.Time(required = True, primary_key = True)
+    
+    shift_id = columns.Bytes(required = True)
     warning_level = columns.Text(required = True)
 
     remaining_cartridges = columns.TinyInt(required = True)
@@ -30,8 +32,6 @@ class ShiftState(Model):
             raise ValidationError('not a valid shift id')
 
         if self.warning_level not in WARNING_LEVELS:
-            print(self.warning_level)
-            print(WARNING_LEVELS)
             raise ValidationError('not a warning level')
 
         if self.remaining_cartridges < 0 or self.remaining_cartridges > 100:

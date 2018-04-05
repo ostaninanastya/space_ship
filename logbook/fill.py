@@ -40,7 +40,8 @@ def fill_position():
 
 		for item in data_reader:
 			Position.create(\
-				time = datetime.datetime.strptime(item[0], TIME_PATTERN),\
+				date = datetime.datetime.strptime(item[0], TIME_PATTERN).date(),\
+				time = datetime.datetime.strptime(item[0], TIME_PATTERN).time(),\
 				x = float(item[1]),\
 				y = float(item[2]),\
 				z = float(item[3]),\
@@ -55,8 +56,10 @@ def fill_system_test():
 		data_reader = csv.reader(data)
 
 		for item in data_reader:
+			print(item[2])
 			SystemTest.create(\
-				time = datetime.datetime.strptime(item[0], TIME_PATTERN),\
+				date = datetime.datetime.strptime(item[0], TIME_PATTERN).date(),\
+				time = datetime.datetime.strptime(item[0], TIME_PATTERN).time(),\
 				system_id = string_to_bytes(item[1]),\
 				result = int(float(item[2])))
 
@@ -68,7 +71,8 @@ def fill_control_action():
 
 		for item in data_reader:
 			ControlAction.create(\
-				time = datetime.datetime.strptime(item[0], TIME_PATTERN),\
+				date = datetime.datetime.strptime(item[0], TIME_PATTERN).date(),\
+				time = datetime.datetime.strptime(item[0], TIME_PATTERN).time(),\
 				mac_address = string_to_bytes(item[1]),\
 				user_id = string_to_bytes(item[2]),
 				command = item[3],\
@@ -84,7 +88,8 @@ def fill_sensor_data():
 
 		for item in data_reader:
 			SensorData.create(\
-				time = datetime.datetime.strptime(item[0], TIME_PATTERN),\
+				date = datetime.datetime.strptime(item[0], TIME_PATTERN).date(),\
+				time = datetime.datetime.strptime(item[0], TIME_PATTERN).time(),\
 				source_id = string_to_bytes(item[1]),\
 				event = item[2],
 				value_name = item[3],\
@@ -100,7 +105,8 @@ def fill_shift_state():
 
 		for item in data_reader:
 			ShiftState.create(\
-				time = datetime.datetime.strptime(item[0], TIME_PATTERN),\
+				date = datetime.datetime.strptime(item[0], TIME_PATTERN).date(),\
+				time = datetime.datetime.strptime(item[0], TIME_PATTERN).time(),\
 				shift_id = string_to_bytes(item[1]),\
 				warning_level = item[2],
 				remaining_cartridges = int(float(item[3])),\
@@ -117,7 +123,8 @@ def fill_operation_state():
 
 		for item in data_reader:
 			OperationState.create(\
-				time = datetime.datetime.strptime(item[0], TIME_PATTERN),\
+				date = datetime.datetime.strptime(item[0], TIME_PATTERN).date(),\
+				time = datetime.datetime.strptime(item[0], TIME_PATTERN).time(),\
 				boat_id = string_to_bytes(item[1]),\
 				operation_id = string_to_bytes(item[2]),\
 				operation_status = item[3],\
@@ -250,12 +257,12 @@ def fill_operation_state():
 def main():
 	connection.setup([DB_URL], DB_NAME)
 	
-	fill_position()
-	#fill_system_test()
-	#fill_control_action()
-	#fill_sensor_data()
-	#fill_shift_state()
-	#fill_operation_state()
+	#fill_position()
+	fill_system_test()
+	fill_control_action()
+	fill_sensor_data()
+	fill_shift_state()
+	fill_operation_state()
 
 if __name__ == '__main__':
 	main()

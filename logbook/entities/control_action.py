@@ -10,9 +10,11 @@ sys.path.append('adapters')
 import mongo_adapter
 
 class ControlAction(Model):
-    time = columns.DateTime(required = True, primary_key = True)
-    mac_address = columns.Bytes(required = True, primary_key = True)
-    user_id = columns.Bytes(required = True, primary_key = True)
+    date = columns.Date(required = True, partition_key = True)
+    time = columns.Time(required = True, primary_key = True)
+    
+    mac_address = columns.Bytes(required = True)
+    user_id = columns.Bytes(required = True)
     
     command = columns.Text(required = True)
     params = columns.Text()

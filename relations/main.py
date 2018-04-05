@@ -31,8 +31,8 @@ config.DATABASE_URL = 'bolt://' + USERNAME + ':' + PASSWORD + '@' + NEO4J_DB_URL
 
 ##print(Operation.nodes.get())
 
-#oper = Operation(name = 'Prometheus').save()
-#print(oper.start)
+oper = Operation(name = 'Prometheus').save()
+print(oper.start)
 
 #sh = Shift().save()
 #print(sh.ident)

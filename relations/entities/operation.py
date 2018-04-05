@@ -15,3 +15,8 @@ class Operation(StructuredNode):
 
     persons = RelationshipFrom('person.Person', 'EXECUTOR')
     head = RelationshipFrom('person.Person', 'HEAD', cardinality = One)
+
+    def __init__(self, *args, **kwargs):
+        super(Operation, self).__init__(self, *args, **kwargs)
+        if (self.end - self.start).total_seconds() < 0:
+        	raise ValueError('End datetime can\'t be less than start datetime')
