@@ -5,8 +5,8 @@ db.createCollection("states", {
          required: ["name"],
          properties: {
             name: {
-               enum: [ "ready", "repair", "not working" ],
-               description: "can only be one of the enum values and is required"
+               bsonType: "string",
+               description: "must be a string"
             },
             description: {
                bsonType: "string",

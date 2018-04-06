@@ -9,7 +9,7 @@ db.createCollection("systems", {
 				description: "must be a string and is required"
             },
             type: {
-				bsonType: "object",
+				bsonType: "objectId",
 				description: "DBRef to systemTipes collection"
             },
 			serialNumber: {
@@ -29,11 +29,11 @@ db.createCollection("systems", {
 				 
 			},
             personInCharge: {
-				bsonType: "object",
+				bsonType: "objectId",
 				description: "DBRef to people collection"
             },
 			state: {
-				bsonType: "object",
+				bsonType: "objectId",
 				description: "DBRef to states collection"
             }
          }

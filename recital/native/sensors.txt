@@ -1,0 +1,18 @@
+db.createCollection("sensors", {
+   validator: {
+      $jsonSchema: {
+         bsonType: "object",
+         required: ["name", "location"],
+         properties: {
+            name: {
+				bsonType: "string",
+				description: "name of sensor given by the general commander either by a head of department"
+            },
+			location: {
+				 bsonType: "objectId",
+				 description: "DBRef to locations collection"
+            }
+         }
+      }
+   }
+})

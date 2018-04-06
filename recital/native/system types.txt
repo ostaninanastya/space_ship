@@ -5,8 +5,8 @@ db.createCollection("systemTypes", {
          required: ["name"],
          properties: {
             name: {
-               enum: [ "engine", "fuel", "hydraulic" ],
-               description: "can only be one of the enum values and is required"
+               bsonType: "string",
+               description: "must be a string"
             },
             description: {
                bsonType: "string",

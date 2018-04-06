@@ -23,16 +23,16 @@ PASSWORD = os.environ.get('NEO4J_DB_PASSWORD') if os.environ.get('NEO4J_DB_PASSW
 config.DATABASE_URL = 'bolt://' + USERNAME + ':' + PASSWORD + '@' + NEO4J_DB_URL + ':' + str(NEO4J_DB_PORT)
 
 
-#buzz = Person(ident = '5abfdba6ee6b7f5eec83a1ca').save() #id will be checked in mongo and saved as array of two ints
-#print(buzz.ident_hex) #show identifier as a hex string
+buzz = Person(ident = '5abfdba6ee6b7f5eec83a1ca').save() #id will be checked in mongo and saved as array of two ints
+print(buzz.ident_hex) #show identifier as a hex string
 
 #depp = Department(ident = '5ac5134ccc314386b6f43440').save() #id will be checked in mongo and saved as array of two ints
 #print(depp.ident_hex) #show identifier as a hex string
 
 ##print(Operation.nodes.get())
 
-oper = Operation(name = 'Prometheus').save()
-print(oper.start)
+#oper = Operation(name = 'Prometheus').save()
+#print(oper.start)
 
 #sh = Shift().save()
 #print(sh.ident)

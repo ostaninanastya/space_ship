@@ -5,8 +5,8 @@ db.createCollection("departments", {
          required: ["name"],
          properties: {
             name: {
-               enum: [ "pilot", "system control", "properties control", "head"],
-               description: "can only be one of the enum values and is required"
+               bsonType: "string",
+               description: "must be a string"
             },
             hrefToVkCommunity: {
                bsonType: "string",

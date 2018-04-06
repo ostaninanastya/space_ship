@@ -39,7 +39,7 @@ def main():
 
 	print(select(table_name, columns))
 
-	select('position', [['x', 10], ['y', 10], ['speed'], ['time']])
+	#select('position', [['x', 10], ['y', 10], ['speed'], ['time']])
 
 if __name__ == '__main__':
 	main()

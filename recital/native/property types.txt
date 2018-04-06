@@ -5,7 +5,7 @@ db.createCollection("propertyTypes", {
          required: ["name"],
          properties: {
             name: {
-               enum: [ "ship", "livelihoods" ],
+               enum: [ "ship", "description" ],
                description: "can only be one of the enum values and is required"
             },
             description: {

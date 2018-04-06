@@ -1,0 +1,14 @@
+db.createCollection("locations", {
+   validator: {
+      $jsonSchema: {
+         bsonType: "object",
+         required: ["name"],
+         properties: {
+            name: {
+               bsonType: "string",
+               description: "must be a string"
+            }
+         }
+      }
+   }
+})

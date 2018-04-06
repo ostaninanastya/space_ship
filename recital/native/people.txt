@@ -17,7 +17,7 @@ db.createCollection("people", {
 				description: "must be a string"
             },
 			department: {
-				 bsonType: "object",
+				 bsonType: "objectId",
 				 description: "DBRef to departments collection"
 				 
 			},
@@ -27,7 +27,7 @@ db.createCollection("people", {
 				description: "must match with pattern. examples: +79261234567; 8(926)123-45-67; 8-926-123-45-67"
             },
 			specialization: {
-				 bsonType: "object",
+				 bsonType: "objectId",
 				 description: "DBRef to specializations collection"
             }
          }

@@ -1,0 +1,33 @@
+> use spaceShipDescription
+
+db.createCollection("properties", {
+   validator: {
+      $jsonSchema: {
+         bsonType: "object",
+         required: [ "name", "type", "dateOfAdmission", "comissioningDate", "department" ],
+         properties: {
+            name: {
+				  bsonType: "string",
+				  description: "must be a string and is required"
+            },
+			   type: {
+				  bsonType: "objectId",
+				  description: "DBRef to propertyTipes collection"
+            },
+            dateOfAdmission: {
+				  bsonType: "date",
+				  description: "must be a date and is not required"
+            },
+			   comissioningDate: {
+				  bsonType: "date",
+              description: "must be a date and is not required"
+            },
+			   department: {
+				  bsonType: "objectId",
+				  description: "DBRef to departments collection"
+			   },
+         }
+      }
+   }
+})
+
