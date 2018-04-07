@@ -5,7 +5,7 @@ from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
 from cassandra.cqlengine import ValidationError
 
-sys.path.append('adapters')
+sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/logbook/adapters')
 
 import mongo_adapter
 

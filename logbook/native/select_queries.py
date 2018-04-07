@@ -4,7 +4,7 @@ import configparser
 import numpy as np
 import operator
 
-sys.path.append('entities')
+sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/lobgook/entities')
 
 from cassandra.cqlengine import connection
 
@@ -12,7 +12,7 @@ from position import Position
 from system_test import SystemTest
 
 config = configparser.ConfigParser()
-config.read('../databases.config')
+config.read(os.environ['SPACE_SHIP_HOME'] + '/databases.config')
 
 DB_URL = os.environ.get('DB_URL') if os.environ.get('DB_URL') else config['CASSANDRA']['host']
 DB_NAME = os.environ.get('DB_NAME') if os.environ.get('DB_NAME') else config['CASSANDRA']['db_name']
@@ -30,6 +30,9 @@ def select(table_name, columns):
 		values_filter = 'where ' + values_filter
 	print('select {2} from {0}.{1} {3} allow filtering;'.format(DB_NAME, table_name, columns_filter, values_filter))
 	return connection.execute('select {2} from {0}.{1} {3} allow filtering;'.format(DB_NAME, table_name, columns_filter, values_filter)).current_rows
+
+def get_system_tests():
+	return connection.execute('select * from {0}.system_test;'.format(DB_NAME)).current_rows
 
 def main():
 	connection.setup([DB_URL], DB_NAME)
