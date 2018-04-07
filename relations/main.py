@@ -22,12 +22,39 @@ PASSWORD = os.environ.get('NEO4J_DB_PASSWORD') if os.environ.get('NEO4J_DB_PASSW
 
 config.DATABASE_URL = 'bolt://' + USERNAME + ':' + PASSWORD + '@' + NEO4J_DB_URL + ':' + str(NEO4J_DB_PORT)
 
+shift1 = Shift().save()
+print(shift1.ident)
 
-buzz = Person(ident = '5abfdba6ee6b7f5eec83a1ca').save() #id will be checked in mongo and saved as array of two ints
+shift2 = Shift().save()
+print(shift2.ident)
+
+
+buzz = Person(ident = '5ac8a53e1767171855a9dd89').save() #id will be checked in mongo and saved as array of two ints
 print(buzz.ident_hex) #show identifier as a hex string
+
+buzz.worker.connect(shift1)
+
+buzzs = Person(ident = '5ac8a5791767171855a9dd8a').save() #id will be checked in mongo and saved as array of two ints
+print(buzz.ident_hex) #show identifier as a hex string
+
+buzzs.worker.connect(shift2)
+
+buzzn = Person(ident = '5ac8a57c1767171855a9dd8b').save() #id will be checked in mongo and saved as array of two ints
+print(buzz.ident_hex) #show identifier as a hex string
+
+buzzn.worker.connect(shift1)
+
+buzznew = Person(ident = '5ac8a57c1767171855a9dd8c').save() #id will be checked in mongo and saved as array of two ints
+print(buzz.ident_hex) #show identifier as a hex string
+
+buzznew.worker.connect(shift1)
+
+
 
 #depp = Department(ident = '5ac5134ccc314386b6f43440').save() #id will be checked in mongo and saved as array of two ints
 #print(depp.ident_hex) #show identifier as a hex string
+
+#depp.controller.connect(buzz)
 
 ##print(Operation.nodes.get())
 
