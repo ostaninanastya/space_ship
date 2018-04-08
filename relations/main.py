@@ -21,7 +21,7 @@ USERNAME = os.environ.get('NEO4J_DB_USERNAME') if os.environ.get('NEO4J_DB_USERN
 PASSWORD = os.environ.get('NEO4J_DB_PASSWORD') if os.environ.get('NEO4J_DB_PASSWORD') else configp['NEO4J']['password']
 
 config.DATABASE_URL = 'bolt://' + USERNAME + ':' + PASSWORD + '@' + NEO4J_DB_URL + ':' + str(NEO4J_DB_PORT)
-
+'''
 shift1 = Shift().save()
 print(shift1.ident)
 
@@ -48,7 +48,7 @@ buzznew = Person(ident = '5ac8a57c1767171855a9dd8c').save() #id will be checked 
 print(buzz.ident_hex) #show identifier as a hex string
 
 buzznew.worker.connect(shift1)
-
+'''
 
 
 #depp = Department(ident = '5ac5134ccc314386b6f43440').save() #id will be checked in mongo and saved as array of two ints
@@ -61,8 +61,13 @@ buzznew.worker.connect(shift1)
 #oper = Operation(name = 'Prometheus').save()
 #print(oper.start)
 
-#sh = Shift().save()
-#print(sh.ident)
+
+print(Operation.nodes.get(ident = '328a0b1d8a784289a4afb33ad70ee5c1').end)
+
+
+
+sh = Shift().save()
+print(sh.ident)
 
 #req = Requirement(name = 'first req', content = [{'ident' : '5ac52207cc314386b6f43441', 'quantity' : 100}, {'ident' : '5ac5220ccc314386b6f43442', 'quantity' : 100}]).save()
 #print(req.content)

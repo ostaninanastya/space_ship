@@ -258,11 +258,11 @@ def main():
 	connection.setup([DB_URL], DB_NAME)
 	
 	#fill_position()
-	fill_system_test()
-	fill_control_action()
-	fill_sensor_data()
+	#fill_system_test()
+	#fill_control_action()
+	#fill_sensor_data()
 	fill_shift_state()
-	fill_operation_state()
+	#fill_operation_state()
 
 if __name__ == '__main__':
 	main()

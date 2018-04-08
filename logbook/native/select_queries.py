@@ -34,6 +34,15 @@ def select(table_name, columns):
 def get_system_tests():
 	return connection.execute('select * from {0}.system_test;'.format(DB_NAME)).current_rows
 
+def get_operation_states():
+	return connection.execute('select * from {0}.operation_state;'.format(DB_NAME)).current_rows
+
+def get_shift_states():
+	return connection.execute('select * from {0}.shift_state;'.format(DB_NAME)).current_rows
+
+def get_sensor_data():
+	return connection.execute('select * from {0}.sensor_data;'.format(DB_NAME)).current_rows
+
 def main():
 	connection.setup([DB_URL], DB_NAME)
 

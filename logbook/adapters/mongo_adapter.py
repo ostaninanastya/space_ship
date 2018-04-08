@@ -16,6 +16,9 @@ db = MongoClient(MONGO_DB_URL, MONGO_DB_PORT)[MONGO_DB_NAME]
 def get_name_by_id(collection_name, id):
 	return db[collection_name].find({'_id' : ObjectId(id)}, { 'name' : 1})[0]['name']
 
+def get_sensor_location_by_id(sensor_collection, location_collection, id):
+	location_id = db[sensor_collection].find({'_id' : ObjectId(id)}, { 'location' : 1})[0]['location']
+	return db[location_collection].find({'_id' : location_id}, { 'name' : 1})[0]['name']
 
 def get_all_ids(collection_name):
 	return [str(item['_id']) for item in db[collection_name].find({}, { '_id': 1 })]
