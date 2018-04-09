@@ -51,25 +51,25 @@ buzznew.worker.connect(shift1)
 '''
 
 
-#depp = Department(ident = '5ac5134ccc314386b6f43440').save() #id will be checked in mongo and saved as array of two ints
-#print(depp.ident_hex) #show identifier as a hex string
+depp = Department(ident = '5ac5134ccc314386b6f43440').save() #id will be checked in mongo and saved as array of two ints
+print(depp.ident_hex) #show identifier as a hex string
 
 #depp.controller.connect(buzz)
 
 ##print(Operation.nodes.get())
 
-#oper = Operation(name = 'Prometheus').save()
+#oper = Operation(name = 'Kindred').save()
 #print(oper.start)
 
 
-print(Operation.nodes.get(ident = '328a0b1d8a784289a4afb33ad70ee5c1').end)
+#print(Operation.nodes.get(ident = '328a0b1d8a784289a4afb33ad70ee5c1').end)
 
 
 
-sh = Shift().save()
-print(sh.ident)
+#sh = Shift().save()
+#print(sh.ident)
 
-#req = Requirement(name = 'first req', content = [{'ident' : '5ac52207cc314386b6f43441', 'quantity' : 100}, {'ident' : '5ac5220ccc314386b6f43442', 'quantity' : 100}]).save()
+#req = Requirement(name = 'best team', content = [{'ident' : '5ac52207cc314386b6f43441', 'quantity' : 100}, {'ident' : '5ac5220ccc314386b6f43442', 'quantity' : 100}]).save()
 #print(req.content)
 
 '''

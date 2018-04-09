@@ -1,3 +1,9 @@
 http://localhost:1881/api/operationstate/fields=operationstatus,date,time,operation(id,name,start,end,director(id,name))
 http://localhost:1881/api/shiftstate/where=minute:43&fields=date,time,remainingelectricity,shift(id,start,end,chief(id,name))
 http://localhost:1881/api/sensordata/fields=date,time,source(id,name)&where=minute:40
+http://localhost:1881/api/operationstate/fields=operationid,operation(id,name,executors(id,name),head(id,name,headed(id,name,head(id,name))))
+http://localhost:1881/api/operationstate/fields=operationid,operation(id,name,executors(id,name),head(chiefed(id),worked(id),executed(name),id,name,headed(id,name,head(id,name))))
+http://localhost:1881/api/shiftstate/fields=shiftid,time,shift(id,start,end,workers(id,name),chief(id))
+http://localhost:1881/api/shiftstate/fields=shiftid,time,shift(id,start,end,workers(id,name,specialization(id,name)),chief(id))
+http://localhost:1881/api/operationstate/fields=operationid,operation(id,name,requirements(id,content(specialization(name),quantity)),head(id,name,headed(id,name,head(id,name))))
+http://localhost:1881/api/operationstate/fields=operationid,operation(id,name,requirements(id,content(specialization(name),quantity)),head(directing(id,name,director(id,name,department(name))),department(name),id,name,headed(id,name,head(id,name))))

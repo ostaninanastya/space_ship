@@ -1,8 +1,8 @@
-import sys
+import sys, os
 
 from neomodel import StructuredNode, IntegerProperty, StringProperty, RelationshipTo, RelationshipFrom, UniqueIdProperty, config, ArrayProperty, JSONProperty, One
 
-sys.path.append('adapters')
+sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/relations/adapters')
 
 import mongo_adapter
 

@@ -3,7 +3,7 @@ import configparser
 import os, re
 
 config = configparser.ConfigParser()
-config.read('../databases.config')
+config.read(os.environ['SPACE_SHIP_HOME'] + '/databases.config')
 
 MONGO_DB_URL = os.environ.get('MONGO_DB_URL') if os.environ.get('MONGO_DB_URL') else config['MONGO']['host']
 MONGO_DB_PORT = int(os.environ.get('MONGO_DB_PORT') if os.environ.get('MONGO_DB_PORT') else config['MONGO']['port'])

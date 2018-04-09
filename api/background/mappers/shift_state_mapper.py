@@ -43,9 +43,7 @@ class ShiftStateMapper(graphene.ObjectType):
     comment = graphene.String()
 
     def resolve_shift(self, info):
-
         node = Shift.nodes.get(ident = self.shiftid)
-
         return ShiftMapper(id = node.ident,\
         				   start = str(node.start),\
         				   end = str(node.end))
