@@ -15,6 +15,10 @@ from shift import Shift
 
 import configparser
 
+sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/api/background/')
+
+from converters import time_to_str, date_to_str
+
 configp = configparser.ConfigParser()
 configp.read(os.environ.get('SPACE_SHIP_HOME') + '/databases.config')
 
@@ -43,7 +47,15 @@ class ShiftStateMapper(graphene.ObjectType):
     comment = graphene.String()
 
     def resolve_shift(self, info):
-        node = Shift.nodes.get(ident = self.shiftid)
-        return ShiftMapper(id = node.ident,\
-        				   start = str(node.start),\
-        				   end = str(node.end))
+        return ShiftMapper.init_scalar(Shift.nodes.get(ident = self.shiftid))
+
+    @staticmethod
+    def init_scalar(item):
+        return ShiftStateMapper(date = date_to_str(item['date']),\
+                                 time = time_to_str(item['time']),\
+                                 shiftid = item['shift_id'].hex(),\
+                                 warninglevel = item['warning_level'],\
+                                 remainingcartridges = item['remaining_cartridges'],\
+                                 remainingelectricity = item['remaining_electricity'],\
+                                 remainingair = item['remaining_air'],\
+                                 comment = item['comment'])

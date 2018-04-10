@@ -14,6 +14,25 @@ PASSWORD = os.environ.get('NEO4J_DB_PASSWORD') if os.environ.get('NEO4J_DB_PASSW
 
 graph = Graph(bolt = True, user = USERNAME, password = PASSWORD, host = NEO4J_DB_URL, http_port = NEO4J_DB_PORT)
 
+def get_operation_ids_by_requirement(requirement_id):
+	return [\
+		item['ident'] for item in graph.data("""
+			match (r:Requirement)-[:USER]->(o:Operation)
+			where r.ident = '%s'
+			return o.ident as ident
+			""" % requirement_id)]
+
+def get_shift_ids_by_requirement(requirement_id):
+	return [\
+		item['ident'] for item in graph.data("""
+			match (r:Requirement)-[:USER]->(s:Shift)
+			where r.ident = '%s'
+			return s.ident as ident
+			""" % requirement_id)]
+
+
+#
+
 def get_operation_requirements_id(operation_id):
 	return [\
 		item['ident'] for item in graph.data("""

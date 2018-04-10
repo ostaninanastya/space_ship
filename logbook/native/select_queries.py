@@ -43,6 +43,9 @@ def get_shift_states():
 def get_sensor_data():
 	return connection.execute('select * from {0}.sensor_data;'.format(DB_NAME)).current_rows
 
+def get_commands_by_user_id(user_id):
+	return connection.execute('select * from {0}.control_action where user_id = 0x{1} ALLOW FILTERING;'.format(DB_NAME, user_id)).current_rows
+
 def main():
 	connection.setup([DB_URL], DB_NAME)
 

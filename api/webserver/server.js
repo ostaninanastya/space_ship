@@ -9,7 +9,7 @@ function fix_fields(entity_name){
 	if (entity_name == 'position'){
 		return 'x, y, z'
 	} else if (entity_name == 'controlaction'){
-		return 'username, command, params, result'
+		return 'userid, command, params, result'
 	} else if (entity_name == 'systemtest'){
 		return 'system, result, date, time'
 	}  else if (entity_name == 'operationstate'){
@@ -27,28 +27,60 @@ function translate_to_graphsql(original_query){
 	
 	let entity_name = query[2]
 
-	let requirements = query[3].split('&')
+	if (entity_name == 'create' || entity_name == 'remove'){
+		let action_name = entity_name
+		entity_name = query[3]
+		let requirements = query[4].split('&')
 
-	let fields = ''
-	let where = ''
+		let fields = ''
+		let where = ''
 
-	requirements.forEach(function(item){
-		requirement = item.split('=');
-		if (requirement[0] == 'fields'){
-			fields = requirement[1]
-		} else if (requirement[0] == 'where'){
-			where = requirement[1]
+		requirements.forEach(function(item){
+			requirement = item.split('=');
+			if (requirement[0] == 'fields'){
+				fields = requirement[1]
+			} else if (requirement[0] == 'where'){
+				where = requirement[1]
+			}
+		});
+
+		if (fields.length == 0){
+			fields = fix_fields(entity_name)
 		}
-	});
 
-	if (fields.length == 0){
-		fields = fix_fields(entity_name)
-	}
+		entity_name = entity_name[0].toUpperCase() + entity_name.substring(1,entity_name.length).toLowerCase();
 
-	if (where.length == 0){
-		return `query Query{ ${entity_name}{ ${fields} }}`.replace(/\(/g, '{').replace(/\)/g, '}')
+		if (where.length == 0){
+			return ''
+		} else {
+			return `mutation Mutation{ ${action_name}${entity_name}(${where})`.replace(/\'/g, '"') + `{ ${fields} }}`.replace(/\(/g, '{').replace(/\)/g, '}')
+		}
+
+
 	} else {
-		return `query Query{ ${entity_name}(${where})` + `{ ${fields} }}`.replace(/\(/g, '{').replace(/\)/g, '}')
+		let requirements = query[3].split('&')
+
+		let fields = ''
+		let where = ''
+
+		requirements.forEach(function(item){
+			requirement = item.split('=');
+			if (requirement[0] == 'fields'){
+				fields = requirement[1]
+			} else if (requirement[0] == 'where'){
+				where = requirement[1]
+			}
+		});
+
+		if (fields.length == 0){
+			fields = fix_fields(entity_name)
+		}
+
+		if (where.length == 0){
+			return `query Query{ ${entity_name}{ ${fields} }}`.replace(/\(/g, '{').replace(/\)/g, '}')
+		} else {
+			return `query Query{ ${entity_name}(${where})`.replace(/\'/g, '"') + `{ ${fields} }}`.replace(/\(/g, '{').replace(/\)/g, '}')
+		}
 	}
 }
 
@@ -78,6 +110,4 @@ app.get('/api/*', function(req, res){
 	process.stderr.on('data', function(data){
 		console.log(data.toString('utf8'));
 	});
-
-
 });

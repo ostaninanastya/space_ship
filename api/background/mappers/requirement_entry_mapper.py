@@ -13,3 +13,7 @@ class RequirementEntryMapper(graphene.ObjectType):
 
     def resolve_specialization(self, info):
     	return SpecializationMapper(id = self.specialization)
+
+    @staticmethod
+    def init_scalar(item):
+    	return RequirementEntryMapper(specialization = mongo_adapter.int_to_mongo_str_id(item['ident']), quantity = item['quantity'])

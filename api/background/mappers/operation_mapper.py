@@ -43,25 +43,17 @@ class OperationMapper(graphene.ObjectType):
     requirements = graphene.List(RequirementMapper)
 
     def resolve_requirements(self, info):
-        requirements_id = neo4j_adapter.get_operation_requirements_id(self.id)
-
-        requirements_list = []
-
-        for requirement_id in requirements_id:
-            node = Requirement.nodes.get(ident = requirement_id)
-
-            requirements_list.append(\
-            	RequirementMapper(content = [RequirementEntryMapper(specialization = mongo_adapter.int_to_mongo_str_id(item['ident']), quantity = item['quantity'])\
-            						for item in node.content],\
-            					  id = node.ident,\
-            					  name = node.name\
-            ))
-
-        return requirements_list
-
+        return [RequirementMapper.init_scalar(Requirement.nodes.get(ident = requirement_id)) for requirement_id in neo4j_adapter.get_operation_requirements_id(self.id)]
 
     def resolve_head(self, info):
         return PersonMapper(id = neo4j_adapter.get_operation_head_id(self.id))
 
     def resolve_executors(self, info):
         return [PersonMapper(id = executor_id) for executor_id in neo4j_adapter.get_executors_id(self.id)]
+
+    @staticmethod
+    def init_scalar(item):
+        return OperationMapper(id = item.ident,\
+                               name = item.name,\
+                               start = str(item.start),\
+                               end = str(item.end))

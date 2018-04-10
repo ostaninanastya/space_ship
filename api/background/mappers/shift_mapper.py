@@ -17,6 +17,10 @@ from requirement import Requirement
 
 import configparser
 
+sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/api/background/')
+
+from converters import time_to_str, date_to_str
+
 configp = configparser.ConfigParser()
 configp.read(os.environ.get('SPACE_SHIP_HOME') + '/databases.config')
 
@@ -40,24 +44,16 @@ class ShiftMapper(graphene.ObjectType):
     requirements = graphene.List(RequirementMapper)
 
     def resolve_requirements(self, info):
-        requirements_id = neo4j_adapter.get_shift_requirements_id(self.id)
-
-        requirements_list = []
-
-        for requirement_id in requirements_id:
-            node = Requirement.nodes.get(ident = requirement_id)
-
-            requirements_list.append(\
-            	RequirementMapper(content = [RequirementEntryMapper(specialization = mongo_adapter.int_to_mongo_str_id(item['ident']), quantity = item['quantity'])\
-            						for item in node.content],\
-            					  id = node.ident,\
-            					  name = node.name\
-            ))
-
-        return requirements_list
+        return [RequirementMapper.init_scalar(Requirement.nodes.get(ident = requirement_id)) for requirement_id in neo4j_adapter.get_shift_requirements_id(self.id)]
 
     def resolve_chief(self, info):
         return PersonMapper(id = neo4j_adapter.get_shift_chief_id(self.id))
 
     def resolve_workers(self, info):
         return [PersonMapper(id = worker_id) for worker_id in neo4j_adapter.get_workers_id(self.id)]
+
+    @staticmethod
+    def init_scalar(item):
+        return ShiftMapper(id = item.ident,\
+                           start = str(item.start),\
+                           end = str(item.end))

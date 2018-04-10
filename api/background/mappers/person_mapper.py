@@ -14,6 +14,14 @@ sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/logbook/adapters/')
 import neo4j_adapter
 import mongo_adapter
 
+sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/lobgook/native')
+
+import select_queries
+
+sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/recital/native')
+
+import mongo_native
+
 #print(dir(operation_mapper))
 
 class PersonMapper(graphene.ObjectType):
@@ -31,6 +39,13 @@ class PersonMapper(graphene.ObjectType):
     executed = graphene.List('operation_mapper.OperationMapper')
 
     specialization = graphene.Field(SpecializationMapper)
+
+    commands = graphene.List('control_action_mapper.ControlActionMapper')
+    supervised = graphene.List('system_mapper.SystemMapper')
+
+    def resolve_supervised(self, info):
+        from system_mapper import SystemMapper
+        return [SystemMapper.init_scalar(item) for item in mongo_native.get_systems_by_supervisor_id(self.id)]
 
     def resolve_directing(self, info):
         return [DepartmentMapper(id = deparment_id) for deparment_id in neo4j_adapter.get_directed_ids(self.id)]
@@ -73,3 +88,9 @@ class PersonMapper(graphene.ObjectType):
 
     def resolve_specialization(self, info):
         return SpecializationMapper(id = mongo_adapter.get_property_by_id('people_test', self.id, 'specialization'))
+
+    def resolve_commands(self, info):
+        from control_action_mapper import ControlActionMapper
+        return [ControlActionMapper.init_scalar_dict(item) for item in select_queries.get_commands_by_user_id(self.id)]
+
+
