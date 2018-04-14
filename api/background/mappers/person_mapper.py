@@ -26,7 +26,7 @@ import mongo_native
 
 class PersonMapper(graphene.ObjectType):
     id = graphene.String()
-    name = graphene.String()
+    name = graphene.String(default_value = '')
 
     department = graphene.Field(DepartmentMapper)
 
@@ -84,7 +84,9 @@ class PersonMapper(graphene.ObjectType):
         		for node in neo4j_adapter.get_executed_operations(self.id)]
 
     def resolve_name(self, info):
-        return mongo_adapter.get_name_by_id('people_test', self.id)
+        if (self.name == '' or not self.name):
+            return mongo_adapter.get_name_by_id('people_test', self.id)
+        return self.name
 
     def resolve_specialization(self, info):
         return SpecializationMapper(id = mongo_adapter.get_property_by_id('people_test', self.id, 'specialization'))

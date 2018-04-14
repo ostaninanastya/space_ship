@@ -66,6 +66,16 @@ import mongo_native
 sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/api/background/manipulators')
 
 import location_manipulator
+import sensor_manipulator
+import department_manipulator
+import person_manipulator
+import specialization_manipulator
+import boat_manipulator
+import system_type_manipulator
+import system_state_manipulator
+import property_type_manipulator
+import system_manipulator
+import property_manipulator
 
 def has_item_valid_time(hour, minute, second, item_time):
     return (hour < 0 or item_time.hour == hour) and\
@@ -75,6 +85,42 @@ def has_item_valid_time(hour, minute, second, item_time):
 class FirstMutation(graphene.ObjectType):
     create_location = location_manipulator.CreateLocation.Field()
     remove_location = location_manipulator.RemoveLocation.Field()
+    eradicate_location = location_manipulator.EradicateLocation.Field()
+
+    create_sensor = sensor_manipulator.CreateSensor.Field()
+    remove_sensor = sensor_manipulator.RemoveSensor.Field()
+
+    create_department = department_manipulator.CreateDepartment.Field()
+    remove_department = department_manipulator.RemoveDepartment.Field()
+    eradicate_department = department_manipulator.EradicateDepartment.Field()
+
+    create_specialization = specialization_manipulator.CreateSpecialization.Field()
+    remove_specialization = specialization_manipulator.RemoveSpecialization.Field()
+    eradicate_specialization = specialization_manipulator.Eradicate.Field()
+
+    create_person = person_manipulator.CreatePerson.Field()
+    remove_person = person_manipulator.RemovePerson.Field()
+
+    create_boat = boat_manipulator.CreateBoat.Field()
+    remove_boat = boat_manipulator.RemoveBoat.Field()
+
+    create_systemtype = system_type_manipulator.CreateSystemType.Field()
+    remove_systemtype = system_type_manipulator.RemoveSystemType.Field()
+    eradicate_systemtype = system_type_manipulator.EradicateSystemType.Field()
+
+    create_systemstate = system_state_manipulator.CreateSystemState.Field()
+    remove_systemstate = system_state_manipulator.RemoveSystemState.Field()
+    eradicate_systemstate = system_state_manipulator.EradicateSystemState.Field()
+
+    create_propertytype = property_type_manipulator.CreatePropertyType.Field()
+    remove_propertytype = property_type_manipulator.RemovePropertyType.Field()
+    eradicate_propertytype = property_type_manipulator.EradicatePropertyType.Field()
+
+    create_system = system_manipulator.CreateSystem.Field()
+    remove_system = system_manipulator.RemoveSystem.Field()
+
+    create_property = property_manipulator.CreateProperty.Field()
+    remove_property = property_manipulator.RemoveProperty.Field()
 
 class FirstQuery(graphene.ObjectType):
 

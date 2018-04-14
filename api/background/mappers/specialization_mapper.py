@@ -15,7 +15,8 @@ class SpecializationMapper(graphene.ObjectType):
     people = graphene.List('person_mapper.PersonMapper')
 
     def resolve_name(self, info):
-    	return mongo_adapter.get_name_by_id('spec_test', self.id)
+    	if not self.name:
+    		return mongo_adapter.get_name_by_id('spec_test', self.id)
 
     def resolve_people(self, info):
     	from person_mapper import PersonMapper

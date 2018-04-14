@@ -16,6 +16,7 @@ class DepartmentMapper(graphene.ObjectType):
     director = graphene.Field('person_mapper.PersonMapper')
     vk = graphene.String()
     properties = graphene.List('property_mapper.PropertyMapper')
+    people = graphene.List('person_mapper.PersonMapper')
 
     def resolve_name(self, info):
     	return mongo_adapter.get_name_by_id('department_test', self.id)
@@ -30,6 +31,10 @@ class DepartmentMapper(graphene.ObjectType):
     def resolve_properties(self, info):
     	from property_mapper import PropertyMapper
     	return [PropertyMapper.init_scalar(item) for item in mongo_native.get_properties_with_department(self.id)]
+
+    def resolve_people(self, info):
+        from person_mapper import PersonMapper
+        return [PersonMapper(id = id) for id in mongo_native.get_people_ids_with_dep(self.id)]
 
 
 #db.people_test.update({}, {$set:{department:ObjectId("5ac5134ccc314386b6f43440")}});

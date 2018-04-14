@@ -27,7 +27,7 @@ function translate_to_graphsql(original_query){
 	
 	let entity_name = query[2]
 
-	if (entity_name == 'create' || entity_name == 'remove'){
+	if (entity_name == 'create' || entity_name == 'remove' || entity_name == 'eradicate'){
 		let action_name = entity_name
 		entity_name = query[3]
 		let requirements = query[4].split('&')
@@ -53,7 +53,7 @@ function translate_to_graphsql(original_query){
 		if (where.length == 0){
 			return ''
 		} else {
-			return `mutation Mutation{ ${action_name}${entity_name}(${where})`.replace(/\'/g, '"') + `{ ${fields} }}`.replace(/\(/g, '{').replace(/\)/g, '}')
+			return `mutation Mutation{ ${action_name}${entity_name}(${where})`.replace(/\'/g, '"') + `{ ${fields} }}`.replace(/\(/g, '{').replace(/\)/g, '}').replace(/\%20/g, ' ')
 		}
 
 
@@ -90,7 +90,7 @@ app.listen(PORT, function () {
 
 app.get('/api/*', function(req, res){
 	
-	query = translate_to_graphsql(req.originalUrl);
+	query = translate_to_graphsql(req.originalUrl).replace(/%20/g, ' ');
 
 	console.log(query)
 
@@ -110,4 +110,45 @@ app.get('/api/*', function(req, res){
 	process.stderr.on('data', function(data){
 		console.log(data.toString('utf8'));
 	});
+});
+
+app.get('/docs/', function(req, res){
+	
+	query = 'query Docs{__schema{types{name, fields{name, type{name, kind}}}}}';
+
+	console.log(query)
+
+	let process = spawn('python3', ["../background/test.py", query]);
+
+	res.write('<p style="white-space:pre;">')
+
+	result = ''
+
+	process.stdout.on('data', function(data){
+		if (data.indexOf(LAST_RESPONSE_CHUNK_SIGN) == -1){
+			result += data.toString('utf8');
+		} else {
+			result += data.toString('utf8');
+			parsed = JSON.parse(result.replace(LAST_RESPONSE_CHUNK_SIGN, ''))
+			parsed['__schema']['types'].forEach(function(item){
+				if (item['name'].includes('Mapper')){
+					res.write('    ' + item['name'] + '{\n')
+					item['fields'].forEach(function(field){
+						res.write('        ' + field['name'] + ': ' + (field['type']['name'] ? field['type']['name'] : 'List') + '\n');
+					});
+					res.write('    }\n\n');
+				}
+				
+			});
+			
+			res.end('</p>');
+		}
+		//console.log(data.toString('utf8'));
+	});
+
+	process.stderr.on('data', function(data){
+		console.log(data.toString('utf8'));
+	});
+
+	
 });

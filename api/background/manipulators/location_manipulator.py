@@ -33,3 +33,15 @@ class RemoveLocation(graphene.Mutation):
         location = LocationMapper.init_scalar(mongo_native.remove_location(id))
         ok = True
         return RemoveLocation(location = location, ok = ok)
+
+class EradicateLocation(graphene.Mutation):
+    class Arguments:
+        id = graphene.String()
+
+    ok = graphene.Boolean()
+    location = graphene.Field(lambda: LocationMapper)
+
+    def mutate(self, info, id):
+        location = LocationMapper.init_scalar(mongo_native.eradicate_location(id))
+        ok = True
+        return EradicateLocation(location = location, ok = ok)

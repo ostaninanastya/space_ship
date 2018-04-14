@@ -21,12 +21,3 @@ class LocationMapper(graphene.ObjectType):
     @staticmethod
     def init_scalar(item):
         return LocationMapper(id = str(item['_id']), name = item['name'])
-
-    '''
-    def resolve_name(self, info):
-    	return mongo_adapter.get_name_by_id('spec_test', self.id)
-
-    def resolve_people(self, info):
-    	from person_mapper import PersonMapper
-    	return [PersonMapper(id = id) for id in mongo_native.get_people_ids_with_spec(self.id)]
-    '''
