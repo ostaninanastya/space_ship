@@ -42,3 +42,16 @@ class RemovePerson(graphene.Mutation):
         person = PersonMapper(id = id, name = deleted['name'])
         ok = True
         return RemovePerson(person = person, ok = ok)
+
+class EradicatePerson(graphene.Mutation):
+    class Arguments:
+        id = graphene.String()
+
+    ok = graphene.Boolean()
+    person = graphene.Field(lambda: PersonMapper)
+
+    def mutate(self, info, id):
+        deleted = mongo_native.eradicate_person(id)
+        person = PersonMapper(id = id, name = deleted['name'])
+        ok = True
+        return EradicatePerson(person = person, ok = ok)

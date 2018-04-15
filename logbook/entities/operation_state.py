@@ -12,8 +12,8 @@ import neo4j_adapter
 import mongo_adapter
 from data_adapters import get_strings
 
-OPERATION_STATUSES = get_strings('enums/operation_statuses')
-CHEMICAL_ELEMENTS = get_strings('enums/chemical_elements')
+OPERATION_STATUSES = get_strings(os.environ['SPACE_SHIP_HOME'] + '/logbook/enums/operation_statuses')
+CHEMICAL_ELEMENTS = get_strings(os.environ['SPACE_SHIP_HOME'] + '/logbook/enums/chemical_elements')
 
 class OperationState(Model):
     date = columns.Date(required = True, partition_key = True)

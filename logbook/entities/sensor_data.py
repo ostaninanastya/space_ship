@@ -10,9 +10,9 @@ sys.path.append('adapters')
 import mongo_adapter
 from data_adapters import get_strings
 
-EVENTS = get_strings('enums/sensor_events')
-VALUE_TYPES = get_strings('enums/value_types')
-VALUE_UNITS = get_strings('enums/units')
+EVENTS = get_strings(os.environ['SPACE_SHIP_HOME'] + '/logbook/enums/sensor_events')
+VALUE_TYPES = get_strings(os.environ['SPACE_SHIP_HOME'] + '/logbook/enums/value_types')
+VALUE_UNITS = get_strings(os.environ['SPACE_SHIP_HOME'] + '/logbook/enums/units')
 
 class SensorData(Model):
     date = columns.Date(required = True, partition_key = True)

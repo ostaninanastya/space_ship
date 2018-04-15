@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 import configparser
-import os, re
+import sys, os, re
 
 from bson.objectid import ObjectId
 
@@ -12,6 +12,14 @@ MONGO_DB_PORT = int(os.environ.get('MONGO_DB_PORT') if os.environ.get('MONGO_DB_
 MONGO_DB_NAME = os.environ.get('MONGO_DB_NAME') if os.environ.get('MONGO_DB_NAME') else config['MONGO']['db_name']
 
 db = MongoClient(MONGO_DB_URL, MONGO_DB_PORT)[MONGO_DB_NAME]
+
+sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/logbook/adapters')
+
+import neo4j_adapter
+
+sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/relations')
+
+import neo4j_mediator
 
 ##
 
@@ -203,6 +211,17 @@ def remove_person(id):
 	print(deleted)
 	id = db['people_test'].delete_one({'_id' : ObjectId(id)})
 	return deleted
+
+def eradicate_person(id):
+	deleted_chiefed_shifts = [item['ident'] for item in neo4j_adapter.get_chiefed_shifts(id)]
+	for shift_id in deleted_chiefed_shifts:
+		neo4j_mediator.remove_shift(shift_id)
+
+	deleted_headed_operations = [item['ident'] for item in neo4j_adapter.get_headed_operations(id)]
+	for operation_id in deleted_headed_operations:
+		neo4j_mediator.remove_operation(operation_id)
+
+	return remove_person(id)
 
 ## specialization manipulator
 

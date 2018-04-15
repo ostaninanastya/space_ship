@@ -10,7 +10,7 @@ sys.path.append('adapters')
 import neo4j_adapter
 from data_adapters import get_strings
 
-WARNING_LEVELS = get_strings('enums/shift_warning_levels')
+WARNING_LEVELS = get_strings(os.environ['SPACE_SHIP_HOME'] + '/logbook/enums/shift_warning_levels')
 
 class ShiftState(Model):
     date = columns.Date(required = True, partition_key = True)

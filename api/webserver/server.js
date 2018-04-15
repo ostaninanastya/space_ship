@@ -94,7 +94,7 @@ app.get('/api/*', function(req, res){
 
 	console.log(query)
 
-	let process = spawn('python3', ["../background/test.py", query]);
+	let process = spawn('python3', ["../background/main.py", query]);
 
 	res.write('<p style="white-space:pre;">')
 
@@ -118,11 +118,15 @@ app.get('/docs/', function(req, res){
 
 	console.log(query)
 
-	let process = spawn('python3', ["../background/test.py", query]);
+	let process = spawn('python3', ["../background/main.py", query]);
 
 	res.write('<p style="white-space:pre;">')
 
 	result = ''
+
+	res.write('=== Queries ===\n\n')
+
+	res.write('= Entities =\n\n')
 
 	process.stdout.on('data', function(data){
 		if (data.indexOf(LAST_RESPONSE_CHUNK_SIGN) == -1){
@@ -132,7 +136,7 @@ app.get('/docs/', function(req, res){
 			parsed = JSON.parse(result.replace(LAST_RESPONSE_CHUNK_SIGN, ''))
 			parsed['__schema']['types'].forEach(function(item){
 				if (item['name'].includes('Mapper')){
-					res.write('    ' + item['name'] + '{\n')
+					res.write('    ' + item['name'].toLowerCase().replace('mapper','') + '{\n')
 					item['fields'].forEach(function(field){
 						res.write('        ' + field['name'] + ': ' + (field['type']['name'] ? field['type']['name'] : 'List') + '\n');
 					});
@@ -140,8 +144,32 @@ app.get('/docs/', function(req, res){
 				}
 				
 			});
+
+			res.write('= Examples =\n\n')
+
+			res.write('http://localhost:1881/api/shiftstate/fields=shiftid,time,shift(id,start,end,chief(id))&where=minute:42\n\n');
 			
-			res.end('</p>');
+			let nested_process = spawn('python3', ["../background/main.py", 'docs']);
+
+			result = ''
+
+			res.write('=== Mutations ===\n\n')
+
+			res.write('= Entities =\n\n')
+
+			nested_process.stdout.on('data', function(data){
+				if (data.indexOf(LAST_RESPONSE_CHUNK_SIGN) == -1){
+					res.write(data.toString('utf8'));
+				} else {
+					res.write(data.toString('utf8'));
+					res.write('= Examples =\n\n');
+					res.write("http://localhost:1881/api/create/position/fields=ok,position(x)&where=timestamp:'2017-02-18 23:59:57',x:10.0,y:10.2,z:10.3,speed:10.4,attackangle:10.5,directionangle:10.6\n\n");
+					res.end('</p>');
+				}
+				//console.log(data.toString('utf8'));
+			});
+
+			
 		}
 		//console.log(data.toString('utf8'));
 	});

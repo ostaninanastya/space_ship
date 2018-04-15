@@ -18,7 +18,7 @@ class Person(StructuredNode):
     chief = RelationshipTo('shift.Shift', 'CHIEF', cardinality=One)
 
     def __init__(self, *args, **kwargs):
-        kwargs['ident'] = mongo_adapter.validate_id('user_test', kwargs['ident'])
+        kwargs['ident'] = mongo_adapter.validate_id('people_test', kwargs['ident'])
         super(Person, self).__init__(self, *args, **kwargs)
 
     @property
