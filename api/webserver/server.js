@@ -62,6 +62,7 @@ function translate_to_graphsql(original_query){
 
 		let fields = ''
 		let where = ''
+		let set = ''
 
 		requirements.forEach(function(item){
 			requirement = item.split('=');
@@ -69,6 +70,8 @@ function translate_to_graphsql(original_query){
 				fields = requirement[1]
 			} else if (requirement[0] == 'where'){
 				where = requirement[1]
+			} else if (requirement[0] == 'set'){
+				set = requirement[1]
 			}
 		});
 
@@ -76,10 +79,23 @@ function translate_to_graphsql(original_query){
 			fields = fix_fields(entity_name)
 		}
 
-		if (where.length == 0){
+		if ((where.length == 0) && (set.length == 0)){
 			return `query Query{ ${entity_name}{ ${fields} }}`.replace(/\(/g, '{').replace(/\)/g, '}')
-		} else {
+		} else if (set.length == 0){
 			return `query Query{ ${entity_name}(${where})`.replace(/\'/g, '"') + `{ ${fields} }}`.replace(/\(/g, '{').replace(/\)/g, '}')
+		} else {
+			console.log(set)
+			new_set = ''
+			set.split(',').forEach(function(field){
+				splitted_field = field.split(':')
+				field_name = splitted_field[0]
+				new_set += 'set' + field_name[0].toUpperCase() + field_name.substring(1,field_name.length).toLowerCase() + ':' + splitted_field[1] + ','
+			})
+			console.log(new_set)
+
+			entity_name = entity_name[0].toUpperCase() + entity_name.substring(1,entity_name.length).toLowerCase();
+
+			return `mutation Mutation{ update${entity_name}(${where}, ${new_set})`.replace(/\'/g, '"') + `{ ${fields} }}`.replace(/\(/g, '{').replace(/\)/g, '}').replace(/\%20/g, ' ')
 		}
 	}
 }

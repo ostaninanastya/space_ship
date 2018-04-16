@@ -337,8 +337,34 @@ def remove_property(id):
 
 ###
 
+def parse_params(params):
+
+	where = {}
+	update = {}
+
+	for key in params:
+		if params[key] != '':
+			if 'set_' in key:
+				update[key.replace('set_','')] = params[key]
+				continue
+			else:
+				where[key] = params[key]
+
+	return where, update
+
+	
+
+def update(params, collection):
+	where, update = parse_params(params)
+	db[collection].update(where,{'$set': update})
+	return [item for item in db[collection].find(update)]
+
+def update_sensor(**kwargs):
+	return update(kwargs, 'source_test')
+
 if __name__ == '__main__':
-	print(create_location('test loc'))
+	print(update_sensor(name = 'new one', set_name = 'one'))
+	#print(create_location('test loc'))
 	#print(get_all_properties())
 	#print(get_people_ids_with_spec('5ac52207cc314386b6f43441'))
 	#print(get_all_property_types())

@@ -100,6 +100,7 @@ class FirstMutation(graphene.ObjectType):
 
     create_sensor = sensor_manipulator.CreateSensor.Field()
     remove_sensor = sensor_manipulator.RemoveSensor.Field()
+    update_sensors = sensor_manipulator.UpdateSensors.Field()
 
     create_department = department_manipulator.CreateDepartment.Field()
     remove_department = department_manipulator.RemoveDepartment.Field()
