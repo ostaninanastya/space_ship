@@ -21,16 +21,27 @@ function fix_fields(entity_name){
 	}
 }
 
+function split2(str, delim) {
+    var p=str.indexOf(delim);
+    if (p !== -1) {
+        return [str.substring(0,p), str.substring(p+1)];
+    } else {
+        return [str];
+    }
+}
+
 function translate_to_graphsql(original_query){
 	
 	let query = original_query.split('/')
+
+	console.log(query)
 	
 	let entity_name = query[2]
 
 	if (entity_name == 'create' || entity_name == 'remove' || entity_name == 'eradicate'){
 		let action_name = entity_name
 		entity_name = query[3]
-		let requirements = query[4].split('&')
+		let requirements = (query[4] + query.slice(5).join('')).split('&')
 
 		let fields = ''
 		let where = ''
@@ -58,11 +69,13 @@ function translate_to_graphsql(original_query){
 
 
 	} else {
-		let requirements = query[3].split('&')
+		let requirements = (query[3] + (query.length > 4 ? query.slice(3).join('/') : '')).split('&')
 
 		let fields = ''
 		let where = ''
 		let set = ''
+
+		console.log(requirements)
 
 		requirements.forEach(function(item){
 			requirement = item.split('=');
@@ -87,7 +100,7 @@ function translate_to_graphsql(original_query){
 			console.log(set)
 			new_set = ''
 			set.split(',').forEach(function(field){
-				splitted_field = field.split(':')
+				splitted_field = split2(field, ':')
 				field_name = splitted_field[0]
 				new_set += 'set' + field_name[0].toUpperCase() + field_name.substring(1,field_name.length).toLowerCase() + ':' + splitted_field[1] + ','
 			})

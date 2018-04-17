@@ -27,6 +27,9 @@ import mongo_native
 class PersonMapper(graphene.ObjectType):
     id = graphene.String()
     name = graphene.String(default_value = '')
+    surname = graphene.String(default_value = '')
+    patronymic = graphene.String(default_value = '')
+    phone = graphene.String(default_value = '')
 
     department = graphene.Field(DepartmentMapper)
 
@@ -42,6 +45,11 @@ class PersonMapper(graphene.ObjectType):
 
     commands = graphene.List('control_action_mapper.ControlActionMapper')
     supervised = graphene.List('system_mapper.SystemMapper')
+
+    @staticmethod
+    def init_scalar(item):
+        return PersonMapper(id = str(item['_id']), name = item['name'], surname = item.get('surname'),\
+            patronymic = item.get('patronymic'), phone = item.get('phone'))
 
     def resolve_supervised(self, info):
         from system_mapper import SystemMapper

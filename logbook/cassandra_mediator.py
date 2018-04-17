@@ -16,6 +16,7 @@ from shift_state import ShiftState
 from operation_state import OperationState
 
 from data_adapters import string_to_bytes
+import math
 
 config = configparser.ConfigParser()
 config.read(os.environ['SPACE_SHIP_HOME'] + '/databases.config')
@@ -139,7 +140,54 @@ def remove_operation_state(timestamp):
 #/api/create/operationstate/fields=ok&where=timestamp:'2017-02-12 23:59:59',operation:'e85b8f435d6f4867af90133d4e8807a2',boat:'5acd0904ee18bbcfe8035ae1',status:'finishing',distancetotheship:100.12,zenith:2.02,azimuth:3.03,hassium:80,helium:20,comment:'all is perfect'
 #/api/remove/operationstate/fields=ok&where=timestamp:'2017-02-12 23:59:59'
 
+#
+
+#
+
+#
+
+def isreal(value):
+    try: 
+        float(str(value))
+    except ValueError: 
+        return False
+    return True
+
+def parse_params_for_select(params):
+
+	where = []
+
+	infinity = float('inf')
+
+	for key in params:
+		if (params[key] or params[key] == 0) and not (isreal(params[key]) and math.isnan(params[key])):
+			if isinstance(params[key], datetime.date):
+				where.append(key + ' = \'' + params[key].strftime(DATE_PATTERN) + '\'')
+			elif isinstance(params[key], datetime.time):
+				where.append(key + ' = \'' + params[key].strftime(TIME_PATTERN) + '\'')
+			elif not isinstance(params[key], str):
+				where.append(key + ' = ' + str(params[key]))
+			else:
+				where.append(key + ' = "' + params[key] + '"')
+
+	print(where)
+	return ', '.join(where)
+
+def select(table, params, dicted = False):
+	print('select * from {0}.{1} where {2} allow filtering;'.format(DB_NAME, table, parse_params_for_select(params)))
+	parsed_params = parse_params_for_select(params)
+	result = connection.execute('select * from {0}.{1} {2};'.format(DB_NAME, table,
+	 'where {0} allow filtering'.format(parsed_params) if len(parsed_params) else '')).current_rows
+
+	if not dicted:
+		return [namedtuple('Struct', item.keys())(*item.values()) for item in result]
+	return result
+
+def select_positions(**kwargs):
+	return select(table = 'position', params = kwargs)
+
 
 if __name__ == '__main__':
 	#print(remove_position(datetime.datetime.strptime('2017-02-12 23:59:59', TIMESTAMP_PATTERN)).date)
-	print(create_position(datetime.datetime.strptime('2017-02-12 23:59:59', TIMESTAMP_PATTERN), 13.0, 13.0, 13.0, 10.0, 0.2, 0.2).time)
+	#print(create_position(datetime.datetime.strptime('2017-02-12 23:59:59', TIMESTAMP_PATTERN), 13.0, 13.0, 13.0, 10.0, 0.2, 0.2).time)
+	print(select_position(attack_angle = 0))

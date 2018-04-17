@@ -10,6 +10,8 @@ sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/recital/native')
 
 import mongo_native
 
+from bson.objectid import ObjectId
+
 class CreateSensor(graphene.Mutation):
     class Arguments:
         name = graphene.String()
@@ -50,6 +52,7 @@ class UpdateSensors(graphene.Mutation):
 
     def mutate(self, info, name, location, set_name, set_location, id):
         sensors = [SensorMapper.init_scalar(item) for item in \
-        mongo_native.update_sensor(name = name, location = location, set_name = set_name, set_location = set_location, _id = id)]
+        mongo_native.update_sensor(_id = ObjectId(id) if id else None, name = name, location = ObjectId(location) if location else None, 
+            set_name = set_name, set_location = ObjectId(set_location) if set_location else None)]
         ok = True
         return UpdateSensors(sensors = sensors, ok = ok)

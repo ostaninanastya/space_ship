@@ -50,3 +50,22 @@ class EradicateDepartment(graphene.Mutation):
         mongo_native.eradicate_department(id)
         ok = True
         return EradicateDepartment(department = department, ok = ok)
+
+class UpdateDepartments(graphene.Mutation):
+    class Arguments:
+        id = graphene.String(default_value = '')
+        name = graphene.String(default_value = '')
+        vk = graphene.String(default_value = '')
+
+        set_name = graphene.String(default_value = '')
+        set_vk = graphene.String(default_value = '')
+
+    ok = graphene.Boolean()
+    departments = graphene.List(lambda: DepartmentMapper)
+
+    def mutate(self, info, id, name, vk, set_name, set_vk):
+        #print('omg')
+        new_departments = mongo_native.update_departments(_id = ObjectId(id) if id else None, name = name, vk = vk, set_name = set_name, set_vk = set_vk)
+        departments = [DepartmentMapper.init_scalar(item) for item in new_departments]
+        ok = True
+        return UpdateDepartments(departments = departments, ok = ok)

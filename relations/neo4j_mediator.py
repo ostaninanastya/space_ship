@@ -288,12 +288,22 @@ def remove_requirement(ident):
 	graph.data("""match (r:Requirement) where r.ident = '%s' detach delete r""" % ident)
 	return deleted
 
+#
+
+#
+
+#
+
+def select_operations(**kwargs):
+	return [item for item in Operation.nodes.filter(**{arg : kwargs[arg] for arg in kwargs if kwargs[arg]})]
+
 if __name__ == '__main__':
+	print(select_operations(name__iregex = '.*.*'))
 	#print(is_valid_foreign_id('Shift', 'a983d357069f4363803f87b5cc7c8f7d'))
 	
 	#create_requirement('good team', '5ac52207cc314386b6f43441:13,5ac5220ccc314386b6f43442:17')
 	
-	remove_requirement('0ac5f860d78841cfb9afbb61315baa5d')
+	#remove_requirement('0ac5f860d78841cfb9afbb61315baa5d')
 
 	#remove_operation('05e36fbdcd7c4bd5b488ebe7729ddb9d')
 

@@ -337,13 +337,13 @@ def remove_property(id):
 
 ###
 
-def parse_params(params):
+def parse_params_for_update(params):
 
 	where = {}
 	update = {}
 
 	for key in params:
-		if params[key] != '':
+		if params[key]:
 			if 'set_' in key:
 				update[key.replace('set_','')] = params[key]
 				continue
@@ -352,18 +352,50 @@ def parse_params(params):
 
 	return where, update
 
-	
-
 def update(params, collection):
-	where, update = parse_params(params)
-	db[collection].update(where,{'$set': update})
+	where, update = parse_params_for_update(params)
+	db[collection].update_many(where,{'$set': update})
 	return [item for item in db[collection].find(update)]
 
 def update_sensor(**kwargs):
 	return update(kwargs, 'source_test')
 
+def update_people(**kwargs):
+	return update(kwargs, 'people_test')
+
+def update_departments(**kwargs):
+	return update(kwargs, 'department_test')
+
+###
+
+def parse_params_for_select(params):
+
+	where = {}
+
+	for key in params:
+		if params[key]:
+			if isinstance(params[key], str):
+				where[key] = {'$regex' : params[key], '$options' : 'i'}
+			else:
+				where[key] = params[key]
+
+	return where
+
+def select(params, collection):
+	return [item for item in db[collection].find(parse_params_for_select(params))]
+
+def select_sensors(**kwargs):
+	return select(kwargs, 'source_test')
+
+def select_people(**kwargs):
+	return select(kwargs, 'people_test')
+
+def select_departments(**kwargs):
+	return select(kwargs, 'department_test')
+
 if __name__ == '__main__':
-	print(update_sensor(name = 'new one', set_name = 'one'))
+	print(update_people(name = 'dima', set_name = 'dimas'))
+	#print(select_sensor(name = 'o'))
 	#print(create_location('test loc'))
 	#print(get_all_properties())
 	#print(get_people_ids_with_spec('5ac52207cc314386b6f43441'))

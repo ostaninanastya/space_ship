@@ -9,6 +9,11 @@ config.read('../../databases.config')
 DB_URL = os.environ.get('DB_URL') if os.environ.get('DB_URL') else config['CASSANDRA']['host']
 DB_NAME = os.environ.get('DB_NAME') if os.environ.get('DB_NAME') else config['CASSANDRA']['db_name']
 
+TIME_PATTERN = os.environ.get('TIME_PATTERN') or config['FORMATS']['time']
+DATE_PATTERN = os.environ.get('DATE_PATTERN') or config['FORMATS']['date']
+
+TIMESTAMP_PATTERN = os.environ.get('TIMESTAMP_PATTERN') or config['FORMATS']['timestamp']
+
 import graphene
 from cassandra.cqlengine import connection
 
@@ -88,6 +93,16 @@ import sensor_data_manipulator
 import shift_state_manipulator
 import operation_state_manipulator
 
+INFINITY = float('inf')
+
+sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/logbook')
+
+import cassandra_mediator
+
+sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/relations')
+
+import neo4j_mediator
+
 def has_item_valid_time(hour, minute, second, item_time):
     return (hour < 0 or item_time.hour == hour) and\
         (minute < 0 or item_time.minute == minute) and\
@@ -105,6 +120,7 @@ class FirstMutation(graphene.ObjectType):
     create_department = department_manipulator.CreateDepartment.Field()
     remove_department = department_manipulator.RemoveDepartment.Field()
     eradicate_department = department_manipulator.EradicateDepartment.Field()
+    update_departments = department_manipulator.UpdateDepartments.Field()
 
     create_specialization = specialization_manipulator.CreateSpecialization.Field()
     remove_specialization = specialization_manipulator.RemoveSpecialization.Field()
@@ -113,6 +129,7 @@ class FirstMutation(graphene.ObjectType):
     create_person = person_manipulator.CreatePerson.Field()
     remove_person = person_manipulator.RemovePerson.Field()
     eradicate_person = person_manipulator.EradicatePerson.Field()
+    update_people = person_manipulator.UpdatePeople.Field()
 
     create_boat = boat_manipulator.CreateBoat.Field()
     remove_boat = boat_manipulator.RemoveBoat.Field()
@@ -168,15 +185,30 @@ class FirstMutation(graphene.ObjectType):
 
 class FirstQuery(graphene.ObjectType):
 
-    position = graphene.List(PositionMapper, hour = graphene.Int(default_value = -1), minute = graphene.Int(default_value = -1), second = graphene.Int(default_value = -1))
+    position = graphene.List(PositionMapper, date = graphene.String(default_value = ''),
+        time = graphene.String(default_value = ''),
+        x = graphene.Float(default_value = float('nan')),
+        y = graphene.Float(default_value = float('nan')),
+        z = graphene.Float(default_value = float('nan')),
+        attack_angle = graphene.Float(default_value = float('nan')),
+        direction_angle = graphene.Float(default_value = float('nan')),
+        speed = graphene.Float(default_value = float('nan')))
     controlaction = graphene.List(ControlActionMapper, hour = graphene.Int(default_value = -1), minute = graphene.Int(default_value = -1), second = graphene.Int(default_value = -1))
     systemtest = graphene.List(SystemTestMapper, hour = graphene.Int(default_value = -1), minute = graphene.Int(default_value = -1), second = graphene.Int(default_value = -1))
     operationstate = graphene.List(OperationStateMapper, hour = graphene.Int(default_value = -1), minute = graphene.Int(default_value = -1), second = graphene.Int(default_value = -1))
     shiftstate = graphene.List(ShiftStateMapper, hour = graphene.Int(default_value = -1), minute = graphene.Int(default_value = -1), second = graphene.Int(default_value = -1))
     sensordata = graphene.List(SensorDataMapper, hour = graphene.Int(default_value = -1), minute = graphene.Int(default_value = -1), second = graphene.Int(default_value = -1))
 
-    people = graphene.List(PersonMapper, id = graphene.String(default_value = ''))
-    departments = graphene.List(DepartmentMapper, id = graphene.String(default_value = ''))
+    people = graphene.List(PersonMapper, id = graphene.String(default_value = ''),
+        name = graphene.String(default_value = ''),
+        surname = graphene.String(default_value = ''),
+        patronymic = graphene.String(default_value = ''),
+        phone = graphene.String(default_value = ''),
+        department = graphene.String(default_value = ''),
+        specialization = graphene.String(default_value = ''))
+    departments = graphene.List(DepartmentMapper, id = graphene.String(default_value = ''),
+        name = graphene.String(default_value = ''),
+        vk = graphene.String(default_value = ''))
     property_types = graphene.List(PropertyTypeMapper, id = graphene.String(default_value = ''))
     specializations = graphene.List(SpecializationMapper, id = graphene.String(default_value = ''))
     properties = graphene.List(PropertyMapper, id = graphene.String(default_value = ''))
@@ -184,22 +216,29 @@ class FirstQuery(graphene.ObjectType):
     systemtypes = graphene.List(SystemTypeMapper, id = graphene.String(default_value = ''))
     locations = graphene.List(LocationMapper, id = graphene.String(default_value = ''))
     boats = graphene.List(BoatMapper, id = graphene.String(default_value = ''))
-    sensors = graphene.List(SensorMapper, id = graphene.String(default_value = ''))
+    sensors = graphene.List(SensorMapper, id = graphene.String(default_value = ''), 
+        name = graphene.String(default_value = ''),
+        location = graphene.String(default_value = ''))
     systems = graphene.List(SystemMapper, id = graphene.String(default_value = ''))
 
     requirements = graphene.List(RequirementMapper, id = graphene.String(default_value = ''))
     shifts = graphene.List(ShiftMapper, id = graphene.String(default_value = ''))
-    operations = graphene.List(OperationMapper, id = graphene.String(default_value = ''))
+    operations = graphene.List(OperationMapper, id = graphene.String(default_value = ''), name = graphene.String(default_value = ''),
+        start = graphene.String(default_value = ''), end = graphene.String(default_value = ''))
 
     #recital
 
-    def resolve_people(self, info, id):
+    def resolve_people(self, info, id, name, surname, patronymic, phone, department, specialization):
         id_matcher = re.compile(id + '.*')
-        return [PersonMapper(person_id) for person_id in mongo_native.get_all_people_ids() if id_matcher.match(person_id)]
+        department_id_matcher = re.compile(department + '.*')
+        specialization_id_matcher = re.compile(specialization + '.*')
+        return [PersonMapper.init_scalar(item)\
+        for item in mongo_native.select_people(name = name, surname = surname, patronymic = patronymic, phone = phone)\
+        if id_matcher.match(str(item['_id'])) and department_id_matcher.match(str(item['department'])) and specialization_id_matcher.match(str(item['specialization']))]
 
-    def resolve_departments(self, info, id):
+    def resolve_departments(self, info, id, name, vk):
         id_matcher = re.compile(id + '.*')
-        return [DepartmentMapper(department_id) for department_id in mongo_native.get_all_departments_ids() if id_matcher.match(department_id)]
+        return [DepartmentMapper.init_scalar(item) for item in mongo_native.select_departments(name = name, vk = vk) if id_matcher.match(str(item['_id']))]
 
     def resolve_property_types(self, info, id):
         id_matcher = re.compile(id + '.*')
@@ -229,9 +268,11 @@ class FirstQuery(graphene.ObjectType):
         id_matcher = re.compile(id + '.*')
         return [BoatMapper.init_scalar(item) for item in mongo_native.get_all_boats() if id_matcher.match(str(item['_id']))]
 
-    def resolve_sensors(self, info, id):
+    def resolve_sensors(self, info, id, name, location):
         id_matcher = re.compile(id + '.*')
-        return [SensorMapper.init_scalar(item) for item in mongo_native.get_all_sensors() if id_matcher.match(str(item['_id']))]
+        location_id_matcher = re.compile(location + '.*')
+        return [SensorMapper.init_scalar(item) for item in mongo_native.select_sensors(name = name)\
+            if id_matcher.match(str(item['_id'])) and location_id_matcher.match(str(item.get('location')))]
 
     def resolve_systems(self, info, id):
         id_matcher = re.compile(id + '.*')
@@ -247,9 +288,11 @@ class FirstQuery(graphene.ObjectType):
         return [ControlActionMapper.init_scalar(item) for item in ControlAction.objects.all()[1:] 
         if has_item_valid_time(hour, minute, second, item.time)]
 
-    def resolve_position(self, info, hour, minute, second):
-        return [PositionMapper.init_scalar(item) for item in Position.objects.all()[1:] 
-        if has_item_valid_time(hour, minute, second, item.time)]
+    def resolve_position(self, info, date, time, x, y, z, speed, attack_angle, direction_angle):
+        return [PositionMapper.init_scalar(item) for item in cassandra_mediator.select_positions(
+            date = None if not date else datetime.datetime.strptime(date, DATE_PATTERN).date(),
+            time = None if not time else datetime.datetime.strptime(time, TIME_PATTERN).time(),
+            x = x, y = y, z = z, speed = speed, attack_angle = attack_angle, direction_angle = direction_angle)]
 
     def resolve_operationstate(self, info, hour, minute, second):
         return [OperationStateMapper.init_scalar(item) for item in select_queries.get_operation_states()
@@ -273,9 +316,15 @@ class FirstQuery(graphene.ObjectType):
         id_matcher = re.compile(id + '.*')
         return [ShiftMapper.init_scalar(item) for item in Shift.nodes.filter() if id_matcher.match(str(item.ident))]
 
-    def resolve_operations(self, info, id):
+    def resolve_operations(self, info, id, name, start, end):
         id_matcher = re.compile(id + '.*')
-        return [OperationMapper.init_scalar(item) for item in Operation.nodes.filter() if id_matcher.match(str(item.ident))]
+
+        return [OperationMapper.init_scalar(item) for item in neo4j_mediator.select_operations(name__regex = '.*' + name + '.*',
+            start = datetime.datetime.strptime(start, TIMESTAMP_PATTERN) if start else None,
+            end = datetime.datetime.strptime(end, TIMESTAMP_PATTERN) if end else None) 
+            if id_matcher.match(str(item.ident))]
+
+        #return [OperationMapper.init_scalar(item) for item in Operation.nodes.filter() if id_matcher.match(str(item.ident))]
 
 def get_mutation_description(explored_class):
     result = str(explored_class).lower().replace('create','create_').replace('remove','remove_').replace('eradicate','eradicate_') + ' {\n'

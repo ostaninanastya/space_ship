@@ -18,6 +18,10 @@ class DepartmentMapper(graphene.ObjectType):
     properties = graphene.List('property_mapper.PropertyMapper')
     people = graphene.List('person_mapper.PersonMapper')
 
+    @staticmethod
+    def init_scalar(item):
+        return DepartmentMapper(id = str(item['_id']), name = item['name'], vk = item.get('surname'))
+
     def resolve_name(self, info):
     	return mongo_adapter.get_name_by_id('department_test', self.id)
 
