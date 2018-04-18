@@ -4,6 +4,7 @@ import datetime
 from collections import namedtuple
 import csv
 
+import cassandra
 from cassandra.cqlengine import connection
 
 sys.path.append('entities')
@@ -15,8 +16,12 @@ from sensor_data import SensorData
 from shift_state import ShiftState
 from operation_state import OperationState
 
-from data_adapters import string_to_bytes
+#from data_adapters import string_to_bytes
 import math
+
+sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/logbook')
+
+from data_adapters import string_to_bytes, get_strings
 
 config = configparser.ConfigParser()
 config.read(os.environ['SPACE_SHIP_HOME'] + '/databases.config')
@@ -153,29 +158,42 @@ def isreal(value):
         return False
     return True
 
-def parse_params_for_select(params):
+def parse_params(params, delimiter):
 
 	where = []
 
 	infinity = float('inf')
 
+
+
 	for key in params:
-		if (params[key] or params[key] == 0) and not (isreal(params[key]) and math.isnan(params[key])):
+		if (params[key] or params[key] == 0) and not (isinstance(params[key], int) and params[key] == -1) and not (isreal(params[key]) and math.isnan(params[key])):
 			if isinstance(params[key], datetime.date):
 				where.append(key + ' = \'' + params[key].strftime(DATE_PATTERN) + '\'')
 			elif isinstance(params[key], datetime.time):
 				where.append(key + ' = \'' + params[key].strftime(TIME_PATTERN) + '\'')
-			elif not isinstance(params[key], str):
+			elif isinstance(params[key], bytearray):
+				where.append(key + ' = 0x' + params[key].hex())
+			elif not isinstance(params[key], str) and not isinstance(params[key], cassandra.util.Date) and not isinstance(params[key], cassandra.util.Time):
+				print(type(params[key]))
 				where.append(key + ' = ' + str(params[key]))
 			else:
-				where.append(key + ' = "' + params[key] + '"')
+				where.append(key + ' = \'' + str(params[key]) + '\'')
 
 	print(where)
-	return ', '.join(where)
+	return delimiter.join(where)
+
+def extract_keys(item, keys):
+	selected = {}
+	for key in item:
+		#print(dir(item))
+		if key in keys:
+			selected[key] = item[key]
+	return parse_params(selected, ' and ')
 
 def select(table, params, dicted = False):
-	print('select * from {0}.{1} where {2} allow filtering;'.format(DB_NAME, table, parse_params_for_select(params)))
-	parsed_params = parse_params_for_select(params)
+	print('select * from {0}.{1} where {2} allow filtering;'.format(DB_NAME, table, parse_params(params, ' and ')))
+	parsed_params = parse_params(params, ' and ')
 	result = connection.execute('select * from {0}.{1} {2};'.format(DB_NAME, table,
 	 'where {0} allow filtering'.format(parsed_params) if len(parsed_params) else '')).current_rows
 
@@ -183,11 +201,103 @@ def select(table, params, dicted = False):
 		return [namedtuple('Struct', item.keys())(*item.values()) for item in result]
 	return result
 
+def update(table, params, dicted = False):
+	where = {}
+	update = {}
+	for param in params:
+		if 'set_' in param:
+			update[param.replace('set_','')] = params[param]
+		else:
+			where[param] = params[param]
+
+	select_result = select(table, where, dicted = True)
+	parsed_update_params = parse_params(update, ', ')
+
+	#result = connection.execute
+	print('BEGIN BATCH ' + ' '.join(['update {0}.{1} set {3} where {2};'.format(DB_NAME, table,
+		extract_keys(item, ['date', 'time']), parsed_update_params) for item in select_result ]) + ' APPLY BATCH;')
+
+	result = connection.execute('BEGIN BATCH ' + ' '.join(['update {0}.{1} set {3} where {2};'.format(DB_NAME, table,
+		extract_keys(item, ['date', 'time']), parsed_update_params) for item in select_result ]) + ' APPLY BATCH;').current_rows
+	#.current_rows
+	if not dicted:
+		return [namedtuple('Struct', item.keys())(*item.values()) for item in result]
+	return result
+
+
+def update_positions(**kwargs):
+	return update(table = 'position', params = kwargs)
+
+def update_system_tests(**kwargs):
+	return update(table = 'system_test', params = kwargs)
+
+def update_control_actions(**kwargs):
+	return update(table = 'control_action', params = kwargs)
+
+def update_sensor_data(**kwargs):
+	return update(table = 'sensor_data', params = kwargs)
+
+def update_shift_state(**kwargs):
+	return update(table = 'shift_state', params = kwargs)
+
+def update_operation_states(**kwargs):
+
+	chemical_elements = get_strings(os.environ['SPACE_SHIP_HOME'] + '/logbook/enums/chemical_elements')
+
+	changed_elements = {}
+
+	where = {}
+	for param in kwargs:
+		if not 'set_' in param:
+			where[param] = kwargs[param]
+		elif param.replace('set_', '') in chemical_elements and not math.isnan(kwargs[param]):
+			changed_elements[param.replace('set_', '')] = kwargs[param]
+
+	select_result = select('operation_state', where, dicted = True)
+
+	#print('ch',changed_elements)
+
+	for row in select_result:
+		quantities = []
+		for key in row:
+			if key in chemical_elements:
+				if key in changed_elements:
+					quantities.append(changed_elements[key])
+				else:
+					quantities.append(row[key])
+
+		#print(quantities)
+
+		OperationState.validate_elements_quantities(quantities)
+
+	return update(table = 'operation_state', params = kwargs)
+
+
+	#if not dicted:
+	#	return [namedtuple('Struct', item.keys())(*item.values()) for item in result]
+	#return result
+
 def select_positions(**kwargs):
 	return select(table = 'position', params = kwargs)
 
+def select_control_actions(**kwargs):
+	return select(table = 'control_action', params = kwargs)
+
+def select_shift_states(**kwargs):
+	return select(table = 'shift_state', params = kwargs, dicted = True)
+
+def select_system_tests(**kwargs):
+	return select(table = 'system_test', params = kwargs, dicted = True)
+
+def select_sensor_data(**kwargs):
+	return select(table = 'sensor_data', params = kwargs, dicted = True)
+
+def select_operation_states(**kwargs):
+	return select(table = 'operation_state', params = kwargs, dicted = True)
+
 
 if __name__ == '__main__':
+	print(update_positions(attack_angle = 0, set_y = 10))
 	#print(remove_position(datetime.datetime.strptime('2017-02-12 23:59:59', TIMESTAMP_PATTERN)).date)
 	#print(create_position(datetime.datetime.strptime('2017-02-12 23:59:59', TIMESTAMP_PATTERN), 13.0, 13.0, 13.0, 10.0, 0.2, 0.2).time)
-	print(select_position(attack_angle = 0))
+	#print(select_position(attack_angle = 0))

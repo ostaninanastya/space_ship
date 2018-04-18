@@ -28,17 +28,26 @@ class ShiftState(Model):
     def validate(self):
         super(ShiftState, self).validate()
         
-        if len(self.shift_id) != 16 or not neo4j_adapter.is_valid_foreign_id('Shift', self.shift_id.hex()):
+        ShiftState.validate_shift_id(self.shift_id)
+        ShiftState.validate_warning_level(self.warning_level)
+        ShiftState.validate_remaining_quantity(self.remaining_cartridges, 'remaining cartridges')
+        ShiftState.validate_remaining_quantity(self.remaining_air, 'remaining air')
+        ShiftState.validate_remaining_quantity(self.remaining_electricity, 'remaining electricity')
+
+    @staticmethod
+    def validate_shift_id(shift_id):
+        if len(shift_id) != 16 or not neo4j_adapter.is_valid_foreign_id('Shift', shift_id.hex()):
             raise ValidationError('not a valid shift id')
+        return shift_id
 
-        if self.warning_level not in WARNING_LEVELS:
+    @staticmethod
+    def validate_warning_level(warning_level):
+        if warning_level not in WARNING_LEVELS:
             raise ValidationError('not a warning level')
+        return warning_level
 
-        if self.remaining_cartridges < 0 or self.remaining_cartridges > 100:
-            raise ValidationError('not a valid remaining cartridges value')
-
-        if self.remaining_air < 0 or self.remaining_air > 100:
-            raise ValidationError('not a valid remaining air value')
-
-        if self.remaining_electricity < 0 or self.remaining_electricity > 100:
-            raise ValidationError('not a valid remaining electricity value')
+    @staticmethod
+    def validate_remaining_quantity(remaining_quantity, message):
+        if remaining_quantity < 0 or remaining_quantity > 100:
+            raise ValidationError('not a valid {0} value'.format(message))
+        return remaining_quantity

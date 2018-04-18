@@ -37,6 +37,10 @@ sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/api/background/mappers')
 
 sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/relations/entities/')
 
+sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/logbook')
+
+from data_adapters import string_to_bytes
+
 from requirement import Requirement
 from shift import Shift
 from operation import Operation
@@ -167,21 +171,27 @@ class FirstMutation(graphene.ObjectType):
 
     create_position = position_manipulator.CreatePosition.Field()
     remove_position = position_manipulator.RemovePosition.Field()
+    update_position = position_manipulator.UpdatePositions.Field()
 
     create_controlaction = control_action_manipulator.CreateControlAction.Field()
     remove_controlaction = control_action_manipulator.RemoveControlAction.Field()
+    update_controlaction = control_action_manipulator.UpdateControlActions.Field()
 
     create_systemtest = system_test_manipulator.CreateSystemTest.Field()
     remove_systemtest = system_test_manipulator.RemoveSystemTest.Field()
+    update_systemtest = system_test_manipulator.UpdateSystemTests.Field()
 
     create_sensordata = sensor_data_manipulator.CreateSensorData.Field()
     remove_sensordata = sensor_data_manipulator.RemoveSensorData.Field()
+    update_sensordata = sensor_data_manipulator.UpdateSensorData.Field()
 
     create_shiftstate = shift_state_manipulator.CreateShiftState.Field()
     remove_shiftstate = shift_state_manipulator.RemoveShiftState.Field()
+    update_shiftstate = shift_state_manipulator.UpdateShiftStates.Field()
 
     create_operationstate = operation_state_manipulator.CreateOperationState.Field()
     remove_operationstate = operation_state_manipulator.RemoveOperationState.Field()
+    update_operationstate = operation_state_manipulator.UpdateOperationStates.Field()
 
 class FirstQuery(graphene.ObjectType):
 
@@ -193,11 +203,159 @@ class FirstQuery(graphene.ObjectType):
         attack_angle = graphene.Float(default_value = float('nan')),
         direction_angle = graphene.Float(default_value = float('nan')),
         speed = graphene.Float(default_value = float('nan')))
-    controlaction = graphene.List(ControlActionMapper, hour = graphene.Int(default_value = -1), minute = graphene.Int(default_value = -1), second = graphene.Int(default_value = -1))
-    systemtest = graphene.List(SystemTestMapper, hour = graphene.Int(default_value = -1), minute = graphene.Int(default_value = -1), second = graphene.Int(default_value = -1))
-    operationstate = graphene.List(OperationStateMapper, hour = graphene.Int(default_value = -1), minute = graphene.Int(default_value = -1), second = graphene.Int(default_value = -1))
-    shiftstate = graphene.List(ShiftStateMapper, hour = graphene.Int(default_value = -1), minute = graphene.Int(default_value = -1), second = graphene.Int(default_value = -1))
-    sensordata = graphene.List(SensorDataMapper, hour = graphene.Int(default_value = -1), minute = graphene.Int(default_value = -1), second = graphene.Int(default_value = -1))
+    controlaction = graphene.List(ControlActionMapper, date = graphene.String(default_value = ''),
+        time = graphene.String(default_value = ''),
+        mac = graphene.String(default_value = ''),
+        user = graphene.String(default_value = ''),
+        command = graphene.String(default_value = ''),
+        params = graphene.String(default_value = ''),
+        result = graphene.String(default_value = ''))
+    systemtest = graphene.List(SystemTestMapper, date = graphene.String(default_value = ''),
+        time = graphene.String(default_value = ''),
+        system = graphene.String(default_value = ''),
+        result = graphene.Int(default_value = -1))
+    operationstate = graphene.List(OperationStateMapper,date = graphene.String(default_value = ''),
+        time = graphene.String(default_value = ''),
+        boat = graphene.String(default_value = ''),
+        operation = graphene.String(default_value = ''),
+        status = graphene.String(default_value = ''),
+        distancetotheship = graphene.Float(default_value = float('nan')),
+        zenith = graphene.Float(default_value = float('nan')),
+        azimuth = graphene.Float(default_value = float('nan')),
+        hydrogenium = graphene.Float(default_value = float('nan')),
+        helium = graphene.Float(default_value = float('nan')),
+        lithium = graphene.Float(default_value = float('nan')),
+        beryllium = graphene.Float(default_value = float('nan')),
+        borum = graphene.Float(default_value = float('nan')),
+        carboneum = graphene.Float(default_value = float('nan')),
+        nitrogenium = graphene.Float(default_value = float('nan')),
+        oxygenium = graphene.Float(default_value = float('nan')),
+        fluorum = graphene.Float(default_value = float('nan')),
+        neon = graphene.Float(default_value = float('nan')),
+        natrium = graphene.Float(default_value = float('nan')),
+        magnesium = graphene.Float(default_value = float('nan')),
+        aluminium = graphene.Float(default_value = float('nan')),
+        silicium = graphene.Float(default_value = float('nan')),
+        phosphorus = graphene.Float(default_value = float('nan')),
+        sulfur = graphene.Float(default_value = float('nan')),
+        chlorum = graphene.Float(default_value = float('nan')),
+        argon = graphene.Float(default_value = float('nan')),
+        kalium = graphene.Float(default_value = float('nan')),
+        calcium = graphene.Float(default_value = float('nan')),
+        scandium = graphene.Float(default_value = float('nan')),
+        titanium = graphene.Float(default_value = float('nan')),
+        vanadium = graphene.Float(default_value = float('nan')),
+        chromium = graphene.Float(default_value = float('nan')),
+        manganum  = graphene.Float(default_value = float('nan')),
+        ferrum = graphene.Float(default_value = float('nan')),
+        cobaltum = graphene.Float(default_value = float('nan')),
+        niccolum = graphene.Float(default_value = float('nan')),
+        cuprum = graphene.Float(default_value = float('nan')),
+        zincum = graphene.Float(default_value = float('nan')),
+        gallium = graphene.Float(default_value = float('nan')),
+        germanium = graphene.Float(default_value = float('nan')),
+        arsenicum = graphene.Float(default_value = float('nan')),
+        selenium = graphene.Float(default_value = float('nan')),
+        bromum = graphene.Float(default_value = float('nan')),
+        crypton = graphene.Float(default_value = float('nan')),
+        rubidium = graphene.Float(default_value = float('nan')),
+        strontium = graphene.Float(default_value = float('nan')),
+        yttrium = graphene.Float(default_value = float('nan')),
+        zirconium = graphene.Float(default_value = float('nan')),
+        niobium = graphene.Float(default_value = float('nan')),
+        molybdaenum = graphene.Float(default_value = float('nan')),
+        technetium = graphene.Float(default_value = float('nan')),
+        ruthenium = graphene.Float(default_value = float('nan')),
+        rhodium = graphene.Float(default_value = float('nan')),
+        palladium = graphene.Float(default_value = float('nan')),
+        argentum = graphene.Float(default_value = float('nan')),
+        cadmium = graphene.Float(default_value = float('nan')),
+        indium = graphene.Float(default_value = float('nan')),
+        stannum = graphene.Float(default_value = float('nan')),
+        stibium = graphene.Float(default_value = float('nan')),
+        tellurium = graphene.Float(default_value = float('nan')),
+        iodium = graphene.Float(default_value = float('nan')),
+        xenon = graphene.Float(default_value = float('nan')),
+        caesium = graphene.Float(default_value = float('nan')),
+        barium = graphene.Float(default_value = float('nan')),
+        lanthanum = graphene.Float(default_value = float('nan')),
+        cerium = graphene.Float(default_value = float('nan')),
+        praseodymium = graphene.Float(default_value = float('nan')),
+        neodymium = graphene.Float(default_value = float('nan')),
+        promethium = graphene.Float(default_value = float('nan')),
+        samarium = graphene.Float(default_value = float('nan')),
+        europium = graphene.Float(default_value = float('nan')),
+        gadolinium = graphene.Float(default_value = float('nan')),
+        terbium = graphene.Float(default_value = float('nan')),
+        dysprosium = graphene.Float(default_value = float('nan')),
+        holmium = graphene.Float(default_value = float('nan')),
+        erbium = graphene.Float(default_value = float('nan')),
+        thulium = graphene.Float(default_value = float('nan')),
+        ytterbium = graphene.Float(default_value = float('nan')),
+        lutetium = graphene.Float(default_value = float('nan')),
+        hafnium = graphene.Float(default_value = float('nan')),
+        tantalum = graphene.Float(default_value = float('nan')),
+        wolframium = graphene.Float(default_value = float('nan')),
+        rhenium = graphene.Float(default_value = float('nan')),
+        osmium = graphene.Float(default_value = float('nan')),
+        iridium = graphene.Float(default_value = float('nan')),
+        platinum = graphene.Float(default_value = float('nan')),
+        aurum = graphene.Float(default_value = float('nan')),
+        hydrargyrum = graphene.Float(default_value = float('nan')),
+        thallium = graphene.Float(default_value = float('nan')),
+        plumbum = graphene.Float(default_value = float('nan')),
+        bismuthum = graphene.Float(default_value = float('nan')),
+        polonium = graphene.Float(default_value = float('nan')),
+        astatum = graphene.Float(default_value = float('nan')),
+        radon = graphene.Float(default_value = float('nan')),
+        francium = graphene.Float(default_value = float('nan')),
+        radium = graphene.Float(default_value = float('nan')),
+        actinium = graphene.Float(default_value = float('nan')),
+        thorium = graphene.Float(default_value = float('nan')),
+        protactinium = graphene.Float(default_value = float('nan')),
+        uranium = graphene.Float(default_value = float('nan')),
+        neptunium = graphene.Float(default_value = float('nan')),
+        plutonium = graphene.Float(default_value = float('nan')),
+        americium = graphene.Float(default_value = float('nan')),
+        curium = graphene.Float(default_value = float('nan')),
+        berkelium = graphene.Float(default_value = float('nan')),
+        californium = graphene.Float(default_value = float('nan')),
+        einsteinium = graphene.Float(default_value = float('nan')),
+        fermium = graphene.Float(default_value = float('nan')),
+        mendelevium  = graphene.Float(default_value = float('nan')),
+        nobelium = graphene.Float(default_value = float('nan')),
+        lawrencium  = graphene.Float(default_value = float('nan')),
+        rutherfordium = graphene.Float(default_value = float('nan')),
+        dubnium = graphene.Float(default_value = float('nan')),
+        seaborgium = graphene.Float(default_value = float('nan')),
+        bohrium = graphene.Float(default_value = float('nan')),
+        hassium = graphene.Float(default_value = float('nan')),
+        meitnerium = graphene.Float(default_value = float('nan')),
+        darmstadtium = graphene.Float(default_value = float('nan')),
+        roentgenium = graphene.Float(default_value = float('nan')),
+        copernicium = graphene.Float(default_value = float('nan')),
+        nihonium = graphene.Float(default_value = float('nan')),
+        flerovium = graphene.Float(default_value = float('nan')),
+        moscovium = graphene.Float(default_value = float('nan')),
+        livermorium = graphene.Float(default_value = float('nan')),
+        tennessium = graphene.Float(default_value = float('nan')),
+        oganesson = graphene.Float(default_value = float('nan')),
+        comment = graphene.String(default_value = ''))
+    shiftstate = graphene.List(ShiftStateMapper, date = graphene.String(default_value = ''),
+        time = graphene.String(default_value = ''),
+        shift = graphene.String(default_value = ''),
+        warninglevel = graphene.String(default_value = ''),
+        remainingcartridges = graphene.Int(default_value = -1),
+        remainingair = graphene.Int(default_value = -1),
+        remainingelectricity = graphene.Int(default_value = -1),
+        comment = graphene.String(default_value = ''))
+    sensordata = graphene.List(SensorDataMapper, date = graphene.String(default_value = ''),
+        time = graphene.String(default_value = ''),
+        sensor = graphene.String(default_value = ''),
+        event = graphene.String(default_value = ''),
+        valuename = graphene.String(default_value = ''),
+        value = graphene.Float(default_value = float('nan')),
+        units = graphene.String(default_value = ''))
 
     people = graphene.List(PersonMapper, id = graphene.String(default_value = ''),
         name = graphene.String(default_value = ''),
@@ -280,13 +438,20 @@ class FirstQuery(graphene.ObjectType):
 
     #logbook
 
-    def resolve_systemtest(self, info, hour, minute, second):
-        return [SystemTestMapper.init_scalar(item) for item in select_queries.get_system_tests() 
-        if has_item_valid_time(hour, minute, second, item['time'])]
+    def resolve_systemtest(self, info, date, time, system, result):
+        return [SystemTestMapper.init_scalar(item) for item in cassandra_mediator.select_system_tests(
+            date = None if not date else datetime.datetime.strptime(date, DATE_PATTERN).date(),
+            time = None if not time else datetime.datetime.strptime(time, TIME_PATTERN).time(),
+            system_id = None if not system else string_to_bytes(system),
+            result = result)]
 
-    def resolve_controlaction(self, info, hour, minute, second):
-        return [ControlActionMapper.init_scalar(item) for item in ControlAction.objects.all()[1:] 
-        if has_item_valid_time(hour, minute, second, item.time)]
+    def resolve_controlaction(self, info, date, time, mac, user, command, params, result):
+        return [ControlActionMapper.init_scalar(item) for item in cassandra_mediator.select_control_actions(
+            date = None if not date else datetime.datetime.strptime(date, DATE_PATTERN).date(),
+            time = None if not time else datetime.datetime.strptime(time, TIME_PATTERN).time(),
+            mac_address = None if not mac else string_to_bytes(mac), 
+            user_id = None if not user else string_to_bytes(user), 
+            command = command, params = params, result = result)]
 
     def resolve_position(self, info, date, time, x, y, z, speed, attack_angle, direction_angle):
         return [PositionMapper.init_scalar(item) for item in cassandra_mediator.select_positions(
@@ -294,17 +459,57 @@ class FirstQuery(graphene.ObjectType):
             time = None if not time else datetime.datetime.strptime(time, TIME_PATTERN).time(),
             x = x, y = y, z = z, speed = speed, attack_angle = attack_angle, direction_angle = direction_angle)]
 
-    def resolve_operationstate(self, info, hour, minute, second):
-        return [OperationStateMapper.init_scalar(item) for item in select_queries.get_operation_states()
-        if has_item_valid_time(hour, minute, second, item['time'])]
+    def resolve_operationstate(self, info, date, time, boat, operation, status, distancetotheship, zenith, azimuth, hydrogenium,
+        helium, lithium, beryllium, borum,
+        carboneum, nitrogenium, oxygenium, fluorum, neon, natrium, magnesium, aluminium, silicium, phosphorus, sulfur, chlorum, argon, kalium, calcium,\
+        scandium, titanium, vanadium, chromium, manganum, ferrum, cobaltum, niccolum, cuprum, zincum, gallium, germanium, arsenicum, selenium, bromum,\
+        crypton, rubidium, strontium, yttrium, zirconium, niobium, molybdaenum, technetium, ruthenium, rhodium, palladium, argentum, cadmium, indium,\
+        stannum, stibium, tellurium, iodium, xenon, caesium, barium, lanthanum, cerium, praseodymium, neodymium, promethium, samarium, europium, gadolinium,\
+        terbium, dysprosium, holmium, erbium, thulium, ytterbium, lutetium, hafnium, tantalum, wolframium, rhenium, osmium, iridium, platinum, aurum,\
+        hydrargyrum, thallium, plumbum, bismuthum, polonium, astatum, radon, francium, radium, actinium, thorium, protactinium, uranium, neptunium,\
+        plutonium, americium, curium, berkelium, californium, einsteinium, fermium, mendelevium, nobelium, lawrencium, rutherfordium, dubnium,\
+        seaborgium, bohrium, hassium, meitnerium, darmstadtium, roentgenium, copernicium, nihonium, flerovium, moscovium, livermorium, tennessium,\
+        oganesson, comment):
+        return [OperationStateMapper.init_scalar(item) for item in cassandra_mediator.select_operation_states(
+            date = None if not date else datetime.datetime.strptime(date, DATE_PATTERN).date(),
+            time = None if not time else datetime.datetime.strptime(time, TIME_PATTERN).time(),
+            boat_id = None if not boat else string_to_bytes(boat),
+            operation_id = None if not operation else string_to_bytes(operation),
+            status = status, distance_to_the_ship = distancetotheship, zenith = zenith, azimuth = azimuth, 
+            hydrogenium = hydrogenium, helium = helium, lithium = lithium, beryllium = beryllium, borum = borum, carboneum = carboneum, 
+            nitrogenium = nitrogenium, oxygenium = oxygenium, fluorum = fluorum, neon = neon, natrium = natrium, magnesium = magnesium, 
+            aluminium = aluminium, silicium = silicium, phosphorus = phosphorus, sulfur = sulfur, chlorum = chlorum, argon = argon, kalium = kalium, 
+            calcium = calcium, scandium = scandium, titanium = titanium, vanadium = vanadium, chromium = chromium, manganum = manganum, 
+            ferrum = ferrum, cobaltum = cobaltum, niccolum = niccolum, cuprum = cuprum, zincum = zincum, gallium = gallium, germanium = germanium, 
+            arsenicum = arsenicum, selenium = selenium, bromum = bromum, crypton = crypton, rubidium = rubidium, strontium = strontium, 
+            yttrium = yttrium, zirconium = zirconium, niobium = niobium, molybdaenum = molybdaenum, technetium = technetium, ruthenium = ruthenium, 
+            rhodium = rhodium, palladium = palladium, argentum = argentum, cadmium = cadmium, indium = indium, stannum = stannum, stibium = stibium, 
+            tellurium = tellurium, iodium = iodium, xenon = xenon, caesium = caesium, barium = barium, lanthanum = lanthanum, cerium = cerium, 
+            praseodymium = praseodymium, neodymium = neodymium, promethium = promethium, samarium = samarium, europium = europium, gadolinium = gadolinium, 
+            terbium = terbium, dysprosium = dysprosium, holmium = holmium, erbium = erbium, thulium = thulium, ytterbium = ytterbium, lutetium = lutetium, 
+            hafnium = hafnium, tantalum = tantalum, wolframium = wolframium, rhenium = rhenium, osmium = osmium, iridium = iridium, platinum = platinum, 
+            aurum = aurum, hydrargyrum = hydrargyrum, thallium = thallium, plumbum = plumbum, bismuthum = bismuthum, polonium = polonium, astatum = astatum, 
+            radon = radon, francium = francium, radium = radium, actinium = actinium, thorium = thorium, protactinium = protactinium, uranium = uranium, 
+            neptunium = neptunium, plutonium = plutonium, americium = americium, curium = curium, berkelium = berkelium, californium = californium, 
+            einsteinium = einsteinium, fermium = fermium, mendelevium = mendelevium, nobelium = nobelium, lawrencium = lawrencium, 
+            rutherfordium = rutherfordium, dubnium = dubnium, seaborgium = seaborgium, bohrium = bohrium, hassium = hassium, meitnerium = meitnerium, 
+            darmstadtium = darmstadtium, roentgenium = roentgenium, copernicium = copernicium, nihonium = nihonium, flerovium = flerovium, 
+            moscovium = moscovium, livermorium = livermorium, tennessium = tennessium, oganesson = oganesson, comment = comment)]
 
-    def resolve_shiftstate(self, info, hour, minute, second):
-        return [ShiftStateMapper.init_scalar(item) for item in select_queries.get_shift_states() 
-        if has_item_valid_time(hour, minute, second, item['time'])]
+    def resolve_shiftstate(self, info, date, time, shift, warninglevel, remainingcartridges, remainingair, remainingelectricity, comment):
+        return [ShiftStateMapper.init_scalar(item) for item in cassandra_mediator.select_shift_states(
+            date = None if not date else datetime.datetime.strptime(date, DATE_PATTERN).date(),
+            time = None if not time else datetime.datetime.strptime(time, TIME_PATTERN).time(),
+            shift_id = None if not shift else string_to_bytes(shift), 
+            warning_level = warninglevel, remaining_cartridges = remainingcartridges, remaining_air = remainingair, remaining_electricity = remainingelectricity,
+            comment = comment)]
 
-    def resolve_sensordata(self, info, hour, minute, second):
-        return [SensorDataMapper.init_scalar(item) for item in select_queries.get_sensor_data() 
-        if has_item_valid_time(hour, minute, second, item['time'])]
+    def resolve_sensordata(self, info, date, time, sensor, event, valuename, value, units):
+        return [SensorDataMapper.init_scalar(item) for item in cassandra_mediator.select_sensor_data(
+            date = None if not date else datetime.datetime.strptime(date, DATE_PATTERN).date(),
+            time = None if not time else datetime.datetime.strptime(time, TIME_PATTERN).time(),
+            source_id = None if not sensor else string_to_bytes(sensor), 
+            event = event, value_name = valuename, value = value, units = units)]
 
     #relations
 

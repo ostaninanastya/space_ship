@@ -26,16 +26,28 @@ class SensorData(Model):
 
     def validate(self):
         super(SensorData, self).validate()
+        SensorData.validate_source_id(self.source_id)
+        SensorData.validate_event(self.event)
+        SensorData.validate_value_name(self.value_name)
+        SensorData.validate_units(self.units)
 
-        if len(self.source_id) != 12 or not mongo_adapter.is_valid_foreign_id('source_test', self.source_id.hex()):
-        	raise ValidationError('not a valid source id')
+    @staticmethod
+    def validate_source_id(id):
+        if len(source_id) != 12 or not mongo_adapter.is_valid_foreign_id('source_test', source_id.hex()):
+            raise ValidationError('not a valid source id')
+        return id
 
-        if self.event not in EVENTS:
-        	raise ValidationError('not a valid event')
+    @staticmethod
+    def validate_event(event):
+        if event not in EVENTS:
+            raise ValidationError('not a valid event')
 
-        if self.value_name not in VALUE_TYPES:
-        	raise ValidationError('not a valid value type')
+    @staticmethod
+    def validate_value_name(value_name):
+        if value_name not in VALUE_TYPES:
+            raise ValidationError('not a valid value type')
 
-        if self.units not in VALUE_UNITS:
-        	raise ValidationError('not a valid value units')
-
+    @staticmethod
+    def validate_units(units):
+        if units not in VALUE_UNITS:
+            raise ValidationError('not a valid value units')

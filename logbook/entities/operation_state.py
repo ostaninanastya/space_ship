@@ -152,22 +152,47 @@ class OperationState(Model):
     def validate(self):
         super(OperationState, self).validate()
 
-        if self.boat_id and (len(self.boat_id) != 12 or not mongo_adapter.is_valid_foreign_id('boat_test', self.boat_id.hex())):
+        OperationState.validate_boat_id(self.boat_id)
+        OperationState.validate_operation_id(self.operation_id)
+        OperationState.validate_operation_status(self.operation_status)
+        OperationState.validate_angle(self.zenith)
+        OperationState.validate_angle(self.azimuth)
+        OperationState.validate_elements_quantities([self[element] for element in CHEMICAL_ELEMENTS])
+        OperationState.validate_comment(self.comment)
+
+    @staticmethod
+    def validate_boat_id(boat_id):
+        if boat_id and (len(boat_id) != 12 or not mongo_adapter.is_valid_foreign_id('boat_test', boat_id.hex())):
             raise ValidationError('not a valid boat id')
-        
-        if len(self.operation_id) != 16 or not neo4j_adapter.is_valid_foreign_id('Operation', self.operation_id.hex()):
+        return boat_id
+
+    @staticmethod
+    def validate_operation_id(operation_id):
+        if len(operation_id) != 16 or not neo4j_adapter.is_valid_foreign_id('Operation', operation_id.hex()):
             raise ValidationError('not a valid operation id')
+        return operation_id
 
-        if self.operation_status not in OPERATION_STATUSES:
+    @staticmethod
+    def validate_operation_status(operation_status):
+        if operation_status not in OPERATION_STATUSES:
             raise ValidationError('not an operation status')
+        return operation_status
 
-        self.zenith -= math.floor(self.zenith / (2 * math.pi)) * 2 * math.pi
-        self.azimuth -= math.floor(self.azimuth / (2 * math.pi)) * 2 * math.pi
+    @staticmethod
+    def validate_angle(angle):
+        angle -= math.floor(angle / (2 * math.pi)) * 2 * math.pi
+        return angle
 
+    @staticmethod
+    def validate_elements_quantities(elements_quantities):
         elements_quantity_sum = 0
 
-        for element in CHEMICAL_ELEMENTS:
-            elements_quantity_sum += self[element]
+        for element in elements_quantities:
+            if element < 0:
+                raise ValidationError('invalid element quantity')
+            elements_quantity_sum += element
 
         if abs(elements_quantity_sum - 100) > 0.1:
             raise ValidationError('invalid elements quantity')
+
+        return elements_quantities

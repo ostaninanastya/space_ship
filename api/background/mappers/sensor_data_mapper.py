@@ -22,7 +22,6 @@ class SensorDataMapper(graphene.ObjectType):
 
     sourceid = graphene.String()
     source = graphene.Field(SensorMapper)
-    location = graphene.String()
     event = graphene.String()
     valuename = graphene.String()
     value = graphene.Float()
