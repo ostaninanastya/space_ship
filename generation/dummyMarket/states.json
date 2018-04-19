@@ -3,22 +3,22 @@
 		{
 			"id":"1",
 			"name":"ready",
-			"description":"All present and correct"
+			"description":"Beyond our ken"
 		},
 		{
 			"id":"2",
 			"name":"repair",
-			"description":"Bee in your bonnet"
+			"description":"As X as Y"
 		},
 		{
 			"id":"3",
 			"name":"working",
-			"description":"Bad egg"
+			"description":"A hard man is good to find"
 		},
 		{
 			"id":"4",
 			"name":"out of service",
-			"description":"A piece of the action"
+			"description":"A dog is a mans best friend"
 		}
 	]
 }

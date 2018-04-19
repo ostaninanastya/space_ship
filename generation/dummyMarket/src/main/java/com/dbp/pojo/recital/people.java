@@ -1,5 +1,6 @@
 package com.dbp.pojo.recital;
 
+import com.dbp.pojo.recital.customAnnotation.annotations.GenPhoneNumber;
 import com.dbp.pojo.recital.customAnnotation.annotations.id.GenId5;
 import com.dbp.pojo.recital.customAnnotation.annotations.id.GenId7;
 import io.dummymaker.annotation.number.GenInteger;
@@ -19,7 +20,7 @@ public class people {
     private String patronymic;
     @GenId5
     private Integer department;
-    @GenPhone
+    @GenPhoneNumber
     private String phoneNumber;
     @GenId7
     private Integer specialization;

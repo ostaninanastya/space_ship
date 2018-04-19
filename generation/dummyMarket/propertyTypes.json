@@ -2,23 +2,23 @@
 	"propertyTypes": [
 		{
 			"id":"1",
-			"description":"Across the board"
+			"description":"A different kettle of fish"
 		},
 		{
 			"id":"2",
-			"description":"Back-seat driver"
+			"description":"Beware the Ides of March"
 		},
 		{
 			"id":"3",
-			"description":"Belle of the ball"
+			"description":"At ones beck and call"
 		},
 		{
 			"id":"4",
-			"description":"Belt up"
+			"description":"Bell the cat"
 		},
 		{
 			"id":"5",
-			"description":"Beware the Ides of March"
+			"description":"Been there, done that"
 		}
 	]
 }

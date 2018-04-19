@@ -3,22 +3,22 @@
 		{
 			"id":"1",
 			"name":"fuel",
-			"description":"Ars longa, vita brevis"
+			"description":"Be enthralled"
 		},
 		{
 			"id":"2",
 			"name":"engine",
-			"description":"Bang on about"
+			"description":"Bag and baggage"
 		},
 		{
 			"id":"3",
 			"name":"thrusters",
-			"description":"All in all"
+			"description":"As safe as houses"
 		},
 		{
 			"id":"4",
 			"name":"hydraulic",
-			"description":"Across the board"
+			"description":"A bird in the hand is worth two in the bush"
 		}
 	]
 }
