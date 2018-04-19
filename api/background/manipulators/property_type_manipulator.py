@@ -48,3 +48,23 @@ class EradicatePropertyType(graphene.Mutation):
         mongo_native.eradicate_property_type(id)
         ok = True
         return EradicatePropertyType(property_type = property_type, ok = ok)
+
+class UpdatePropertyTypes(graphene.Mutation):
+    class Arguments:
+        id = graphene.String(default_value = '')
+        name = graphene.String(default_value = '')
+        description = graphene.String(default_value = '')
+
+        set_name = graphene.String(default_value = '')
+        set_description = graphene.String(default_value = '')
+
+    ok = graphene.Boolean()
+    property_types = graphene.List(lambda: PropertyTypeMapper)
+
+    def mutate(self, info, id, name, description, set_name, set_description):
+        #print('omg')
+        property_types = [PropertyTypeMapper.init_scalar(item) for item in \
+        mongo_native.update_property_types(_id = ObjectId(id) if id else None, name = name, description = description,
+        set_name = set_name, set_description = set_description)]
+        ok = True
+        return UpdatePropertyTypes(property_types = property_types, ok = ok)

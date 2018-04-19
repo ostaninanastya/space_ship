@@ -45,3 +45,19 @@ class EradicateLocation(graphene.Mutation):
         location = LocationMapper.init_scalar(mongo_native.eradicate_location(id))
         ok = True
         return EradicateLocation(location = location, ok = ok)
+
+class UpdateLocations(graphene.Mutation):
+    class Arguments:
+        id = graphene.String(default_value = '')
+        name = graphene.String(default_value = '')
+
+        set_name = graphene.String(default_value = '')
+
+    ok = graphene.Boolean()
+    locations = graphene.List(lambda: LocationMapper)
+
+    def mutate(self, info, id, name, set_name):
+        locations = [LocationMapper.init_scalar(item) for item in \
+        mongo_native.update_locations(_id = ObjectId(id) if id else None, name = name, set_name = set_name)]
+        ok = True
+        return UpdateLocations(locations = locations, ok = ok)

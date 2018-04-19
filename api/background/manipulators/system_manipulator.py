@@ -1,4 +1,4 @@
-import sys, os
+import sys, os, math
 import configparser
 import datetime
 import graphene
@@ -47,3 +47,44 @@ class RemoveSystem(graphene.Mutation):
         system = SystemMapper.init_scalar(mongo_native.remove_system(id))
         ok = True
         return RemoveSystem(system = system, ok = ok)
+
+class UpdateSystems(graphene.Mutation):
+    class Arguments:
+        id = graphene.String(default_value = '')
+        name = graphene.String(default_value = '')
+        serialnumber = graphene.Float(default_value = float('nan'))
+        launched = graphene.String(default_value = '')
+        checked = graphene.String(default_value = '')
+        state = graphene.String(default_value = '')
+        supervisor = graphene.String(default_value = '')
+        type = graphene.String(default_value = '')
+
+        set_name = graphene.String(default_value = '')
+        set_serialnumber = graphene.Float(default_value = float('nan'))
+        set_launched = graphene.String(default_value = '')
+        set_checked = graphene.String(default_value = '')
+        set_state = graphene.String(default_value = '')
+        set_supervisor = graphene.String(default_value = '')
+        set_type = graphene.String(default_value = '')
+
+    ok = graphene.Boolean()
+    systems = graphene.List(lambda: SystemMapper)
+
+    def mutate(self, info, id, name, serialnumber, launched, checked, state, supervisor, type, 
+        set_name, set_serialnumber, set_launched, set_checked, set_state, set_supervisor, set_type):
+        systems = [SystemMapper.init_scalar(item) for item in mongo_native.update_systems(\
+            _id = ObjectId(id) if id else None, name = name, 
+            serialnumber = serialnumber if not math.isnan(serialnumber) else None, 
+            launched = datetime.datetime.strptime(launched, TIMESTAMP_PATTERN) if launched else None, 
+            checked = datetime.datetime.strptime(checked, TIMESTAMP_PATTERN) if checked else None, 
+            state = ObjectId(state) if state else None, supervisor = ObjectId(supervisor) if supervisor else None, 
+            type = ObjectId(type) if type else None,
+            set_name = set_name, 
+            set_serialnumber = set_serialnumber if set_serialnumber != float('nan') else None, 
+            set_launched = datetime.datetime.strptime(set_launched, TIMESTAMP_PATTERN) if set_launched else None, 
+            set_checked = datetime.datetime.strptime(set_checked, TIMESTAMP_PATTERN) if set_checked else None, 
+            set_state = ObjectId(set_state) if set_state else None, set_supervisor = ObjectId(set_supervisor) if set_supervisor else None, 
+            set_type = ObjectId(set_type) if set_type else None
+        )]
+        ok = True
+        return UpdateSystems(systems = systems, ok = ok)

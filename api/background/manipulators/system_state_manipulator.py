@@ -48,3 +48,23 @@ class EradicateSystemState(graphene.Mutation):
         mongo_native.eradicate_system_state(id)
         ok = True
         return EradicateSystemState(system_state = system_state, ok = ok)
+
+class UpdateSystemStates(graphene.Mutation):
+    class Arguments:
+        id = graphene.String(default_value = '')
+        name = graphene.String(default_value = '')
+        description = graphene.String(default_value = '')
+
+        set_name = graphene.String(default_value = '')
+        set_description = graphene.String(default_value = '')
+
+    ok = graphene.Boolean()
+    system_states = graphene.List(lambda: SystemStateMapper)
+
+    def mutate(self, info, id, name, description, set_name, set_description):
+        #print('omg')
+        system_states = [SystemStateMapper.init_scalar(item) for item in \
+        mongo_native.update_system_states(_id = ObjectId(id) if id else None, name = name, description = description,
+        set_name = set_name, set_description = set_description)]
+        ok = True
+        return UpdateSystemStates(system_states = system_states, ok = ok)

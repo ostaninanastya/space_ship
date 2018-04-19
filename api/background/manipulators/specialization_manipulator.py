@@ -37,7 +37,7 @@ class RemoveSpecialization(graphene.Mutation):
         ok = True
         return RemoveSpecialization(specialization = specialization, ok = ok)
 
-class Eradicate(graphene.Mutation):
+class EradicateSpecialization(graphene.Mutation):
     class Arguments:
         id = graphene.String()
 
@@ -48,4 +48,21 @@ class Eradicate(graphene.Mutation):
         specialization = SpecializationMapper(id = id)
         mongo_native.eradicate_specialization(id)
         ok = True
-        return Eradicate(specialization = specialization, ok = ok)
+        return EradicateSpecialization(specialization = specialization, ok = ok)
+
+class UpdateSpecializations(graphene.Mutation):
+    class Arguments:
+        id = graphene.String(default_value = '')
+        name = graphene.String(default_value = '')
+
+        set_name = graphene.String(default_value = '')
+
+    ok = graphene.Boolean()
+    specializations = graphene.List(lambda: SpecializationMapper)
+
+    def mutate(self, info, id, name, set_name):
+        #print('omg')
+        specializations = [SpecializationMapper.init_scalar(item) for item in\
+        mongo_native.update_specializations(_id = ObjectId(id) if id else None, name = name, set_name = set_name)]
+        ok = True
+        return UpdateSpecializations(specializations = specializations, ok = ok)

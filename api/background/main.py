@@ -3,6 +3,8 @@ import configparser
 import datetime
 import json
 
+import math
+
 config = configparser.ConfigParser()
 config.read('../../databases.config')
 
@@ -116,6 +118,7 @@ class FirstMutation(graphene.ObjectType):
     create_location = location_manipulator.CreateLocation.Field()
     remove_location = location_manipulator.RemoveLocation.Field()
     eradicate_location = location_manipulator.EradicateLocation.Field()
+    update_locations = location_manipulator.UpdateLocations.Field()
 
     create_sensor = sensor_manipulator.CreateSensor.Field()
     remove_sensor = sensor_manipulator.RemoveSensor.Field()
@@ -128,7 +131,8 @@ class FirstMutation(graphene.ObjectType):
 
     create_specialization = specialization_manipulator.CreateSpecialization.Field()
     remove_specialization = specialization_manipulator.RemoveSpecialization.Field()
-    eradicate_specialization = specialization_manipulator.Eradicate.Field()
+    eradicate_specialization = specialization_manipulator.EradicateSpecialization.Field()
+    update_specializations = specialization_manipulator.UpdateSpecializations.Field()
 
     create_person = person_manipulator.CreatePerson.Field()
     remove_person = person_manipulator.RemovePerson.Field()
@@ -137,24 +141,30 @@ class FirstMutation(graphene.ObjectType):
 
     create_boat = boat_manipulator.CreateBoat.Field()
     remove_boat = boat_manipulator.RemoveBoat.Field()
+    update_boats = boat_manipulator.UpdateBoats.Field()
 
     create_systemtype = system_type_manipulator.CreateSystemType.Field()
     remove_systemtype = system_type_manipulator.RemoveSystemType.Field()
     eradicate_systemtype = system_type_manipulator.EradicateSystemType.Field()
+    update_systemtypes = system_type_manipulator.UpdateSystemTypes.Field()
 
     create_systemstate = system_state_manipulator.CreateSystemState.Field()
     remove_systemstate = system_state_manipulator.RemoveSystemState.Field()
     eradicate_systemstate = system_state_manipulator.EradicateSystemState.Field()
+    update_systemstates = system_state_manipulator.UpdateSystemStates.Field()
 
     create_propertytype = property_type_manipulator.CreatePropertyType.Field()
     remove_propertytype = property_type_manipulator.RemovePropertyType.Field()
     eradicate_propertytype = property_type_manipulator.EradicatePropertyType.Field()
+    update_propertytypes = property_type_manipulator.UpdatePropertyTypes.Field()
 
     create_system = system_manipulator.CreateSystem.Field()
     remove_system = system_manipulator.RemoveSystem.Field()
+    update_systems = system_manipulator.UpdateSystems.Field()
 
     create_property = property_manipulator.CreateProperty.Field()
     remove_property = property_manipulator.RemoveProperty.Field()
+    update_properties = property_manipulator.UpdateProperties.Field()
 
     #
 
@@ -370,17 +380,31 @@ class FirstQuery(graphene.ObjectType):
     departments = graphene.List(DepartmentMapper, id = graphene.String(default_value = ''),
         name = graphene.String(default_value = ''),
         vk = graphene.String(default_value = ''))
-    property_types = graphene.List(PropertyTypeMapper, id = graphene.String(default_value = ''))
-    specializations = graphene.List(SpecializationMapper, id = graphene.String(default_value = ''))
-    properties = graphene.List(PropertyMapper, id = graphene.String(default_value = ''))
-    systemstates = graphene.List(SystemStateMapper, id = graphene.String(default_value = ''))
-    systemtypes = graphene.List(SystemTypeMapper, id = graphene.String(default_value = ''))
-    locations = graphene.List(LocationMapper, id = graphene.String(default_value = ''))
-    boats = graphene.List(BoatMapper, id = graphene.String(default_value = ''))
+    property_types = graphene.List(PropertyTypeMapper, id = graphene.String(default_value = ''), desc = graphene.String(default_value = ''),
+        name = graphene.String(default_value = ''))
+    specializations = graphene.List(SpecializationMapper, id = graphene.String(default_value = ''), name = graphene.String(default_value = ''))
+    properties = graphene.List(PropertyMapper, id = graphene.String(default_value = ''), name = graphene.String(default_value = ''),
+        type_ = graphene.String(default_value = ''),
+        admission = graphene.String(default_value = ''),
+        comissioning = graphene.String(default_value = ''),
+        department = graphene.String(default_value = ''))
+    systemstates = graphene.List(SystemStateMapper, id = graphene.String(default_value = ''), desc = graphene.String(default_value = ''),
+        name = graphene.String(default_value = ''))
+    systemtypes = graphene.List(SystemTypeMapper, id = graphene.String(default_value = ''), desc = graphene.String(default_value = ''),
+        name = graphene.String(default_value = ''))
+    locations = graphene.List(LocationMapper, id = graphene.String(default_value = ''), name = graphene.String(default_value = ''))
+    boats = graphene.List(BoatMapper, id = graphene.String(default_value = ''), name = graphene.String(default_value = ''), 
+        capacity = graphene.Int(default_value = -1))
     sensors = graphene.List(SensorMapper, id = graphene.String(default_value = ''), 
         name = graphene.String(default_value = ''),
         location = graphene.String(default_value = ''))
-    systems = graphene.List(SystemMapper, id = graphene.String(default_value = ''))
+    systems = graphene.List(SystemMapper, id = graphene.String(default_value = ''), name = graphene.String(default_value = ''),
+        serialnumber = graphene.Float(default_value = float('nan')),
+        launched = graphene.String(default_value = ''),
+        checked = graphene.String(default_value = ''),
+        state = graphene.String(default_value = ''),
+        supervisor = graphene.String(default_value = ''),
+        type_ = graphene.String(default_value = ''))
 
     requirements = graphene.List(RequirementMapper, id = graphene.String(default_value = ''), name = graphene.String(default_value = ''),
         specializations = graphene.String(default_value = ''))
@@ -403,33 +427,43 @@ class FirstQuery(graphene.ObjectType):
         id_matcher = re.compile(id + '.*')
         return [DepartmentMapper.init_scalar(item) for item in mongo_native.select_departments(name = name, vk = vk) if id_matcher.match(str(item['_id']))]
 
-    def resolve_property_types(self, info, id):
+    def resolve_property_types(self, info, id, name, desc):
         id_matcher = re.compile(id + '.*')
-        return [PropertyTypeMapper.init_scalar(item) for item in mongo_native.get_all_property_types() if id_matcher.match(str(item['_id']))]
+        return [PropertyTypeMapper.init_scalar(item) for item in mongo_native.select_property_types(name = name, description = desc)\
+        if id_matcher.match(str(item['_id']))]
 
-    def resolve_specializations(self, info, id):
+    def resolve_specializations(self, info, id, name):
         id_matcher = re.compile(id + '.*')
-        return [SpecializationMapper(spec_id) for spec_id in mongo_native.get_all_specializations_ids() if id_matcher.match(spec_id)]
+        return [SpecializationMapper.init_scalar(item) for item in mongo_native.select_specializations(name = name)\
+        if id_matcher.match(str(item['_id']))]
 
-    def resolve_properties(self, info, id):
+    def resolve_properties(self, info, id, name, type_, admission, comissioning, department):
         id_matcher = re.compile(id + '.*')
-        return [PropertyMapper.init_scalar(item) for item in mongo_native.get_all_properties() if id_matcher.match(str(item['_id']))]
+        type_id_matcher = re.compile(type_ + '.*')
+        department_id_matcher = re.compile(department + '.*')
+        return [PropertyMapper.init_scalar(item) for item in mongo_native.select_properties(name = name, 
+            admission = datetime.datetime.strptime(admission, TIMESTAMP_PATTERN) if admission else None, 
+            comissioning = datetime.datetime.strptime(comissioning, TIMESTAMP_PATTERN) if comissioning else None)\
+            if id_matcher.match(str(item['_id'])) and type_id_matcher.match(str(item['type'])) and department_id_matcher.match(str(item['department']))]
 
-    def resolve_systemstates(self, info, id):
+    def resolve_systemstates(self, info, id, name, desc):
         id_matcher = re.compile(id + '.*')
-        return [SystemStateMapper.init_scalar(item) for item in mongo_native.get_all_system_states() if id_matcher.match(str(item['_id']))]
+        return [SystemStateMapper.init_scalar(item) for item in mongo_native.select_system_states(name = name, description = desc)\
+        if id_matcher.match(str(item['_id']))]
 
-    def resolve_systemtypes(self, info, id):
+    def resolve_systemtypes(self, info, id, name, desc):
         id_matcher = re.compile(id + '.*')
-        return [SystemTypeMapper.init_scalar(item) for item in mongo_native.get_all_system_types() if id_matcher.match(str(item['_id']))]
+        return [SystemTypeMapper.init_scalar(item) for item in mongo_native.select_system_types(name = name, description = desc)\
+        if id_matcher.match(str(item['_id']))]
 
-    def resolve_locations(self, info, id):
+    def resolve_locations(self, info, id, name):
         id_matcher = re.compile(id + '.*')
-        return [LocationMapper.init_scalar(item) for item in mongo_native.get_all_locations() if id_matcher.match(str(item['_id']))]
+        return [LocationMapper.init_scalar(item) for item in mongo_native.select_locations(name = name) if id_matcher.match(str(item['_id']))]
 
-    def resolve_boats(self, info, id):
+    def resolve_boats(self, info, id, name, capacity):
         id_matcher = re.compile(id + '.*')
-        return [BoatMapper.init_scalar(item) for item in mongo_native.get_all_boats() if id_matcher.match(str(item['_id']))]
+        return [BoatMapper.init_scalar(item) for item in mongo_native.select_boats(name = name, 
+            capacity = capacity if capacity != -1 else None) if id_matcher.match(str(item['_id']))]
 
     def resolve_sensors(self, info, id, name, location):
         id_matcher = re.compile(id + '.*')
@@ -437,9 +471,17 @@ class FirstQuery(graphene.ObjectType):
         return [SensorMapper.init_scalar(item) for item in mongo_native.select_sensors(name = name)\
             if id_matcher.match(str(item['_id'])) and location_id_matcher.match(str(item.get('location')))]
 
-    def resolve_systems(self, info, id):
+    def resolve_systems(self, info, id, name, launched, checked, serialnumber, state, type_, supervisor):
         id_matcher = re.compile(id + '.*')
-        return [SystemMapper.init_scalar(item) for item in mongo_native.get_all_systems() if id_matcher.match(str(item['_id']))]
+        state_id_matcher = re.compile(state + '.*')
+        type_id_matcher = re.compile(type_ + '.*')
+        supervisor_id_matcher = re.compile(supervisor + '.*')
+        return [SystemMapper.init_scalar(item) for item in mongo_native.select_systems(name = name,
+            serialnumber = serialnumber if not math.isnan(serialnumber) else None,
+            launched = datetime.datetime.strptime(launched, TIMESTAMP_PATTERN) if launched else None,
+            checked = datetime.datetime.strptime(checked, TIMESTAMP_PATTERN) if checked else None)
+        if id_matcher.match(str(item['_id'])) and state_id_matcher.match(str(item.get('state'))) and type_id_matcher.match(str(item.get('type'))) and \
+        supervisor_id_matcher.match(str(item.get('supervisor')))]
 
     #logbook
 

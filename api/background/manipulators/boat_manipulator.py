@@ -35,3 +35,22 @@ class RemoveBoat(graphene.Mutation):
         boat = BoatMapper.init_scalar(mongo_native.remove_boat(id))
         ok = True
         return RemoveBoat(boat = boat, ok = ok)
+
+class UpdateBoats(graphene.Mutation):
+    class Arguments:
+        id = graphene.String(default_value = '')
+        name = graphene.String(default_value = '')
+        capacity = graphene.Int(default_value = -1)
+
+        set_name = graphene.String(default_value = '')
+        set_capacity = graphene.Int(default_value = -1)
+
+    ok = graphene.Boolean()
+    boats = graphene.List(lambda: BoatMapper)
+
+    def mutate(self, info, id, name, capacity, set_name, set_capacity):
+        #print('omg')
+        boats = [BoatMapper.init_scalar(item) for item in mongo_native.update_boats(_id = ObjectId(id) if id else None, name = name, 
+            capacity = capacity if capacity != -1 else None, set_name = set_name, set_capacity = set_capacity if set_capacity != -1 else None)]
+        ok = True
+        return UpdateBoats(boats = boats, ok = ok)

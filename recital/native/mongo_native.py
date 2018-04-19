@@ -366,6 +366,30 @@ def update_people(**kwargs):
 def update_departments(**kwargs):
 	return update(kwargs, 'department_test')
 
+def update_locations(**kwargs):
+	return update(kwargs, 'location_test')
+
+def update_property_types(**kwargs):
+	return update(kwargs, 'property_type_test')
+
+def update_specializations(**kwargs):
+	return update(kwargs, 'spec_test')
+
+def update_boats(**kwargs):
+	return update(kwargs, 'boat_test')
+
+def update_system_types(**kwargs):
+	return update(kwargs, 'system_types_test')
+
+def update_system_states(**kwargs):
+	return update(kwargs, 'system_state_test')
+
+def update_systems(**kwargs):
+	return update(kwargs, 'sys_test')
+
+def update_properties(**kwargs):
+	return update(kwargs, 'property_test')
+
 ###
 
 def parse_params_for_select(params):
@@ -382,6 +406,7 @@ def parse_params_for_select(params):
 	return where
 
 def select(params, collection):
+	print(parse_params_for_select(params))
 	return [item for item in db[collection].find(parse_params_for_select(params))]
 
 def select_sensors(**kwargs):
@@ -392,6 +417,30 @@ def select_people(**kwargs):
 
 def select_departments(**kwargs):
 	return select(kwargs, 'department_test')
+
+def select_locations(**kwargs):
+	return select(kwargs, 'location_test')
+
+def select_property_types(**kwargs):
+	return select(kwargs, 'property_type_test')
+
+def select_specializations(**kwargs):
+	return select(kwargs, 'spec_test')
+
+def select_boats(**kwargs):
+	return select(kwargs, 'boat_test')
+
+def select_system_types(**kwargs):
+	return select(kwargs, 'system_types_test')
+
+def select_system_states(**kwargs):
+	return select(kwargs, 'system_state_test')
+
+def select_systems(**kwargs):
+	return select(kwargs, 'sys_test')
+
+def select_properties(**kwargs):
+	return select(kwargs, 'property_test')
 
 if __name__ == '__main__':
 	print(update_people(name = 'dima', set_name = 'dimas'))

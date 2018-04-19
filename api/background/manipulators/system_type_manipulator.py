@@ -48,3 +48,23 @@ class EradicateSystemType(graphene.Mutation):
         mongo_native.eradicate_system_type(id)
         ok = True
         return EradicateSystemType(system_type = system_type, ok = ok)
+
+class UpdateSystemTypes(graphene.Mutation):
+    class Arguments:
+        id = graphene.String(default_value = '')
+        name = graphene.String(default_value = '')
+        description = graphene.String(default_value = '')
+
+        set_name = graphene.String(default_value = '')
+        set_description = graphene.String(default_value = '')
+
+    ok = graphene.Boolean()
+    system_types = graphene.List(lambda: SystemTypeMapper)
+
+    def mutate(self, info, id, name, description, set_name, set_description):
+        #print('omg')
+        system_types = [SystemTypeMapper.init_scalar(item) for item in\
+        mongo_native.update_system_types(_id = ObjectId(id) if id else None, name = name, description = description,
+        set_name = set_name, set_description = set_description)]
+        ok = True
+        return UpdateSystemTypes(system_types = system_types, ok = ok)
