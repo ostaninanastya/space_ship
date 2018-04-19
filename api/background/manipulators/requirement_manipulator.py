@@ -40,3 +40,19 @@ class RemoveRequirement(graphene.Mutation):
         requirement = RequirementMapper.init_scalar(neo4j_mediator.remove_requirement(id))
         ok = True
         return RemoveRequirement(requirement = requirement, ok = ok)
+
+class UpdateRequirements(graphene.Mutation):
+    class Arguments:
+        name = graphene.String(default_value = '')
+        specializations = graphene.String(default_value = '')
+
+        set_name = graphene.String(default_value = '')
+        set_excesses = graphene.String(default_value = '')
+        set_expansions = graphene.String(default_value = '')
+
+    ok = graphene.Boolean()
+
+    def mutate(self, info, name, specializations, set_name, set_excesses, set_expansions):
+        neo4j_mediator.update_requirements(name = name, specializations = specializations, set_name = set_name, expansions = set_expansions, excesses = set_excesses)
+        ok = True
+        return UpdateRequirements(ok = ok)

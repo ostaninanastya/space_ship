@@ -160,12 +160,15 @@ class FirstMutation(graphene.ObjectType):
 
     create_shift = shift_manipulator.CreateShift.Field()
     remove_shift = shift_manipulator.RemoveShift.Field()
+    update_shifts = shift_manipulator.UpdateShifts.Field()
 
     create_operation = operation_manipulator.CreateOperation.Field()
     remove_operation = operation_manipulator.RemoveOperation.Field()
+    update_operations = operation_manipulator.UpdateOperations.Field()
 
     create_requirement = requirement_manipulator.CreateRequirement.Field()
     remove_requirement = requirement_manipulator.RemoveRequirement.Field()
+    update_requirements = requirement_manipulator.UpdateRequirements.Field()
 
     #
 
@@ -379,8 +382,10 @@ class FirstQuery(graphene.ObjectType):
         location = graphene.String(default_value = ''))
     systems = graphene.List(SystemMapper, id = graphene.String(default_value = ''))
 
-    requirements = graphene.List(RequirementMapper, id = graphene.String(default_value = ''))
-    shifts = graphene.List(ShiftMapper, id = graphene.String(default_value = ''))
+    requirements = graphene.List(RequirementMapper, id = graphene.String(default_value = ''), name = graphene.String(default_value = ''),
+        specializations = graphene.String(default_value = ''))
+    shifts = graphene.List(ShiftMapper, id = graphene.String(default_value = ''),
+        start = graphene.String(default_value = ''), end = graphene.String(default_value = ''))
     operations = graphene.List(OperationMapper, id = graphene.String(default_value = ''), name = graphene.String(default_value = ''),
         start = graphene.String(default_value = ''), end = graphene.String(default_value = ''))
 
@@ -513,13 +518,18 @@ class FirstQuery(graphene.ObjectType):
 
     #relations
 
-    def resolve_requirements(self, info, id):
+    def resolve_requirements(self, info, id, name, specializations):
         id_matcher = re.compile(id + '.*')
-        return [RequirementMapper.init_scalar(item) for item in Requirement.nodes.filter() if id_matcher.match(str(item.ident))]
 
-    def resolve_shifts(self, info, id):
+        return [RequirementMapper.init_scalar(item) for item in neo4j_mediator.select_requirements(
+            name__regex = '.*' + name + '.*', specializations = specializations)]
+
+    def resolve_shifts(self, info, id, start, end):
         id_matcher = re.compile(id + '.*')
-        return [ShiftMapper.init_scalar(item) for item in Shift.nodes.filter() if id_matcher.match(str(item.ident))]
+
+        return [ShiftMapper.init_scalar(item) for item in neo4j_mediator.select_shifts(
+            start = datetime.datetime.strptime(start, TIMESTAMP_PATTERN) if start else None,
+            end = datetime.datetime.strptime(end, TIMESTAMP_PATTERN) if end else None) if id_matcher.match(str(item.ident))]
 
     def resolve_operations(self, info, id, name, start, end):
         id_matcher = re.compile(id + '.*')

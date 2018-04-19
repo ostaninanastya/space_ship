@@ -27,3 +27,7 @@ class Requirement(StructuredNode):
         for i in range(len(self.content)):
             hexes.append(mongo_adapter.int_to_mongo_str_id(self.content[i]['ident']) if self.content[i]['ident'] else None)
         return hexes
+
+    @staticmethod
+    def specialization_id_to_neo4j_format(id):
+        return mongo_adapter.validate_id('spec_test', id)

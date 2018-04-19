@@ -177,20 +177,35 @@ def ensure_requirement_existance(requirement_id):
 		raise ValueError('requirement not exists')
 
 def add_worker(shift_id, worker_id):
+	ensure_person_existance(worker_id)
 	graph.data("""match (p:Person), (s:Shift) 
 				  where space_ship.get_hex_ident(p.ident) = '%s' and
                   s.ident = '%s'
                   create (p)-[:WORKER]->(s)
                   return s.ident as ident;""" % (worker_id, shift_id))
 
+def remove_worker(shift_id, worker_id):
+	graph.data("""match (p:Person)-[relation:WORKER]->(s:Shift) 
+				  where space_ship.get_hex_ident(p.ident) = '%s' and
+                  s.ident = '%s'
+                  delete relation;""" % (worker_id, shift_id))
+
 def add_shift_requirement(shift_id, requirement_id):
+	ensure_requirement_existance(requirement_id)
 	graph.data("""match (r:Requirement), (s:Shift) 
 				  where r.ident = '%s' and
                   s.ident = '%s'
                   create (r)-[:USER]->(s)
                   return s.ident as ident;""" % (requirement_id, shift_id))
 
+def remove_shift_requirement(shift_id, requirement_id):
+	graph.data("""match (r:Requirement)-[relation:USER]->(s:Shift) 
+				  where r.ident = '%s' and
+                  s.ident = '%s'
+                  delete relation;""" % (requirement_id, shift_id))
+
 def set_chief(shift_id, chief_id):
+	ensure_person_existance(chief_id)
 	graph.data("""match (p:Person), (s:Shift) 
 				  where space_ship.get_hex_ident(p.ident) = '%s' and
                   s.ident = '%s'
@@ -198,6 +213,7 @@ def set_chief(shift_id, chief_id):
                   return s.ident as ident;""" % (chief_id, shift_id))
 
 def set_shift_department(shift_id, department_id):
+	ensure_department_existance(department_id)
 	graph.data("""match (d:Department), (s:Shift) 
 				  where space_ship.get_hex_ident(d.ident) = '%s' and
                   s.ident = '%s'
@@ -208,17 +224,12 @@ def create_shift(chief, department, start, end, workers, requirements):
 	new_shift = Shift(start = start, end = end).save()
 	
 	for person_id in workers.split(ID_DELIMITER):
-		ensure_person_existance(person_id)
 		add_worker(new_shift.ident, person_id)
 
 	for requirement_id in requirements.split(ID_DELIMITER):
-		ensure_requirement_existance(requirement_id)
 		add_shift_requirement(new_shift.ident, requirement_id)
 
-	ensure_person_existance(chief)
-	set_chief(new_shift.ident, chief)
-
-	ensure_department_existance(department)
+	set_chief(new_shift.ident, chief)	
 	set_shift_department(new_shift.ident, department)
 
 	return new_shift
@@ -231,20 +242,35 @@ def remove_shift(ident):
 #
 
 def add_executor(operation_id, executor_id):
+	ensure_person_existance(executor_id)
 	graph.data("""match (p:Person), (o:Operation) 
 				  where space_ship.get_hex_ident(p.ident) = '%s' and
                   o.ident = '%s'
                   create (p)-[:EXECUTOR]->(o)
                   return o.ident as ident;""" % (executor_id, operation_id))
 
+def remove_executor(operation_id, executor_id):
+	graph.data("""match (p:Person)-[relation:EXECUTOR]->(o:Operation) 
+				  where space_ship.get_hex_ident(p.ident) = '%s' and
+                  o.ident = '%s'
+                  delete relation;""" % (executor_id, operation_id))
+
 def add_operation_requirement(operation_id, requirement_id):
+	ensure_requirement_existance(requirement_id)
 	graph.data("""match (r:Requirement), (o:Operation) 
 				  where r.ident = '%s' and
                   o.ident = '%s'
                   create (r)-[:USER]->(o)
                   return o.ident as ident;""" % (requirement_id, operation_id))
 
+def remove_operation_requirement(operation_id, requirement_id):
+	graph.data("""match (r:Requirement)-[relation:USER]->(o:Operation) 
+				  where r.ident = '%s' and
+                  o.ident = '%s'
+                  delete relation;""" % (requirement_id, operation_id))
+
 def set_head(operation_id, head_id):
+	ensure_person_existance(head_id)
 	graph.data("""match (p:Person), (o:Operation) 
 				  where space_ship.get_hex_ident(p.ident) = '%s' and
                   o.ident = '%s'
@@ -255,14 +281,11 @@ def create_operation(name, head, start, end, executors, requirements):
 	new_operation = Operation(name = name, start = start, end = end).save()
 	
 	for person_id in executors.split(ID_DELIMITER):
-		ensure_person_existance(person_id)
 		add_executor(new_operation.ident, person_id)
 
 	for requirement_id in requirements.split(ID_DELIMITER):
-		ensure_requirement_existance(requirement_id)
 		add_operation_requirement(new_operation.ident, requirement_id)
 
-	ensure_person_existance(head)
 	set_head(new_operation.ident, head)
 
 	return new_operation
@@ -297,8 +320,113 @@ def remove_requirement(ident):
 def select_operations(**kwargs):
 	return [item for item in Operation.nodes.filter(**{arg : kwargs[arg] for arg in kwargs if kwargs[arg]})]
 
+def select_shifts(**kwargs):
+	return [item for item in Shift.nodes.filter(**{arg : kwargs[arg] for arg in kwargs if kwargs[arg]})]
+
+def are_specializations_relevant(requirement_content, specializations):
+	for searched_specialization in specializations:
+		if searched_specialization in requirement_content:
+			return True
+	return False
+
+def select_requirements(**kwargs):
+	return [item for item in Requirement.nodes.filter(**{arg : kwargs[arg] for arg in kwargs if kwargs[arg] and arg != 'specializations'})
+		if not kwargs.get('specializations') or are_specializations_relevant(item.content_hexes, kwargs['specializations'].split(ID_DELIMITER))]
+
+def update_operations(**kwargs):
+	arg_complex_handlers = {'rookies' : add_executor, 'dismissed' : remove_executor,
+		'toughenings' : add_operation_requirement, 'softenings' : remove_operation_requirement}
+	arg_simple_handlers = {'set_head' : set_head}
+	scalar_args = {'set_start' : 'start', 'set_end' : 'end', 'set_name' : 'name'}
+	
+	for operation in select_operations(**{key : kwargs[key] for key in kwargs 
+		if kwargs[key] and key not in dict(arg_complex_handlers, **dict(arg_simple_handlers, **scalar_args))}):
+		
+		for arg_name in arg_complex_handlers:
+			if arg_name in kwargs and kwargs[arg_name]:
+				for item in kwargs[arg_name].split(ID_DELIMITER):
+					arg_complex_handlers[arg_name](operation.ident, item)
+		
+		for arg_name in arg_simple_handlers:
+			if arg_name in kwargs and kwargs[arg_name]:
+				arg_simple_handlers[arg_name](operation.ident, kwargs[arg_name])
+
+		for key in scalar_args:
+			if key in kwargs and kwargs[key]:
+				setattr(operation, scalar_args[key], kwargs[key])
+
+		operation.save()
+
+def update_shifts(**kwargs):
+	arg_complex_handlers = {'rookies' : add_worker, 'dismissed' : remove_worker,
+		'toughenings' : add_shift_requirement, 'softenings' : remove_shift_requirement}
+	arg_simple_handlers = {'set_chief' : set_chief}
+	scalar_args = {'set_start' : 'start', 'set_end' : 'end'}
+	
+	for shift in select_shifts(**{key : kwargs[key] for key in kwargs 
+		if kwargs[key] and key not in dict(arg_complex_handlers, **dict(arg_simple_handlers, **scalar_args))}):
+		
+		for arg_name in arg_complex_handlers:
+			if arg_name in kwargs and kwargs[arg_name]:
+				for item in kwargs[arg_name].split(ID_DELIMITER):
+					arg_complex_handlers[arg_name](shift.ident, item)
+		
+		for arg_name in arg_simple_handlers:
+			if arg_name in kwargs and kwargs[arg_name]:
+				arg_simple_handlers[arg_name](shift.ident, kwargs[arg_name])
+
+		for key in scalar_args:
+			if key in kwargs and kwargs[key]:
+				setattr(shift, scalar_args[key], kwargs[key])
+
+		shift.validate().save()
+
+def find_same_requirement_fragment(requirement, identifier):
+	index = 0
+	for item in requirement.content:
+		#print(item['ident'], identifier)
+		if tuple(item['ident']) == identifier:
+			return index
+		index += 1
+	return None
+
+def remove_requirement_fragment(requirement, identifier):
+	index = find_same_requirement_fragment(requirement, identifier)
+	if index is not None:
+		requirement.content.pop(index) 
+
+def update_requirements(**kwargs):
+
+	#print(kwargs)
+
+	for requirement in select_requirements(**{key : kwargs[key] for key in kwargs 
+		if kwargs[key] and key not in ['set_name', 'expansions', 'excesses']}):
+
+		if 'set_name' in kwargs and kwargs['set_name']:
+			requirement.name = kwargs['set_name']
+
+		#print(kwargs)
+
+		if 'expansions' in kwargs and kwargs['expansions']:
+			#print(kwargs)
+			for specialization in kwargs['expansions'].split(ID_DELIMITER):
+				id, quantity = specialization.split(REQ_COMPONENT_DELIMITER)
+				parced_id = Requirement.specialization_id_to_neo4j_format(id)
+				remove_requirement_fragment(requirement, parced_id)
+				#print({'ident' : Requirement.specialization_id_to_neo4j_format(id), 'quantity' : int(quantity)})
+				requirement.content.append({'ident' : parced_id, 'quantity' : int(quantity)})
+
+		if 'excesses' in kwargs and kwargs['excesses']:
+			#print(kwargs)
+			for specialization_id in kwargs['excesses'].split(ID_DELIMITER):
+				remove_requirement_fragment(requirement, Requirement.specialization_id_to_neo4j_format(specialization_id))
+
+		requirement.save()
+
+
 if __name__ == '__main__':
-	print(select_operations(name__iregex = '.*.*'))
+	print(select_requirements(specializations = '5ac5220ccc314386b6f43442,b,c'))
+	#print(select_operations(name__iregex = '.*.*'))
 	#print(is_valid_foreign_id('Shift', 'a983d357069f4363803f87b5cc7c8f7d'))
 	
 	#create_requirement('good team', '5ac52207cc314386b6f43441:13,5ac5220ccc314386b6f43442:17')
