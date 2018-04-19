@@ -1,0 +1,24 @@
+{
+	"propertyTypes": [
+		{
+			"id":"1",
+			"description":"Across the board"
+		},
+		{
+			"id":"2",
+			"description":"Back-seat driver"
+		},
+		{
+			"id":"3",
+			"description":"Belle of the ball"
+		},
+		{
+			"id":"4",
+			"description":"Belt up"
+		},
+		{
+			"id":"5",
+			"description":"Beware the Ides of March"
+		}
+	]
+}

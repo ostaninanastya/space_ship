@@ -1,0 +1,24 @@
+{
+	"states": [
+		{
+			"id":"1",
+			"name":"ready",
+			"description":"All present and correct"
+		},
+		{
+			"id":"2",
+			"name":"repair",
+			"description":"Bee in your bonnet"
+		},
+		{
+			"id":"3",
+			"name":"working",
+			"description":"Bad egg"
+		},
+		{
+			"id":"4",
+			"name":"out of service",
+			"description":"A piece of the action"
+		}
+	]
+}

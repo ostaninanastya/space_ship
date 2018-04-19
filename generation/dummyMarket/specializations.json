@@ -1,0 +1,32 @@
+{
+	"specializations": [
+		{
+			"id":"1",
+			"name":"electrician"
+		},
+		{
+			"id":"2",
+			"name":"doctor"
+		},
+		{
+			"id":"3",
+			"name":"first engineer"
+		},
+		{
+			"id":"4",
+			"name":"second engineer"
+		},
+		{
+			"id":"5",
+			"name":"pilot"
+		},
+		{
+			"id":"6",
+			"name":"repair worker"
+		},
+		{
+			"id":"7",
+			"name":"electrician"
+		}
+	]
+}

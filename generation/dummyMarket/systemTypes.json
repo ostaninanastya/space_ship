@@ -1,0 +1,24 @@
+{
+	"systemTypes": [
+		{
+			"id":"1",
+			"name":"fuel",
+			"description":"Ars longa, vita brevis"
+		},
+		{
+			"id":"2",
+			"name":"engine",
+			"description":"Bang on about"
+		},
+		{
+			"id":"3",
+			"name":"thrusters",
+			"description":"All in all"
+		},
+		{
+			"id":"4",
+			"name":"hydraulic",
+			"description":"Across the board"
+		}
+	]
+}
