@@ -1,0 +1,29 @@
+{
+	"propertyTypes": [
+		{
+			"id":"1",
+			"name":"large tools",
+			"description":"As different as chalk and cheese"
+		},
+		{
+			"id":"2",
+			"name":"small tools",
+			"description":"A skeleton in the closet"
+		},
+		{
+			"id":"3",
+			"name":"tools for cleaning",
+			"description":"Bats in the belfry"
+		},
+		{
+			"id":"4",
+			"name":"furniture",
+			"description":"As cute as a bugs ear"
+		},
+		{
+			"id":"5",
+			"name":"large tools",
+			"description":"Bad books"
+		}
+	]
+}

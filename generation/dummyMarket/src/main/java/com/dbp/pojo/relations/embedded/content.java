@@ -1,16 +1,12 @@
-package com.dbp.pojo.recital;
+package com.dbp.pojo.relations.embedded;
 
 import com.dbp.pojo.recital.customAnnotation.annotations.GenBoatCapacityAndQuantityForRequirementContent;
 import io.dummymaker.annotation.number.GenInteger;
 import io.dummymaker.annotation.special.GenEnumerate;
-import io.dummymaker.annotation.string.GenName;
 
-public class boats {
+public class content {
     @GenEnumerate(from = 1)
-    @GenInteger
-    private Integer id;
-    @GenName
-    private String name;
+    private Integer ident;
     @GenBoatCapacityAndQuantityForRequirementContent
-    private Integer capacity;
+    private Integer quantity;
 }

@@ -3,22 +3,22 @@
 		{
 			"id":"1",
 			"name":"ready",
-			"description":"A safe pair of hands"
+			"description":"As alike as two peas in a pod"
 		},
 		{
 			"id":"2",
 			"name":"repair",
-			"description":"Behind every great man theres a great woman"
+			"description":"Apple of my eye - The"
 		},
 		{
 			"id":"3",
 			"name":"working",
-			"description":"About face"
+			"description":"A drop in the bucket"
 		},
 		{
 			"id":"4",
 			"name":"out of service",
-			"description":"Adams ale"
+			"description":"Bad egg"
 		}
 	]
 }

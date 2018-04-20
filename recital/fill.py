@@ -34,7 +34,7 @@ SYSTEMS_COLLECTION_NAME = os.environ.get('SYSTEMS_COLLECTION_NAME') or config['M
 def fill(collection, base, foreign_ids = []):
 	db[collection].delete_many({})
 	print(call(['mongoimport', '--db', MONGO_DB_NAME, '--collection', collection, '--file', 
-		convert(os.environ['SPACE_SHIP_HOME'] + '/generation/dummyMarket/{0}.json'.format(base), base, foreign_ids)]))
+		convert(os.environ['SPACE_SHIP_HOME'] + '/generation/dummyMarket/mongo json/{0}.json'.format(base), base, foreign_ids)]))
 
 if __name__ == '__main__':
 	fill(BOATS_COLLECTION_NAME, 'boats')
