@@ -31,6 +31,8 @@ public abstract class LargeDataGenerator{
         //boats
         List<boats> boats = new GenProduceFactory().produce(boats.class, AMOUNT);
         new JsonExporter().withPretty().withPath("./mongo json/").export(boats);
+
+
        // boatsId = generateObject(boat.class, AMOUNT);
         //new CsvExporter().withTextWrap().export(boats.class, AMOUNT);
     }

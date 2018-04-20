@@ -1,5 +1,24 @@
-{"systemTypes": [
-{"id":"1","name":"fuel","description":"A legend in ones own lifetime"},
-{"id":"2","name":"engine","description":"Beware the Ides of March"},
-{"id":"3","name":"thrusters","description":"Best bib and tucker"},
-{"id":"4","name":"hydraulic","description":"Acid test"}]}
+{
+	"systemTypes": [
+		{
+			"id":"1",
+			"name":"fuel",
+			"description":"About turn"
+		},
+		{
+			"id":"2",
+			"name":"engine",
+			"description":"As queer as a nine bob note"
+		},
+		{
+			"id":"3",
+			"name":"thrusters",
+			"description":"As mad as a hatter"
+		},
+		{
+			"id":"4",
+			"name":"hydraulic",
+			"description":"Beware the Ides of March"
+		}
+	]
+}

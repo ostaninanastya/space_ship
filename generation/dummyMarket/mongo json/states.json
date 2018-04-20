@@ -1,5 +1,24 @@
-{"states": [
-{"id":"1","name":"ready","description":"A wolf in sheeps clothing"},
-{"id":"2","name":"repair","description":"A bird in the hand is worth two in the bush"},
-{"id":"3","name":"working","description":"As happy as Larry"},
-{"id":"4","name":"out of service","description":"Bed of roses"}]}
+{
+	"states": [
+		{
+			"id":"1",
+			"name":"ready",
+			"description":"Action man"
+		},
+		{
+			"id":"2",
+			"name":"repair",
+			"description":"As brown as a berry"
+		},
+		{
+			"id":"3",
+			"name":"working",
+			"description":"A drop in the bucket"
+		},
+		{
+			"id":"4",
+			"name":"out of service",
+			"description":"All intents and purposes"
+		}
+	]
+}

@@ -1,7 +1,7 @@
 package com.dbp.pojo.recital;
 
 import com.dbp.pojo.recital.customAnnotation.annotations.id.GenId4;
-import com.dbp.pojo.recital.customAnnotation.annotations.id.GenPersonInChargeId;
+import com.dbp.pojo.recital.customAnnotation.annotations.id.GenBigIdCustom;
 import io.dummymaker.annotation.number.GenDouble;
 import io.dummymaker.annotation.number.GenInteger;
 import io.dummymaker.annotation.special.GenEnumerate;
@@ -24,7 +24,7 @@ public class systems {
     private LocalDate dateOfLaunch;
     @GenTime(from = 2015)
     private LocalDate dateOfLastChecking;
-    @GenPersonInChargeId
+    @GenBigIdCustom
     private Integer personInCharge;
     @GenId4
     private Integer state;

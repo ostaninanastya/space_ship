@@ -4,9 +4,9 @@ import io.dummymaker.generator.IGenerator;
 
 import java.util.Random;
 
-public class PersonInChargeIdGenerator implements IGenerator<Integer> {
+public class BigIdGenerator implements IGenerator<Integer> {
 
-    // we have 2000000 records in collection People which id starts from 1
+    // we have 2000000 records in collections which id starts from 1
     @Override
     public Integer generate() {
         int maxNumber = 2000000;

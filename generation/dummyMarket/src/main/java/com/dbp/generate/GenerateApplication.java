@@ -1,5 +1,6 @@
 package com.dbp.generate;
 
+import com.dbp.generate.relations.RelationsGenerate;
 import com.mifmif.common.regex.Generex;
 import com.mifmif.common.regex.util.Iterator;
 import io.dummymaker.export.impl.JsonExporter;
@@ -12,5 +13,6 @@ public class GenerateApplication {
     public static void main(String[] args) {
         InitDataGenerator.generate();
         LargeDataGenerator.generate();
+        RelationsGenerate.generate();
     }
 }
