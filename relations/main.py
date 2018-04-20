@@ -71,6 +71,7 @@ buzznew.worker.connect(shift1)
 
 req = Requirement(name = 'best team', content = [{'ident' : '5ac52207cc314386b6f43441', 'quantity' : 100}, {'ident' : '5ac5220ccc314386b6f43442', 'quantity' : 100}]).save()
 print(req.content)
+print(req.operations)
 
 '''
 woody = Person(ident = 2).save()

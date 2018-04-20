@@ -14,6 +14,13 @@ EVENTS = get_strings(os.environ['SPACE_SHIP_HOME'] + '/logbook/enums/sensor_even
 VALUE_TYPES = get_strings(os.environ['SPACE_SHIP_HOME'] + '/logbook/enums/value_types')
 VALUE_UNITS = get_strings(os.environ['SPACE_SHIP_HOME'] + '/logbook/enums/units')
 
+import configparser
+
+config = configparser.ConfigParser()
+config.read(os.environ.get('SPACE_SHIP_HOME') + '/databases.config')
+
+SENSORS_COLLECTION_NAME = os.environ.get('SENSORS_COLLECTION_NAME') or config['MONGO']['sensors_collection_name']
+
 class SensorData(Model):
     date = columns.Date(required = True, partition_key = True)
     time = columns.Time(required = True, primary_key = True)
@@ -33,7 +40,7 @@ class SensorData(Model):
 
     @staticmethod
     def validate_source_id(id):
-        if len(source_id) != 12 or not mongo_adapter.is_valid_foreign_id('source_test', source_id.hex()):
+        if len(source_id) != 12 or not mongo_adapter.is_valid_foreign_id(SENSORS_COLLECTION_NAME, source_id.hex()):
             raise ValidationError('not a valid source id')
         return id
 

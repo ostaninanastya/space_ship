@@ -3,22 +3,22 @@
 		{
 			"id":"1",
 			"name":"ready",
-			"description":"Beyond our ken"
+			"description":"A safe pair of hands"
 		},
 		{
 			"id":"2",
 			"name":"repair",
-			"description":"As X as Y"
+			"description":"Behind every great man theres a great woman"
 		},
 		{
 			"id":"3",
 			"name":"working",
-			"description":"A hard man is good to find"
+			"description":"About face"
 		},
 		{
 			"id":"4",
 			"name":"out of service",
-			"description":"A dog is a mans best friend"
+			"description":"Adams ale"
 		}
 	]
 }

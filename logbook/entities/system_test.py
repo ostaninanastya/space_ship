@@ -9,6 +9,13 @@ sys.path.append('adapters')
 
 import mongo_adapter
 
+import configparser
+
+config = configparser.ConfigParser()
+config.read(os.environ.get('SPACE_SHIP_HOME') + '/databases.config')
+
+SYSTEMS_COLLECTION_NAME = os.environ.get('SYSTEMS_COLLECTION_NAME') or config['MONGO']['systems_collection_name']
+
 class SystemTest(Model):
     date = columns.Date(required = True, partition_key = True)
     time = columns.Time(required = True, primary_key = True)
@@ -26,5 +33,5 @@ class SystemTest(Model):
 
     @staticmethod
     def validate_system_id(id):
-        if len(id) != 12 or not mongo_adapter.is_valid_foreign_id('system_test', id.hex()):
+        if len(id) != 12 or not mongo_adapter.is_valid_foreign_id(SYSTEMS_COLLECTION_NAME, id.hex()):
             raise ValidationError('not a valid system id')

@@ -1,10 +1,17 @@
-import sys
+import sys, os
 
-from neomodel import StructuredNode, IntegerProperty, StringProperty, ArrayProperty, RelationshipTo, RelationshipFrom, UniqueIdProperty, config, One
+from neomodel import StructuredNode, IntegerProperty, StringProperty, ArrayProperty, RelationshipTo, RelationshipFrom, UniqueIdProperty, One
 
 sys.path.append('adapters')
 
 import mongo_adapter
+
+import configparser
+
+config = configparser.ConfigParser()
+config.read(os.environ.get('SPACE_SHIP_HOME') + '/databases.config')
+
+DEPARTMENTS_COLLECTION_NAME = os.environ.get('DEPARTMENTS_COLLECTION_NAME') or config['MONGO']['departments_collection_name']
 
 class Department(StructuredNode):
     ident = ArrayProperty(IntegerProperty(), unique_index = True, required = True)

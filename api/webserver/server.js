@@ -32,7 +32,7 @@ function split2(str, delim) {
 
 function translate_to_graphsql(original_query){
 	
-	let query = original_query.split('/')
+	let query = original_query.replace(/%26/g, '&').replace(/%27/g, '\'').split('/')
 
 	console.log(query)
 	
@@ -125,13 +125,13 @@ app.get('/api/*', function(req, res){
 
 	let process = spawn('python3', ["../background/main.py", query]);
 
-	res.write('<p style="white-space:pre;">')
+	res.write('')
 
 	process.stdout.on('data', function(data){
 		if (data.indexOf(LAST_RESPONSE_CHUNK_SIGN) == -1){
 			res.write(data.toString('utf8'));
 		} else {
-			res.end(data.toString('utf8') + '</p>');
+			res.end(data.toString('utf8').replace(LAST_RESPONSE_CHUNK_SIGN, '') + '');
 		}
 		console.log(data.toString('utf8'));
 	});

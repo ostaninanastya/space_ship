@@ -1,10 +1,17 @@
-import sys, re
+import sys, re, os
 
-from neomodel import StructuredNode, IntegerProperty, StringProperty, ArrayProperty, RelationshipTo, RelationshipFrom, UniqueIdProperty, config, One
+from neomodel import StructuredNode, IntegerProperty, StringProperty, ArrayProperty, RelationshipTo, RelationshipFrom, UniqueIdProperty, One
 
 sys.path.append('adapters')
 
 import mongo_adapter
+
+import configparser
+
+config = configparser.ConfigParser()
+config.read(os.environ.get('SPACE_SHIP_HOME') + '/databases.config')
+
+PEOPLE_COLLECTION_NAME = os.environ.get('PEOPLE_COLLECTION_NAME') or config['MONGO']['people_collection_name']
 
 class Person(StructuredNode):
     ident = ArrayProperty(IntegerProperty(), unique_index = True, required = True)
@@ -18,7 +25,7 @@ class Person(StructuredNode):
     chief = RelationshipTo('shift.Shift', 'CHIEF', cardinality=One)
 
     def __init__(self, *args, **kwargs):
-        kwargs['ident'] = mongo_adapter.validate_id('people_test', kwargs['ident'])
+        kwargs['ident'] = mongo_adapter.validate_id(PEOPLE_COLLECTION_NAME, kwargs['ident'])
         super(Person, self).__init__(self, *args, **kwargs)
 
     @property

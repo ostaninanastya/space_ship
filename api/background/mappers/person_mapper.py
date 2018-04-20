@@ -22,6 +22,13 @@ sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/recital/native')
 
 import mongo_native
 
+import configparser
+
+config = configparser.ConfigParser()
+config.read(os.environ.get('SPACE_SHIP_HOME') + '/databases.config')
+
+PEOPLE_COLLECTION_NAME = os.environ.get('PEOPLE_COLLECTION_NAME') or config['MONGO']['people_collection_name']
+
 #print(dir(operation_mapper))
 
 class PersonMapper(graphene.ObjectType):
@@ -59,7 +66,7 @@ class PersonMapper(graphene.ObjectType):
         return [DepartmentMapper(id = deparment_id) for deparment_id in neo4j_adapter.get_directed_ids(self.id)]
 
     def resolve_department(self, info):
-        return DepartmentMapper(id = mongo_adapter.get_property_by_id('people_test', self.id, 'department'))
+        return DepartmentMapper(id = mongo_adapter.get_property_by_id(PEOPLE_COLLECTION_NAME, self.id, 'department'))
     
     def resolve_chiefed(self, info):
         from shift_mapper import ShiftMapper
@@ -93,11 +100,11 @@ class PersonMapper(graphene.ObjectType):
 
     def resolve_name(self, info):
         if (self.name == '' or not self.name):
-            return mongo_adapter.get_name_by_id('people_test', self.id)
+            return mongo_adapter.get_name_by_id(PEOPLE_COLLECTION_NAME, self.id)
         return self.name
 
     def resolve_specialization(self, info):
-        return SpecializationMapper(id = mongo_adapter.get_property_by_id('people_test', self.id, 'specialization'))
+        return SpecializationMapper(id = mongo_adapter.get_property_by_id(PEOPLE_COLLECTION_NAME, self.id, 'specialization'))
 
     def resolve_commands(self, info):
         from control_action_mapper import ControlActionMapper

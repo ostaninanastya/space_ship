@@ -10,6 +10,13 @@ sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/recital/native')
 
 import mongo_native
 
+import configparser
+
+config = configparser.ConfigParser()
+config.read(os.environ.get('SPACE_SHIP_HOME') + '/databases.config')
+
+DEPARTMENTS_COLLECTION_NAME = os.environ.get('DEPARTMENTS_COLLECTION_NAME') or config['MONGO']['departments_collection_name']
+
 class DepartmentMapper(graphene.ObjectType):
     id = graphene.String()
     name = graphene.String()
@@ -20,13 +27,13 @@ class DepartmentMapper(graphene.ObjectType):
 
     @staticmethod
     def init_scalar(item):
-        return DepartmentMapper(id = str(item['_id']), name = item['name'], vk = item.get('surname'))
+        return DepartmentMapper(id = str(item['_id']), name = item['name'], vk = item.get('vk'))
 
     def resolve_name(self, info):
-    	return mongo_adapter.get_name_by_id('department_test', self.id)
+    	return mongo_adapter.get_name_by_id(DEPARTMENTS_COLLECTION_NAME, self.id)
 
     def resolve_vk(self, info):
-    	return mongo_adapter.get_property_by_id('department_test', self.id, 'vk')
+    	return mongo_adapter.get_property_by_id(DEPARTMENTS_COLLECTION_NAME, self.id, 'vk')
 
     def resolve_director(self, info):
     	from person_mapper import PersonMapper

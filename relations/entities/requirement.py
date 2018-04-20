@@ -6,6 +6,13 @@ sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/relations/adapters')
 
 import mongo_adapter
 
+import configparser
+
+config = configparser.ConfigParser()
+config.read(os.environ.get('SPACE_SHIP_HOME') + '/databases.config')
+
+SPECIALIZATIONS_COLLECTION_NAME = os.environ.get('SPECIALIZATIONS_COLLECTION_NAME') or config['MONGO']['specializations_collection_name']
+
 class Requirement(StructuredNode):
     ident = UniqueIdProperty()
     
@@ -19,7 +26,7 @@ class Requirement(StructuredNode):
         super(Requirement, self).__init__(self, *args, **kwargs)
         if isinstance(self.content, list):
 	        for i in range(len(self.content)):
-	            self.content[i]['ident'] = mongo_adapter.validate_id('spec_test', self.content[i]['ident'])
+	            self.content[i]['ident'] = mongo_adapter.validate_id(SPECIALIZATIONS_COLLECTION_NAME, self.content[i]['ident'])
 
     @property
     def content_hexes(self):
@@ -30,4 +37,4 @@ class Requirement(StructuredNode):
 
     @staticmethod
     def specialization_id_to_neo4j_format(id):
-        return mongo_adapter.validate_id('spec_test', id)
+        return mongo_adapter.validate_id(SPECIALIZATIONS_COLLECTION_NAME, id)
