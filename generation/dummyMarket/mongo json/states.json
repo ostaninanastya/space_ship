@@ -3,22 +3,22 @@
 		{
 			"id":"1",
 			"name":"ready",
-			"description":"As alike as two peas in a pod"
+			"description":"Anchors aweigh"
 		},
 		{
 			"id":"2",
 			"name":"repair",
-			"description":"Apple of my eye - The"
+			"description":"Behind every great man theres a great woman"
 		},
 		{
 			"id":"3",
 			"name":"working",
-			"description":"A drop in the bucket"
+			"description":"Beggar belief"
 		},
 		{
 			"id":"4",
 			"name":"out of service",
-			"description":"Bad egg"
+			"description":"Absent without leave"
 		}
 	]
 }

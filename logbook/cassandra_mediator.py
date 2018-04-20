@@ -175,12 +175,12 @@ def parse_params(params, delimiter):
 			elif isinstance(params[key], bytearray):
 				where.append(key + ' = 0x' + params[key].hex())
 			elif not isinstance(params[key], str) and not isinstance(params[key], cassandra.util.Date) and not isinstance(params[key], cassandra.util.Time):
-				print(type(params[key]))
+				#print(type(params[key]))
 				where.append(key + ' = ' + str(params[key]))
 			else:
 				where.append(key + ' = \'' + str(params[key]) + '\'')
 
-	print(where)
+	#print(where)
 	return delimiter.join(where)
 
 def extract_keys(item, keys):
@@ -192,7 +192,7 @@ def extract_keys(item, keys):
 	return parse_params(selected, ' and ')
 
 def select(table, params, dicted = False):
-	print('select * from {0}.{1} where {2} allow filtering;'.format(DB_NAME, table, parse_params(params, ' and ')))
+	#print('select * from {0}.{1} where {2} allow filtering;'.format(DB_NAME, table, parse_params(params, ' and ')))
 	parsed_params = parse_params(params, ' and ')
 	result = connection.execute('select * from {0}.{1} {2};'.format(DB_NAME, table,
 	 'where {0} allow filtering'.format(parsed_params) if len(parsed_params) else '')).current_rows
@@ -214,8 +214,8 @@ def update(table, params, dicted = False):
 	parsed_update_params = parse_params(update, ', ')
 
 	#result = connection.execute
-	print('BEGIN BATCH ' + ' '.join(['update {0}.{1} set {3} where {2};'.format(DB_NAME, table,
-		extract_keys(item, ['date', 'time']), parsed_update_params) for item in select_result ]) + ' APPLY BATCH;')
+	#print('BEGIN BATCH ' + ' '.join(['update {0}.{1} set {3} where {2};'.format(DB_NAME, table,
+	#	extract_keys(item, ['date', 'time']), parsed_update_params) for item in select_result ]) + ' APPLY BATCH;')
 
 	result = connection.execute('BEGIN BATCH ' + ' '.join(['update {0}.{1} set {3} where {2};'.format(DB_NAME, table,
 		extract_keys(item, ['date', 'time']), parsed_update_params) for item in select_result ]) + ' APPLY BATCH;').current_rows

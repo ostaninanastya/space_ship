@@ -3,22 +3,22 @@
 		{
 			"id":"1",
 			"name":"fuel",
-			"description":"Adams ale"
+			"description":"Beetle-browed"
 		},
 		{
 			"id":"2",
 			"name":"engine",
-			"description":"Across the board"
+			"description":"Be afraid, be very afraid"
 		},
 		{
 			"id":"3",
 			"name":"thrusters",
-			"description":"All present and correct"
+			"description":"As white as snow"
 		},
 		{
 			"id":"4",
 			"name":"hydraulic",
-			"description":"Anchors aweigh"
+			"description":"A diamond is forever"
 		}
 	]
 }

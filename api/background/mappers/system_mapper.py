@@ -30,8 +30,7 @@ class SystemMapper(graphene.ObjectType):
         return SystemStateMapper.init_scalar(mongo_native.get_system_state_by_id(self.state))
 
     def resolve_supervisor(self, info):
-        print(self.supervisor)
-        return PersonMapper(id = self.supervisor)
+        return PersonMapper.init_scalar(mongo_native.get_person_by_id(self.supervisor))
 
     def resolve_type(self, info):
         return SystemTypeMapper.init_scalar(mongo_native.get_system_type_by_id(self.type))

@@ -17,7 +17,10 @@ def get_property_by_id(collection_name, id, property_name):
 	return db[collection_name].find({'_id' : ObjectId(id)}, { property_name : 1})[0][property_name]
 
 def get_name_by_id(collection_name, id):
-	return db[collection_name].find({'_id' : ObjectId(id)}, { 'name' : 1})[0]['name']
+    try:
+	    return db[collection_name].find({'_id' : ObjectId(id)}, { 'name' : 1})[0]['name']
+    except:
+        return ''
 
 def get_sensor_location_by_id(sensor_collection, location_collection, id):
 	location_id = db[sensor_collection].find({'_id' : ObjectId(id)}, { 'location' : 1})[0]['location']

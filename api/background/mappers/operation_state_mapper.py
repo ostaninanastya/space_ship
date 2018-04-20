@@ -25,6 +25,8 @@ configp.read(os.environ.get('SPACE_SHIP_HOME') + '/databases.config')
 NEO4J_DB_URL = os.environ.get('NEO4J_DB_URL') if os.environ.get('NEO4J_DB_URL') else configp['NEO4J']['host']
 NEO4J_DB_PORT = int(os.environ.get('NEO4J_DB_PORT') if os.environ.get('NEO4J_DB_PORT') else configp['NEO4J']['port'])
 
+BOATS_COLLECTION_NAME = os.environ.get('BOATS_COLLECTION_NAME') or configp['MONGO']['boats_collection_name']
+
 USERNAME = os.environ.get('NEO4J_DB_USERNAME') if os.environ.get('NEO4J_DB_USERNAME') else configp['NEO4J']['username']
 PASSWORD = os.environ.get('NEO4J_DB_PASSWORD') if os.environ.get('NEO4J_DB_PASSWORD') else configp['NEO4J']['password']
 
@@ -178,7 +180,7 @@ class OperationStateMapper(graphene.ObjectType):
         return OperationStateMapper(date = date_to_str(item['date']),
                                time = time_to_str(item['time']),
                                boatid = item['boat_id'].hex(),
-                               boatname = mongo_adapter.get_name_by_id('boat_test', item['boat_id'].hex()),
+                               boatname = mongo_adapter.get_name_by_id(BOATS_COLLECTION_NAME, item['boat_id'].hex()),
                                operationid = item['operation_id'].hex(),
                                operationstatus = item['operation_status'],
                                distancetotheship = item['distance_to_the_ship'],

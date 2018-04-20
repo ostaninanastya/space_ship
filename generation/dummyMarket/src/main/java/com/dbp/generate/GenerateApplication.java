@@ -14,5 +14,6 @@ public class GenerateApplication {
         InitDataGenerator.generate();
         LargeDataGenerator.generate();
         RelationsGenerate.generate();
+        EnormousDataGenerator.generate();
     }
 }

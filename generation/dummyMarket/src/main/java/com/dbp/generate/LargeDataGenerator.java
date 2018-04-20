@@ -9,6 +9,8 @@ import io.dummymaker.factory.impl.GenProduceFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+
+
 public abstract class LargeDataGenerator{
     public static final int AMOUNT = 1000;
     public static void generate() {
