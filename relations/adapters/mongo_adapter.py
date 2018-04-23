@@ -12,7 +12,7 @@ MONGO_DB_NAME = os.environ.get('MONGO_DB_NAME') if os.environ.get('MONGO_DB_NAME
 db = MongoClient(MONGO_DB_URL, MONGO_DB_PORT)[MONGO_DB_NAME]
 
 def splitword(w):
-    print('got word', w)
+    #print('got word', w)
     split = -((-len(w))//2)
     return w[:split], w[split:]
 

@@ -1,0 +1,5 @@
+sharding:
+  configDB: khamul/localhost:1882
+net:
+  bindIp: localhost
+  port: 1886

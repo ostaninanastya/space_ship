@@ -76,20 +76,22 @@ def get_headed_operations(person_id):
 			""" % person_id)]
 
 def get_directed_ids(person_id):
-	return [\
-		item['ident'] for item in graph.data("""
+	result = [\
+		item['ident'].zfill(24) for item in graph.data("""
 			match (p:Person)-[:DIRECTOR]->(d:Department)
 			where space_ship.get_hex_ident(p.ident) = '%s'
 			return space_ship.get_hex_ident(d.ident) as ident
-			""" % person_id)]
+			""" % ('0' + str(person_id).lstrip('0')))]
+	return result
 
 def get_director_id(department_id):
-	return [\
+	result = [\
 		item['ident'] for item in graph.data("""
 			match (p:Person)-[:DIRECTOR]->(d:Department)
 			where space_ship.get_hex_ident(d.ident) = '%s'
 			return space_ship.get_hex_ident(p.ident) as ident
-			""" % department_id)][0]
+			""" % ('0' + str(department_id).lstrip('0')))][0]
+	return result.zfill(24)
 
 def get_chiefed_shifts(person_id):
 	return [\

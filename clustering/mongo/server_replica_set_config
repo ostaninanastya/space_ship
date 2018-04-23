@@ -1,0 +1,6 @@
+sharding:
+  clusterRole: configsvr
+replication:
+  replSetName: jinx
+net:
+  bindIp: localhost

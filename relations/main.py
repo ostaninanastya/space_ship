@@ -65,13 +65,12 @@ buzznew.worker.connect(shift1)
 #print(Operation.nodes.get(ident = '328a0b1d8a784289a4afb33ad70ee5c1').end)
 
 
-
 #sh = Shift().save()
 #print(sh.ident)
 
-req = Requirement(name = 'best team', content = [{'ident' : '5ac52207cc314386b6f43441', 'quantity' : 100}, {'ident' : '5ac5220ccc314386b6f43442', 'quantity' : 100}]).save()
+req = Requirement(name = 'best team', content = [{"ident" : '000000000000000000000002', 'quantity' : 100}, {"ident" : '000000000000000000000003', 'quantity' : 100}]).save()
 print(req.content)
-print(req.operations)
+#print(req.operations)
 
 '''
 woody = Person(ident = 2).save()

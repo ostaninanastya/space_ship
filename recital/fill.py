@@ -19,6 +19,8 @@ MONGO_DB_NAME = os.environ.get('MONGO_DB_NAME') if os.environ.get('MONGO_DB_NAME
 
 db = MongoClient(MONGO_DB_URL, MONGO_DB_PORT)[MONGO_DB_NAME]
 
+print(db)
+
 BOATS_COLLECTION_NAME = os.environ.get('BOATS_COLLECTION_NAME') or config['MONGO']['boats_collection_name']
 DEPARTMENTS_COLLECTION_NAME = os.environ.get('DEPARTMENTS_COLLECTION_NAME') or config['MONGO']['departments_collection_name']
 LOCATIONS_COLLECTION_NAME = os.environ.get('LOCATIONS_COLLECTION_NAME') or config['MONGO']['locations_collection_name']
@@ -33,7 +35,7 @@ SYSTEMS_COLLECTION_NAME = os.environ.get('SYSTEMS_COLLECTION_NAME') or config['M
 
 def fill(collection, base, foreign_ids = []):
 	db[collection].delete_many({})
-	print(call(['mongoimport', '--db', MONGO_DB_NAME, '--collection', collection, '--file', 
+	print(call(['mongoimport','--port',str(MONGO_DB_PORT),'--db', MONGO_DB_NAME, '--collection', collection, '--file', 
 		convert(os.environ['SPACE_SHIP_HOME'] + '/generation/dummyMarket/mongo json/{0}.json'.format(base), base, foreign_ids)]))
 
 if __name__ == '__main__':

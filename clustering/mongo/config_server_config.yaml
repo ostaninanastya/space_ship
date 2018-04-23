@@ -1,0 +1,9 @@
+sharding:
+  clusterRole: configsvr
+replication:
+  replSetName: khamul
+net:
+  bindIp: localhost
+  port: 1882
+storage:
+  dbPath: /media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/mongo/khamul
