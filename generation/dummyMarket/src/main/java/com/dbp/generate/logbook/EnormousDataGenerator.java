@@ -1,4 +1,4 @@
-package com.dbp.generate;
+package com.dbp.generate.logbook;
 
 import com.dbp.pojo.logbook.*;
 import io.dummymaker.export.IExporter;
@@ -9,8 +9,9 @@ import io.dummymaker.factory.impl.GenProduceFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbp.generate.constant.Modifier.AMOUNT;
+
 public abstract class EnormousDataGenerator{
-    public static final int AMOUNT = 10000;
     public static void generate() {
         //system tests
         List<system_test> system_tests = new GenProduceFactory().produce(system_test.class, AMOUNT);

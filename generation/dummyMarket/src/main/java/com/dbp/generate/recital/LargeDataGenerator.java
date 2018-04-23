@@ -1,18 +1,16 @@
-package com.dbp.generate;
+package com.dbp.generate.recital;
 
 import com.dbp.pojo.recital.*;
-import io.dummymaker.export.IExporter;
-import io.dummymaker.export.impl.CsvExporter;
 import io.dummymaker.export.impl.JsonExporter;
 import io.dummymaker.factory.impl.GenProduceFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbp.generate.constant.Modifier.AMOUNT;
 
 
 public abstract class LargeDataGenerator{
-    public static final int AMOUNT = 1000;
+
     public static void generate() {
         //systems
         List<systems> systems = new GenProduceFactory().produce(systems.class, AMOUNT);

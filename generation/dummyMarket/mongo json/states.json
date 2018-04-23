@@ -3,22 +3,22 @@
 		{
 			"id":"1",
 			"name":"ready",
-			"description":"Anchors aweigh"
+			"description":"At ones beck and call"
 		},
 		{
 			"id":"2",
 			"name":"repair",
-			"description":"Behind every great man theres a great woman"
+			"description":"Ask a silly question and youll get a silly answer"
 		},
 		{
 			"id":"3",
 			"name":"working",
-			"description":"Beggar belief"
+			"description":"A foot in the door"
 		},
 		{
 			"id":"4",
 			"name":"out of service",
-			"description":"Absent without leave"
+			"description":"As busy as a bee"
 		}
 	]
 }

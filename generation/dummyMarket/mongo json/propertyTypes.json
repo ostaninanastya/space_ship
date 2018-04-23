@@ -3,27 +3,27 @@
 		{
 			"id":"1",
 			"name":"large tools",
-			"description":"A rose by any other name would smell as sweet"
+			"description":"Beck and call"
 		},
 		{
 			"id":"2",
 			"name":"small tools",
-			"description":"A dog is a mans best friend"
+			"description":"Below the salt"
 		},
 		{
 			"id":"3",
 			"name":"tools for cleaning",
-			"description":"Auld lang syne"
+			"description":"A golden key can open any door"
 		},
 		{
 			"id":"4",
 			"name":"furniture",
-			"description":"Beat around the bush"
+			"description":"Beware of Greeks bearing gifts"
 		},
 		{
 			"id":"5",
 			"name":"large tools",
-			"description":"Better half"
+			"description":"All intents and purposes"
 		}
 	]
 }
