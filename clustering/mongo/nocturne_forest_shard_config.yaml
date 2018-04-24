@@ -1,0 +1,9 @@
+sharding:
+   clusterRole: shardsvr
+replication:
+   replSetName: forest
+net:
+   bindIp: localhost
+   port: 1887
+storage:
+   dbPath: /media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/mongo/nocturne
