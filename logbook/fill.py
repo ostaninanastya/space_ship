@@ -19,7 +19,10 @@ config.read(os.environ['SPACE_SHIP_HOME'] + '/databases.config')
 DB_URL = os.environ.get('DB_URL') if os.environ.get('DB_URL') else config['CASSANDRA']['host'] 
 DB_NAME = os.environ.get('DB_NAME') if os.environ.get('DB_NAME') else config['CASSANDRA']['db_name']
 
-connection.setup([DB_URL], DB_NAME)
+HOST_DELIMITER = os.environ.get('HOST_DELIMITER') if os.environ.get('HOST_DELIMITER') else config['CASSANDRA']['host_delimiter']
+DB_URLS = os.environ.get('DB_URLS') if os.environ.get('DB_URLS') else config['CASSANDRA']['hosts']
+
+connection.setup(DB_URLS.split(HOST_DELIMITER), DB_NAME)
 
 def fill(entity_name, base, batch_size, mongo_ids = [], neo_ids = [], strings = []):
 	data = json.load(open(convert(os.environ['SPACE_SHIP_HOME'] + '/generation/dummyMarket/cassandra json/{0}.json'.format(base), base, mongo_ids = mongo_ids,

@@ -1,6 +1,6 @@
-create keyspace if not exists logbooktest with replication = {'class' : 'SimpleStrategy', 'replication_factor' : 1};
+create keyspace if not exists logbook with replication = {'class' : 'SimpleStrategy', 'replication_factor' : 3};
 
-create table logbooktest.position (
+create table logbook.position (
    date date,
    time time,
    x double, 
@@ -11,7 +11,7 @@ create table logbooktest.position (
    direction_angle double,  
    PRIMARY KEY (date, time));
 
-create table logbooktest.control_action (
+create table logbook.control_action (
    date date,
    time time,
    mac_address blob, 
@@ -21,7 +21,7 @@ create table logbooktest.control_action (
    result text,
    PRIMARY KEY (date, time));
 
-create table logbooktest.sensor_data (
+create table logbook.sensor_data (
    date date,
    time time,
    source_id blob, 
@@ -31,7 +31,7 @@ create table logbooktest.sensor_data (
    units text,
    PRIMARY KEY (date, time));
 
-create table logbooktest.shift_state (
+create table logbook.shift_state (
    date date,
    time time,
    shift_id blob, 
@@ -42,14 +42,14 @@ create table logbooktest.shift_state (
    comment text,
    PRIMARY KEY (date, time));
 
-create table logbooktest.system_test (
+create table logbook.system_test (
    date date,
    time time,
    system_id blob, 
    result tinyint,
    PRIMARY KEY (date, time));
 
-create table logbooktest.operation_state (
+create table logbook.operation_state (
    date date,
    time time,
    boat_id blob, 
