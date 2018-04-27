@@ -1,7 +1,7 @@
 import os, sys
 import configparser
 
-from neomodel import StructuredNode, IntegerProperty, StringProperty, RelationshipTo, RelationshipFrom, UniqueIdProperty, config, One
+from neomodel import StructuredNode, IntegerProperty, StringProperty, RelationshipTo, RelationshipFrom, UniqueIdProperty, config, One, db
 
 sys.path.append('entities')
 
@@ -11,16 +11,15 @@ from person import Person
 from requirement import Requirement
 from shift import Shift
 
-configp = configparser.ConfigParser()
-configp.read('../databases.config')
+sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/connectors')
+from neo4j_connector import connect_to_leader
 
-NEO4J_DB_URL = os.environ.get('NEO4J_DB_URL') if os.environ.get('NEO4J_DB_URL') else configp['NEO4J']['host']
-NEO4J_DB_PORT = int(os.environ.get('NEO4J_DB_PORT') if os.environ.get('NEO4J_DB_PORT') else configp['NEO4J']['port'])
+conn = connect_to_leader()
 
-USERNAME = os.environ.get('NEO4J_DB_USERNAME') if os.environ.get('NEO4J_DB_USERNAME') else configp['NEO4J']['username']
-PASSWORD = os.environ.get('NEO4J_DB_PASSWORD') if os.environ.get('NEO4J_DB_PASSWORD') else configp['NEO4J']['password']
+config.DATABASE_URL = 'bolt://{0}:{1}@{2}:{3}/'.format(conn['username'], conn['password'], conn['host'], int(conn['port']))
 
-config.DATABASE_URL = 'bolt://' + USERNAME + ':' + PASSWORD + '@' + NEO4J_DB_URL + ':' + str(NEO4J_DB_PORT)
+print(db.cypher_query('call dbms.cluster.role();')[0][0][0])
+
 '''
 shift1 = Shift().save()
 print(shift1.ident)

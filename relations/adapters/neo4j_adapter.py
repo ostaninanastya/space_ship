@@ -5,13 +5,11 @@ import os, sys
 config = configparser.ConfigParser()
 config.read('../databases.config')
 
-NEO4J_DB_URL = os.environ.get('NEO4J_DB_URL') if os.environ.get('NEO4J_DB_URL') else config['NEO4J']['host']
-NEO4J_DB_PORT = int(os.environ.get('NEO4J_DB_PORT') if os.environ.get('NEO4J_DB_PORT') else config['NEO4J']['port'])
+sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/connectors')
+from neo4j_connector import connect
 
-USERNAME = os.environ.get('NEO4J_DB_USERNAME') if os.environ.get('NEO4J_DB_USERNAME') else config['NEO4J']['username']
-PASSWORD = os.environ.get('NEO4J_DB_PASSWORD') if os.environ.get('NEO4J_DB_PASSWORD') else config['NEO4J']['password']
-
-graph = Graph(bolt = True, user = USERNAME, password = PASSWORD, host = NEO4J_DB_URL, http_port = NEO4J_DB_PORT)
+conn = connect()
+graph = Graph(bolt = True, user = conn['username'], password = conn['password'], host = conn['host'], bolt_port = conn['port'])
 
 def int_to_mongo_str_id(value):
 	return (value).to_bytes(12, byteorder='big').hex()

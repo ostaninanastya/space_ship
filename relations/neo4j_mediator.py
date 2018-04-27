@@ -4,18 +4,13 @@ import configparser
 import os, sys, re
 from neomodel import config
 
-configp = configparser.ConfigParser()
-configp.read(os.environ.get('SPACE_SHIP_HOME') + '/databases.config')
+sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/connectors')
+from neo4j_connector import connect_to_leader
 
-NEO4J_DB_URL = os.environ.get('NEO4J_DB_URL') or configp['NEO4J']['host']
-NEO4J_DB_PORT = int(os.environ.get('NEO4J_DB_PORT') or configp['NEO4J']['port'])
+conn = connect_to_leader()
 
-USERNAME = os.environ.get('NEO4J_DB_USERNAME') or configp['NEO4J']['username']
-PASSWORD = os.environ.get('NEO4J_DB_PASSWORD') or configp['NEO4J']['password']
-
-graph = Graph(bolt = True, user = USERNAME, password = PASSWORD, host = NEO4J_DB_URL, http_port = NEO4J_DB_PORT)
-
-config.DATABASE_URL = 'bolt://' + USERNAME + ':' + PASSWORD + '@' + NEO4J_DB_URL + ':' + str(NEO4J_DB_PORT)
+graph = Graph(bolt = True, user = conn['username'], password = conn['password'], host = conn['host'], bolt_port = conn['port'])
+config.DATABASE_URL = 'bolt://{0}:{1}@{2}:{3}/'.format(conn['username'], conn['password'], conn['host'], int(conn['port']))
 
 sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/relations/entities')
 

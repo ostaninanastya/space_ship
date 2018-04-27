@@ -33,7 +33,9 @@ def mongo_str_id_to_int(value):
     return tuple(result)
 
 def is_valid_foreign_id(collection_name, id):
-	return str(id) in [str(item['_id']) for item in db[collection_name].find({}, { '_id': 1 })]
+    print(collection_name)
+    print([str(item['_id']) for item in db[collection_name].find({}, { '_id': 1 })])
+    return str(id) in [str(item['_id']) for item in db[collection_name].find({}, { '_id': 1 })]
 
 def validate_id(collection_name, id):
     if isinstance(id, str):

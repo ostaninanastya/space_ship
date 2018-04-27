@@ -1,0 +1,412 @@
+2018-04-27 23:09:11.480+0000 INFO [o.n.k.i.f.CommunityEditionModule] No locking implementation specified, defaulting to 'forseti'
+2018-04-27 23:09:11.507+0000 INFO [o.n.k.i.f.StatementLocksFactorySelector] No services implementing StatementLocksFactory found. Using SimpleStatementLocksFactory
+2018-04-27 23:09:12.007+0000 INFO [o.n.k.AvailabilityGuard] Requirement makes database unavailable: Database available
+2018-04-27 23:09:12.063+0000 INFO [o.n.k.i.DiagnosticsManager] --- INITIALIZED diagnostics START ---
+2018-04-27 23:09:12.063+0000 INFO [o.n.k.i.DiagnosticsManager] Neo4j Kernel properties:
+2018-04-27 23:09:12.063+0000 INFO [o.n.k.i.DiagnosticsManager] unsupported.dbms.directories.neo4j_home=/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy
+2018-04-27 23:09:12.064+0000 INFO [o.n.k.i.DiagnosticsManager] unsupported.dbms.ephemeral=false
+2018-04-27 23:09:12.064+0000 INFO [o.n.k.i.DiagnosticsManager] dbms.allow_format_migration=false
+2018-04-27 23:09:12.064+0000 INFO [o.n.k.i.DiagnosticsManager] unsupported.dbms.edition=enterprise
+2018-04-27 23:09:12.064+0000 INFO [o.n.k.i.DiagnosticsManager] dbms.backup.enabled=false
+2018-04-27 23:09:12.064+0000 INFO [o.n.k.i.DiagnosticsManager] dbms.directories.logs=/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy
+2018-04-27 23:09:12.064+0000 INFO [o.n.k.i.DiagnosticsManager] dbms.label_index=AUTO
+2018-04-27 23:09:12.065+0000 INFO [o.n.k.i.DiagnosticsManager] dbms.tx_log.rotation.retention_policy=true
+2018-04-27 23:09:12.065+0000 INFO [o.n.k.i.DiagnosticsManager] Diagnostics providers:
+2018-04-27 23:09:12.065+0000 INFO [o.n.k.i.DiagnosticsManager] org.neo4j.kernel.configuration.Config
+2018-04-27 23:09:12.065+0000 INFO [o.n.k.i.DiagnosticsManager] org.neo4j.kernel.info.DiagnosticsManager
+2018-04-27 23:09:12.065+0000 INFO [o.n.k.i.DiagnosticsManager] SYSTEM_MEMORY
+2018-04-27 23:09:12.066+0000 INFO [o.n.k.i.DiagnosticsManager] JAVA_MEMORY
+2018-04-27 23:09:12.066+0000 INFO [o.n.k.i.DiagnosticsManager] OPERATING_SYSTEM
+2018-04-27 23:09:12.066+0000 INFO [o.n.k.i.DiagnosticsManager] JAVA_VIRTUAL_MACHINE
+2018-04-27 23:09:12.066+0000 INFO [o.n.k.i.DiagnosticsManager] CLASSPATH
+2018-04-27 23:09:12.066+0000 INFO [o.n.k.i.DiagnosticsManager] LIBRARY_PATH
+2018-04-27 23:09:12.066+0000 INFO [o.n.k.i.DiagnosticsManager] SYSTEM_PROPERTIES
+2018-04-27 23:09:12.066+0000 INFO [o.n.k.i.DiagnosticsManager] LINUX_SCHEDULERS
+2018-04-27 23:09:12.066+0000 INFO [o.n.k.i.DiagnosticsManager] NETWORK
+2018-04-27 23:09:12.067+0000 INFO [o.n.k.i.DiagnosticsManager] System memory information:
+2018-04-27 23:09:12.073+0000 INFO [o.n.k.i.DiagnosticsManager] Total Physical memory: 6.77 GB
+2018-04-27 23:09:12.073+0000 INFO [o.n.k.i.DiagnosticsManager] Free Physical memory: 140.13 MB
+2018-04-27 23:09:12.074+0000 INFO [o.n.k.i.DiagnosticsManager] Committed virtual memory: 4.73 GB
+2018-04-27 23:09:12.074+0000 INFO [o.n.k.i.DiagnosticsManager] Total swap space: 1.45 GB
+2018-04-27 23:09:12.075+0000 INFO [o.n.k.i.DiagnosticsManager] Free swap space: 1.09 GB
+2018-04-27 23:09:12.075+0000 INFO [o.n.k.i.DiagnosticsManager] JVM memory information:
+2018-04-27 23:09:12.075+0000 INFO [o.n.k.i.DiagnosticsManager] Free  memory: 110.13 MB
+2018-04-27 23:09:12.076+0000 INFO [o.n.k.i.DiagnosticsManager] Total memory: 133.00 MB
+2018-04-27 23:09:12.076+0000 INFO [o.n.k.i.DiagnosticsManager] Max   memory: 1.51 GB
+2018-04-27 23:09:12.079+0000 INFO [o.n.k.i.DiagnosticsManager] Garbage Collector: PS Scavenge: [PS Eden Space, PS Survivor Space]
+2018-04-27 23:09:12.079+0000 INFO [o.n.k.i.DiagnosticsManager] Garbage Collector: PS MarkSweep: [PS Eden Space, PS Survivor Space, PS Old Gen]
+2018-04-27 23:09:12.081+0000 INFO [o.n.k.i.DiagnosticsManager] Memory Pool: Code Cache (Non-heap memory): committed=5.63 MB, used=5.60 MB, max=240.00 MB, threshold=0.00 B
+2018-04-27 23:09:12.082+0000 INFO [o.n.k.i.DiagnosticsManager] Memory Pool: Metaspace (Non-heap memory): committed=15.38 MB, used=14.55 MB, max=-1.00 B, threshold=0.00 B
+2018-04-27 23:09:12.082+0000 INFO [o.n.k.i.DiagnosticsManager] Memory Pool: Compressed Class Space (Non-heap memory): committed=2.13 MB, used=1.90 MB, max=1.00 GB, threshold=0.00 B
+2018-04-27 23:09:12.083+0000 INFO [o.n.k.i.DiagnosticsManager] Memory Pool: PS Eden Space (Heap memory): committed=55.00 MB, used=9.90 MB, max=569.00 MB, threshold=?
+2018-04-27 23:09:12.084+0000 INFO [o.n.k.i.DiagnosticsManager] Memory Pool: PS Survivor Space (Heap memory): committed=4.50 MB, used=4.48 MB, max=4.50 MB, threshold=?
+2018-04-27 23:09:12.084+0000 INFO [o.n.k.i.DiagnosticsManager] Memory Pool: PS Old Gen (Heap memory): committed=73.50 MB, used=8.48 MB, max=1.13 GB, threshold=0.00 B
+2018-04-27 23:09:12.085+0000 INFO [o.n.k.i.DiagnosticsManager] Operating system information:
+2018-04-27 23:09:12.088+0000 INFO [o.n.k.i.DiagnosticsManager] Operating System: Linux; version: 4.13.0-39-generic; arch: amd64; cpus: 4
+2018-04-27 23:09:12.088+0000 INFO [o.n.k.i.DiagnosticsManager] Max number of file descriptors: 1048576
+2018-04-27 23:09:12.089+0000 INFO [o.n.k.i.DiagnosticsManager] Number of open file descriptors: 130
+2018-04-27 23:09:12.091+0000 INFO [o.n.k.i.DiagnosticsManager] Process id: 30384@zeionara-pc
+2018-04-27 23:09:12.091+0000 INFO [o.n.k.i.DiagnosticsManager] Byte order: LITTLE_ENDIAN
+2018-04-27 23:09:12.092+0000 INFO [o.n.k.i.DiagnosticsManager] Local timezone: Europe/Moscow
+2018-04-27 23:09:12.092+0000 INFO [o.n.k.i.DiagnosticsManager] JVM information:
+2018-04-27 23:09:12.092+0000 INFO [o.n.k.i.DiagnosticsManager] VM Name: OpenJDK 64-Bit Server VM
+2018-04-27 23:09:12.092+0000 INFO [o.n.k.i.DiagnosticsManager] VM Vendor: Oracle Corporation
+2018-04-27 23:09:12.092+0000 INFO [o.n.k.i.DiagnosticsManager] VM Version: 25.162-b12
+2018-04-27 23:09:12.093+0000 INFO [o.n.k.i.DiagnosticsManager] JIT compiler: HotSpot 64-Bit Tiered Compilers
+2018-04-27 23:09:12.093+0000 INFO [o.n.k.i.DiagnosticsManager] VM Arguments: [-Dfile.encoding=UTF-8]
+2018-04-27 23:09:12.093+0000 INFO [o.n.k.i.DiagnosticsManager] Java classpath:
+2018-04-27 23:09:12.097+0000 INFO [o.n.k.i.DiagnosticsManager]  [bootstrap] /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/jce.jar
+2018-04-27 23:09:12.098+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/scala-library-2.11.8.jar
+2018-04-27 23:09:12.098+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-cypher-frontend-2.3-2.3.10.jar
+2018-04-27 23:09:12.098+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-metrics-3.2.0.jar
+2018-04-27 23:09:12.098+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/bcpkix-jdk15on-1.53.jar
+2018-04-27 23:09:12.098+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-collections-3.2.0.jar
+2018-04-27 23:09:12.098+0000 INFO [o.n.k.i.DiagnosticsManager]  [loader.1] file:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/nashorn.jar
+2018-04-27 23:09:12.098+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-cypher-compiler-3.2-3.2.0.jar
+2018-04-27 23:09:12.098+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/parboiled-core-1.1.7.jar
+2018-04-27 23:09:12.098+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-shell-3.2.0.jar
+2018-04-27 23:09:12.098+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/commons-lang3-3.3.2.jar
+2018-04-27 23:09:12.098+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-lucene-upgrade-3.2.0.jar
+2018-04-27 23:09:12.099+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-common-3.2.0.jar
+2018-04-27 23:09:12.099+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-cypher-compiled-runtime-3.2-3.2.0.jar
+2018-04-27 23:09:12.099+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-graph-matching-3.1.3.jar
+2018-04-27 23:09:12.099+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/commons-digester-2.1.jar
+2018-04-27 23:09:12.099+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/metrics-core-3.1.2.jar
+2018-04-27 23:09:12.099+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-io-3.2.0.jar
+2018-04-27 23:09:12.099+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-configuration-3.2.0.jar
+2018-04-27 23:09:12.099+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-cypher-compiler-3.1-3.1.3.jar
+2018-04-27 23:09:12.099+0000 INFO [o.n.k.i.DiagnosticsManager]  [bootstrap] /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/jsse.jar
+2018-04-27 23:09:12.099+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-command-line-3.2.0.jar
+2018-04-27 23:09:12.100+0000 INFO [o.n.k.i.DiagnosticsManager]  [loader.1] file:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/localedata.jar
+2018-04-27 23:09:12.100+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/commons-compress-1.12.jar
+2018-04-27 23:09:12.100+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/netty-all-4.1.8.Final.jar
+2018-04-27 23:09:12.100+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/javax.servlet-api-3.1.0.jar
+2018-04-27 23:09:12.100+0000 INFO [o.n.k.i.DiagnosticsManager]  [loader.1] file:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/libatk-wrapper.so
+2018-04-27 23:09:12.100+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/jetty-http-9.2.9.v20150224.jar
+2018-04-27 23:09:12.100+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-index-3.2.0.jar
+2018-04-27 23:09:12.100+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-kernel-3.2.0.jar
+2018-04-27 23:09:12.100+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-security-enterprise-3.2.0.jar
+2018-04-27 23:09:12.100+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-enterprise-kernel-3.2.0.jar
+2018-04-27 23:09:12.101+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-cypher-3.2.0.jar
+2018-04-27 23:09:12.101+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-graphdb-api-3.2.0.jar
+2018-04-27 23:09:12.101+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-management-3.2.0.jar
+2018-04-27 23:09:12.101+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-enterprise-cypher-3.2.0.jar
+2018-04-27 23:09:12.101+0000 INFO [o.n.k.i.DiagnosticsManager]  [loader.1] file:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/cldrdata.jar
+2018-04-27 23:09:12.101+0000 INFO [o.n.k.i.DiagnosticsManager]  [bootstrap] /usr/lib/jvm/java-8-openjdk-amd64/jre/classes
+2018-04-27 23:09:12.101+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/shiro-core-1.3.2.jar
+2018-04-27 23:09:12.101+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-cypher-frontend-3.1-3.1.3.jar
+2018-04-27 23:09:12.101+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/jline-2.12.jar
+2018-04-27 23:09:12.101+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-cypher-ir-3.2-3.2.0.jar
+2018-04-27 23:09:12.101+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/lucene-queryparser-5.5.0.jar
+2018-04-27 23:09:12.102+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/commons-io-2.4.jar
+2018-04-27 23:09:12.102+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/server-api-3.2.0.jar
+2018-04-27 23:09:12.102+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/asm-5.2.jar
+2018-04-27 23:09:12.102+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-unsafe-3.2.0.jar
+2018-04-27 23:09:12.102+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/jetty-webapp-9.2.9.v20150224.jar
+2018-04-27 23:09:12.102+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-resource-3.2.0.jar
+2018-04-27 23:09:12.102+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/caffeine-2.3.3.jar
+2018-04-27 23:09:12.102+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/jetty-server-9.2.9.v20150224.jar
+2018-04-27 23:09:12.102+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-cypher-frontend-3.2-3.2.0.jar
+2018-04-27 23:09:12.102+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/slf4j-api-1.7.7.jar
+2018-04-27 23:09:12.102+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/jersey-servlet-1.19.jar
+2018-04-27 23:09:12.103+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/concurrentlinkedhashmap-lru-1.4.2.jar
+2018-04-27 23:09:12.103+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/commons-configuration-1.10.jar
+2018-04-27 23:09:12.103+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/lucene-codecs-5.5.0.jar
+2018-04-27 23:09:12.103+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/commons-beanutils-1.8.3.jar
+2018-04-27 23:09:12.103+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-cluster-3.2.0.jar
+2018-04-27 23:09:12.103+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-jmx-3.2.0.jar
+2018-04-27 23:09:12.103+0000 INFO [o.n.k.i.DiagnosticsManager]  [loader.1] file:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/java-atk-wrapper.jar
+2018-04-27 23:09:12.103+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/slf4j-nop-1.7.22.jar
+2018-04-27 23:09:12.103+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/scala-reflect-2.11.8.jar
+2018-04-27 23:09:12.104+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-lucene-index-3.2.0.jar
+2018-04-27 23:09:12.104+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-codegen-3.2.0.jar
+2018-04-27 23:09:12.104+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/lucene-analyzers-common-5.5.0.jar
+2018-04-27 23:09:12.104+0000 INFO [o.n.k.i.DiagnosticsManager]  [loader.1] file:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/icedtea-sound.jar
+2018-04-27 23:09:12.104+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/bcprov-jdk15on-1.53.jar
+2018-04-27 23:09:12.104+0000 INFO [o.n.k.i.DiagnosticsManager]  [loader.1] file:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/sunjce_provider.jar
+2018-04-27 23:09:12.104+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-ha-3.2.0.jar
+2018-04-27 23:09:12.104+0000 INFO [o.n.k.i.DiagnosticsManager]  [bootstrap] /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/sunrsasign.jar
+2018-04-27 23:09:12.104+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-backup-3.2.0.jar
+2018-04-27 23:09:12.104+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/netty-3.9.9.Final.jar
+2018-04-27 23:09:12.105+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/commons-lang-2.6.jar
+2018-04-27 23:09:12.105+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-primitive-collections-3.2.0.jar
+2018-04-27 23:09:12.105+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-causal-clustering-3.2.0.jar
+2018-04-27 23:09:12.105+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-logging-3.2.0.jar
+2018-04-27 23:09:12.105+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/metrics-graphite-3.1.2.jar
+2018-04-27 23:09:12.105+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-server-enterprise-3.2.0.jar
+2018-04-27 23:09:12.105+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/jersey-multipart-1.19.jar
+2018-04-27 23:09:12.105+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/plugins/original-procedure-template-1.0.0-SNAPSHOT.jar
+2018-04-27 23:09:12.105+0000 INFO [o.n.k.i.DiagnosticsManager]  [loader.1] file:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/jaccess.jar
+2018-04-27 23:09:12.106+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/mimepull-1.9.3.jar
+2018-04-27 23:09:12.106+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-server-3.2.0.jar
+2018-04-27 23:09:12.106+0000 INFO [o.n.k.i.DiagnosticsManager]  [loader.1] file:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/sunpkcs11.jar
+2018-04-27 23:09:12.106+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-security-3.2.0.jar
+2018-04-27 23:09:12.106+0000 INFO [o.n.k.i.DiagnosticsManager]  [loader.1] file:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/sunec.jar
+2018-04-27 23:09:12.106+0000 INFO [o.n.k.i.DiagnosticsManager]  [bootstrap] /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/jfr.jar
+2018-04-27 23:09:12.106+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/jetty-util-9.2.9.v20150224.jar
+2018-04-27 23:09:12.106+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/commons-logging-1.1.1.jar
+2018-04-27 23:09:12.106+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-import-tool-3.2.0.jar
+2018-04-27 23:09:12.106+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/jetty-io-9.2.9.v20150224.jar
+2018-04-27 23:09:12.107+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/jetty-security-9.2.9.v20150224.jar
+2018-04-27 23:09:12.107+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/jersey-server-1.19.jar
+2018-04-27 23:09:12.107+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/rhino-1.7R4.jar
+2018-04-27 23:09:12.107+0000 INFO [o.n.k.i.DiagnosticsManager]  [loader.1] file:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/zipfs.jar
+2018-04-27 23:09:12.107+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-cypher-compiler-2.3-2.3.10.jar
+2018-04-27 23:09:12.107+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-graph-algo-3.2.0.jar
+2018-04-27 23:09:12.107+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-bolt-3.2.0.jar
+2018-04-27 23:09:12.107+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-consistency-check-3.2.0.jar
+2018-04-27 23:09:12.107+0000 INFO [o.n.k.i.DiagnosticsManager]  [bootstrap] /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/resources.jar
+2018-04-27 23:09:12.107+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/plugins/
+2018-04-27 23:09:12.108+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-auth-plugin-api-3.2.0.jar
+2018-04-27 23:09:12.108+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/jetty-servlet-9.2.9.v20150224.jar
+2018-04-27 23:09:12.108+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-dbms-3.2.0.jar
+2018-04-27 23:09:12.108+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/jersey-core-1.19.jar
+2018-04-27 23:09:12.108+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/jetty-xml-9.2.9.v20150224.jar
+2018-04-27 23:09:12.108+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-csv-3.2.0.jar
+2018-04-27 23:09:12.108+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/parboiled-scala_2.11-1.1.7.jar
+2018-04-27 23:09:12.108+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-query-logging-3.2.0.jar
+2018-04-27 23:09:12.108+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-com-3.2.0.jar
+2018-04-27 23:09:12.109+0000 INFO [o.n.k.i.DiagnosticsManager]  [loader.1] file:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/dnsns.jar
+2018-04-27 23:09:12.109+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/opencsv-2.3.jar
+2018-04-27 23:09:12.109+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/jsr311-api-1.1.2.r612.jar
+2018-04-27 23:09:12.109+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/jackson-jaxrs-1.9.13.jar
+2018-04-27 23:09:12.109+0000 INFO [o.n.k.i.DiagnosticsManager]  [bootstrap] /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/charsets.jar
+2018-04-27 23:09:12.109+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-udc-3.2.0.jar
+2018-04-27 23:09:12.109+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/jackson-mapper-asl-1.9.13.jar
+2018-04-27 23:09:12.109+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/hazelcast-all-3.7.5.jar
+2018-04-27 23:09:12.109+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/jackson-core-asl-1.9.13.jar
+2018-04-27 23:09:12.109+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/lucene-core-5.5.0.jar
+2018-04-27 23:09:12.109+0000 INFO [o.n.k.i.DiagnosticsManager]  [bootstrap] /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/rt.jar
+2018-04-27 23:09:12.110+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/conf/
+2018-04-27 23:09:12.110+0000 INFO [o.n.k.i.DiagnosticsManager]  [classpath + loader.0] file:/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/lib/neo4j-browser-3.0.1.jar
+2018-04-27 23:09:12.110+0000 INFO [o.n.k.i.DiagnosticsManager] Library path:
+2018-04-27 23:09:12.110+0000 INFO [o.n.k.i.DiagnosticsManager] /usr/java/packages/lib/amd64
+2018-04-27 23:09:12.110+0000 INFO [o.n.k.i.DiagnosticsManager] /usr/lib/x86_64-linux-gnu/jni
+2018-04-27 23:09:12.111+0000 INFO [o.n.k.i.DiagnosticsManager] /lib/x86_64-linux-gnu
+2018-04-27 23:09:12.111+0000 INFO [o.n.k.i.DiagnosticsManager] /usr/lib/x86_64-linux-gnu
+2018-04-27 23:09:12.111+0000 INFO [o.n.k.i.DiagnosticsManager] /usr/lib/jni
+2018-04-27 23:09:12.111+0000 INFO [o.n.k.i.DiagnosticsManager] /lib
+2018-04-27 23:09:12.111+0000 INFO [o.n.k.i.DiagnosticsManager] /usr/lib
+2018-04-27 23:09:12.111+0000 INFO [o.n.k.i.DiagnosticsManager] System.properties:
+2018-04-27 23:09:12.113+0000 INFO [o.n.k.i.DiagnosticsManager] sun.boot.library.path = /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64
+2018-04-27 23:09:12.113+0000 INFO [o.n.k.i.DiagnosticsManager] path.separator = :
+2018-04-27 23:09:12.113+0000 INFO [o.n.k.i.DiagnosticsManager] file.encoding.pkg = sun.io
+2018-04-27 23:09:12.114+0000 INFO [o.n.k.i.DiagnosticsManager] user.country = US
+2018-04-27 23:09:12.114+0000 INFO [o.n.k.i.DiagnosticsManager] sun.java.launcher = SUN_STANDARD
+2018-04-27 23:09:12.114+0000 INFO [o.n.k.i.DiagnosticsManager] sun.os.patch.level = unknown
+2018-04-27 23:09:12.114+0000 INFO [o.n.k.i.DiagnosticsManager] user.dir = /media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/nami/bin
+2018-04-27 23:09:12.114+0000 INFO [o.n.k.i.DiagnosticsManager] sun.jnu.encoding = UTF-8
+2018-04-27 23:09:12.114+0000 INFO [o.n.k.i.DiagnosticsManager] sun.nio.ch.bugLevel = 
+2018-04-27 23:09:12.114+0000 INFO [o.n.k.i.DiagnosticsManager] sun.management.compiler = HotSpot 64-Bit Tiered Compilers
+2018-04-27 23:09:12.114+0000 INFO [o.n.k.i.DiagnosticsManager] user.home = /home/zeionara
+2018-04-27 23:09:12.114+0000 INFO [o.n.k.i.DiagnosticsManager] user.timezone = Europe/Moscow
+2018-04-27 23:09:12.115+0000 INFO [o.n.k.i.DiagnosticsManager] file.encoding = UTF-8
+2018-04-27 23:09:12.115+0000 INFO [o.n.k.i.DiagnosticsManager] user.name = zeionara
+2018-04-27 23:09:12.115+0000 INFO [o.n.k.i.DiagnosticsManager] sun.java.command = org.neo4j.commandline.admin.AdminTool backup --backup-dir=/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups --name=28.04.2018 --from=127.0.0.12:6363 --cc-report-dir=/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups
+2018-04-27 23:09:12.115+0000 INFO [o.n.k.i.DiagnosticsManager] sun.arch.data.model = 64
+2018-04-27 23:09:12.115+0000 INFO [o.n.k.i.DiagnosticsManager] user.language = en
+2018-04-27 23:09:12.115+0000 INFO [o.n.k.i.DiagnosticsManager] awt.toolkit = sun.awt.X11.XToolkit
+2018-04-27 23:09:12.115+0000 INFO [o.n.k.i.DiagnosticsManager] file.separator = /
+2018-04-27 23:09:12.115+0000 INFO [o.n.k.i.DiagnosticsManager] sun.io.unicode.encoding = UnicodeLittle
+2018-04-27 23:09:12.115+0000 INFO [o.n.k.i.DiagnosticsManager] sun.cpu.endian = little
+2018-04-27 23:09:12.116+0000 INFO [o.n.k.i.DiagnosticsManager] sun.desktop = gnome
+2018-04-27 23:09:12.116+0000 INFO [o.n.k.i.DiagnosticsManager] sun.cpu.isalist = 
+2018-04-27 23:09:12.116+0000 INFO [o.n.k.i.DiagnosticsManager] Linux scheduler information:
+2018-04-27 23:09:12.129+0000 INFO [o.n.k.i.DiagnosticsManager] [none] 
+2018-04-27 23:09:12.130+0000 INFO [o.n.k.i.DiagnosticsManager] [none] 
+2018-04-27 23:09:12.130+0000 INFO [o.n.k.i.DiagnosticsManager] [none] 
+2018-04-27 23:09:12.131+0000 INFO [o.n.k.i.DiagnosticsManager] noop deadline [cfq] 
+2018-04-27 23:09:12.132+0000 INFO [o.n.k.i.DiagnosticsManager] [none] 
+2018-04-27 23:09:12.133+0000 INFO [o.n.k.i.DiagnosticsManager] [none] 
+2018-04-27 23:09:12.134+0000 INFO [o.n.k.i.DiagnosticsManager] noop deadline [cfq] 
+2018-04-27 23:09:12.135+0000 INFO [o.n.k.i.DiagnosticsManager] [none] 
+2018-04-27 23:09:12.137+0000 INFO [o.n.k.i.DiagnosticsManager] [none] 
+2018-04-27 23:09:12.139+0000 INFO [o.n.k.i.DiagnosticsManager] [none] 
+2018-04-27 23:09:12.140+0000 INFO [o.n.k.i.DiagnosticsManager] Network information:
+2018-04-27 23:09:12.143+0000 INFO [o.n.k.i.DiagnosticsManager] Interface ham0:
+2018-04-27 23:09:12.143+0000 INFO [o.n.k.i.DiagnosticsManager]     address: fe80:0:0:0:7879:ff:fe00:0%ham0
+2018-04-27 23:09:12.144+0000 INFO [o.n.k.i.DiagnosticsManager] Interface anbox0:
+2018-04-27 23:09:12.144+0000 INFO [o.n.k.i.DiagnosticsManager]     address: fe80:0:0:0:8850:a7ff:fe5d:fdc7%anbox0
+2018-04-27 23:09:12.144+0000 INFO [o.n.k.i.DiagnosticsManager]     address: 192.168.250.1
+2018-04-27 23:09:12.144+0000 INFO [o.n.k.i.DiagnosticsManager] Interface wlp2s0:
+2018-04-27 23:09:12.144+0000 INFO [o.n.k.i.DiagnosticsManager]     address: fe80:0:0:0:2019:a9be:b68c:d786%wlp2s0
+2018-04-27 23:09:12.145+0000 INFO [o.n.k.i.DiagnosticsManager]     address: 192.168.0.106
+2018-04-27 23:09:12.145+0000 INFO [o.n.k.i.DiagnosticsManager] Interface lo:
+2018-04-27 23:09:12.145+0000 INFO [o.n.k.i.DiagnosticsManager]     address: 0:0:0:0:0:0:0:1%lo
+2018-04-27 23:09:12.145+0000 INFO [o.n.k.i.DiagnosticsManager]     address: 127.0.0.1
+2018-04-27 23:09:12.145+0000 INFO [o.n.k.i.DiagnosticsManager] --- INITIALIZED diagnostics END ---
+2018-04-27 23:09:12.412+0000 INFO [o.n.m.MetricsExtension] Initiating metrics...
+2018-04-27 23:09:12.755+0000 INFO [o.n.k.i.s.f.RecordFormatSelector] Selected RecordFormat:StandardV3_2[v0.A.8] record format from store /media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy
+2018-04-27 23:09:12.832+0000 INFO [o.n.k.i.s.f.RecordFormatSelector] Selected RecordFormat:StandardV3_2[v0.A.8] record format from store /media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy
+2018-04-27 23:09:12.832+0000 INFO [o.n.k.i.s.f.RecordFormatSelector] Format not configured. Selected format from the store: RecordFormat:StandardV3_2[v0.A.8]
+2018-04-27 23:09:13.377+0000 INFO [o.n.k.i.a.i.IndexingService] IndexingService.init: indexes not specifically mentioned above are null
+2018-04-27 23:09:13.502+0000 INFO [o.n.k.a.i.l.LuceneLabelScanStore] Scan store recovery completed: Number of cleaned crashed pointers: 0 Number of pages visited: 8 Time spent: 13ms
+2018-04-27 23:09:13.503+0000 INFO [o.n.k.i.i.l.NativeLabelScanStore] Scan store recovery completed: Number of cleaned crashed pointers: 0 Number of pages visited: 8 Time spent: 13ms
+2018-04-27 23:09:13.520+0000 INFO [o.n.k.NeoStoreDataSource] No commits found after last check point (which is at LogPosition{logVersion=0, byteOffset=16})
+2018-04-27 23:09:13.525+0000 INFO [o.n.k.i.s.DynamicArrayStore] Rebuilding id generator for[/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.nodestore.db.labels] ...
+2018-04-27 23:09:13.572+0000 INFO [o.n.k.i.s.DynamicArrayStore] [/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.nodestore.db.labels] high id=1 (defragged=0)
+2018-04-27 23:09:13.573+0000 INFO [o.n.k.i.s.DynamicArrayStore] /media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.nodestore.db.labels rebuild id generator, highId=1 defragged count=0
+2018-04-27 23:09:13.573+0000 INFO [o.n.k.i.s.NodeStore] Rebuilding id generator for[/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.nodestore.db] ...
+2018-04-27 23:09:13.612+0000 INFO [o.n.k.i.s.NodeStore] [/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.nodestore.db] high id=22351 (defragged=0)
+2018-04-27 23:09:13.612+0000 INFO [o.n.k.i.s.NodeStore] /media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.nodestore.db rebuild id generator, highId=22351 defragged count=0
+2018-04-27 23:09:13.612+0000 INFO [o.n.k.i.s.DynamicStringStore] Rebuilding id generator for[/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.propertystore.db.index.keys] ...
+2018-04-27 23:09:13.660+0000 INFO [o.n.k.i.s.DynamicStringStore] [/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.propertystore.db.index.keys] high id=1027 (defragged=0)
+2018-04-27 23:09:13.660+0000 INFO [o.n.k.i.s.DynamicStringStore] /media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.propertystore.db.index.keys rebuild id generator, highId=1027 defragged count=0
+2018-04-27 23:09:13.661+0000 INFO [o.n.k.i.s.PropertyKeyTokenStore] Rebuilding id generator for[/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.propertystore.db.index] ...
+2018-04-27 23:09:13.709+0000 INFO [o.n.k.i.s.PropertyKeyTokenStore] [/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.propertystore.db.index] high id=34 (defragged=29)
+2018-04-27 23:09:13.709+0000 INFO [o.n.k.i.s.PropertyKeyTokenStore] /media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.propertystore.db.index rebuild id generator, highId=34 defragged count=29
+2018-04-27 23:09:13.771+0000 INFO [o.n.k.i.s.DynamicStringStore] Rebuilding id generator for[/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.propertystore.db.strings] ...
+2018-04-27 23:09:13.815+0000 INFO [o.n.k.i.s.DynamicStringStore] [/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.propertystore.db.strings] high id=1 (defragged=0)
+2018-04-27 23:09:13.816+0000 INFO [o.n.k.i.s.DynamicStringStore] /media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.propertystore.db.strings rebuild id generator, highId=1 defragged count=0
+2018-04-27 23:09:13.816+0000 INFO [o.n.k.i.s.DynamicArrayStore] Rebuilding id generator for[/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.propertystore.db.arrays] ...
+2018-04-27 23:09:13.866+0000 INFO [o.n.k.i.s.DynamicArrayStore] [/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.propertystore.db.arrays] high id=3050 (defragged=0)
+2018-04-27 23:09:13.867+0000 INFO [o.n.k.i.s.DynamicArrayStore] /media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.propertystore.db.arrays rebuild id generator, highId=3050 defragged count=0
+2018-04-27 23:09:13.867+0000 INFO [o.n.k.i.s.PropertyStore] Rebuilding id generator for[/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.propertystore.db] ...
+2018-04-27 23:09:13.916+0000 INFO [o.n.k.i.s.PropertyStore] [/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.propertystore.db] high id=26159 (defragged=0)
+2018-04-27 23:09:13.916+0000 INFO [o.n.k.i.s.PropertyStore] /media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.propertystore.db rebuild id generator, highId=26159 defragged count=0
+2018-04-27 23:09:13.916+0000 INFO [o.n.k.i.s.RelationshipStore] Rebuilding id generator for[/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.relationshipstore.db] ...
+2018-04-27 23:09:13.959+0000 INFO [o.n.k.i.s.RelationshipStore] [/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.relationshipstore.db] high id=79776 (defragged=0)
+2018-04-27 23:09:13.959+0000 INFO [o.n.k.i.s.RelationshipStore] /media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.relationshipstore.db rebuild id generator, highId=79776 defragged count=0
+2018-04-27 23:09:13.960+0000 INFO [o.n.k.i.s.DynamicStringStore] Rebuilding id generator for[/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.relationshiptypestore.db.names] ...
+2018-04-27 23:09:14.004+0000 INFO [o.n.k.i.s.DynamicStringStore] [/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.relationshiptypestore.db.names] high id=8 (defragged=0)
+2018-04-27 23:09:14.005+0000 INFO [o.n.k.i.s.DynamicStringStore] /media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.relationshiptypestore.db.names rebuild id generator, highId=8 defragged count=0
+2018-04-27 23:09:14.005+0000 INFO [o.n.k.i.s.RelationshipTypeTokenStore] Rebuilding id generator for[/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.relationshiptypestore.db] ...
+2018-04-27 23:09:14.049+0000 INFO [o.n.k.i.s.RelationshipTypeTokenStore] [/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.relationshiptypestore.db] high id=7 (defragged=0)
+2018-04-27 23:09:14.049+0000 INFO [o.n.k.i.s.RelationshipTypeTokenStore] /media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.relationshiptypestore.db rebuild id generator, highId=7 defragged count=0
+2018-04-27 23:09:14.081+0000 INFO [o.n.k.i.s.DynamicStringStore] Rebuilding id generator for[/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.labeltokenstore.db.names] ...
+2018-04-27 23:09:14.125+0000 INFO [o.n.k.i.s.DynamicStringStore] [/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.labeltokenstore.db.names] high id=1029 (defragged=0)
+2018-04-27 23:09:14.126+0000 INFO [o.n.k.i.s.DynamicStringStore] /media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.labeltokenstore.db.names rebuild id generator, highId=1029 defragged count=0
+2018-04-27 23:09:14.126+0000 INFO [o.n.k.i.s.LabelTokenStore] Rebuilding id generator for[/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.labeltokenstore.db] ...
+2018-04-27 23:09:14.170+0000 INFO [o.n.k.i.s.LabelTokenStore] [/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.labeltokenstore.db] high id=36 (defragged=31)
+2018-04-27 23:09:14.171+0000 INFO [o.n.k.i.s.LabelTokenStore] /media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.labeltokenstore.db rebuild id generator, highId=36 defragged count=31
+2018-04-27 23:09:14.236+0000 INFO [o.n.k.i.s.SchemaStore] Rebuilding id generator for[/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.schemastore.db] ...
+2018-04-27 23:09:14.280+0000 INFO [o.n.k.i.s.SchemaStore] [/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.schemastore.db] high id=1 (defragged=0)
+2018-04-27 23:09:14.281+0000 INFO [o.n.k.i.s.SchemaStore] /media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.schemastore.db rebuild id generator, highId=1 defragged count=0
+2018-04-27 23:09:14.281+0000 INFO [o.n.k.i.s.RelationshipGroupStore] Rebuilding id generator for[/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.relationshipgroupstore.db] ...
+2018-04-27 23:09:14.325+0000 INFO [o.n.k.i.s.RelationshipGroupStore] [/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.relationshipgroupstore.db] high id=2134 (defragged=0)
+2018-04-27 23:09:14.325+0000 INFO [o.n.k.i.s.RelationshipGroupStore] /media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore.relationshipgroupstore.db rebuild id generator, highId=2134 defragged count=0
+2018-04-27 23:09:14.326+0000 INFO [o.n.k.i.s.MetaDataStore] Rebuilding id generator for[/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore] ...
+2018-04-27 23:09:14.377+0000 INFO [o.n.k.i.s.MetaDataStore] [/media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore] high id=15 (defragged=0)
+2018-04-27 23:09:14.377+0000 INFO [o.n.k.i.s.MetaDataStore] /media/zeionara/8ef5f608-07b4-4216-88ce-1c255f8edaab/zeionara/neo4j/backups/28.04.2018/temp-copy/neostore rebuild id generator, highId=15 defragged count=0
+2018-04-27 23:09:14.392+0000 INFO [o.n.k.i.a.i.IndexingService] IndexingService.start: indexes not specifically mentioned above are null
+2018-04-27 23:09:14.396+0000 INFO [o.n.k.i.DatabaseHealth] Database health set to OK
+2018-04-27 23:09:15.405+0000 INFO [o.n.k.AvailabilityGuard] Fulfilling of requirement makes database available: Database available
+2018-04-27 23:09:15.407+0000 INFO [o.n.c.s.ExternallyManagedPageCache$GraphDatabaseFactoryWithPageCacheFactory$1] Database is now ready
+2018-04-27 23:09:15.411+0000 INFO [o.n.k.i.DiagnosticsManager] --- STARTED diagnostics for KernelDiagnostics:Versions START ---
+2018-04-27 23:09:15.412+0000 INFO [o.n.k.i.DiagnosticsManager] Graph Database: enterprise single StoreId{creationTime=1524766931262, randomId=5113800735112930453, storeVersion=15813456178476550, upgradeTime=1524766931262, upgradeId=1}
+2018-04-27 23:09:15.412+0000 INFO [o.n.k.i.DiagnosticsManager] Kernel version: 3.2.0,6c8c5763843ef95d9cad8ee618284e703f03e064
+2018-04-27 23:09:15.412+0000 INFO [o.n.k.i.DiagnosticsManager] --- STARTED diagnostics for KernelDiagnostics:Versions END ---
+2018-04-27 23:09:15.420+0000 INFO [o.n.k.i.DiagnosticsManager] --- STARTED diagnostics for NEO_STORE_VERSIONS START ---
+2018-04-27 23:09:15.421+0000 INFO [o.n.k.i.DiagnosticsManager] Store versions:
+2018-04-27 23:09:15.421+0000 INFO [o.n.k.i.DiagnosticsManager] Store versions:
+2018-04-27 23:09:15.422+0000 INFO [o.n.k.i.DiagnosticsManager]   ArrayPropertyStore v0.A.8
+2018-04-27 23:09:15.422+0000 INFO [o.n.k.i.DiagnosticsManager]   NodeStore v0.A.8
+2018-04-27 23:09:15.422+0000 INFO [o.n.k.i.DiagnosticsManager]   StringPropertyStore v0.A.8
+2018-04-27 23:09:15.423+0000 INFO [o.n.k.i.DiagnosticsManager]   PropertyIndexStore v0.A.8
+2018-04-27 23:09:15.424+0000 INFO [o.n.k.i.DiagnosticsManager]   StringPropertyStore v0.A.8
+2018-04-27 23:09:15.424+0000 INFO [o.n.k.i.DiagnosticsManager]   ArrayPropertyStore v0.A.8
+2018-04-27 23:09:15.424+0000 INFO [o.n.k.i.DiagnosticsManager]   PropertyStore v0.A.8
+2018-04-27 23:09:15.425+0000 INFO [o.n.k.i.DiagnosticsManager]   RelationshipStore v0.A.8
+2018-04-27 23:09:15.425+0000 INFO [o.n.k.i.DiagnosticsManager]   StringPropertyStore v0.A.8
+2018-04-27 23:09:15.425+0000 INFO [o.n.k.i.DiagnosticsManager]   RelationshipTypeStore v0.A.8
+2018-04-27 23:09:15.425+0000 INFO [o.n.k.i.DiagnosticsManager]   StringPropertyStore v0.A.8
+2018-04-27 23:09:15.426+0000 INFO [o.n.k.i.DiagnosticsManager]   LabelTokenStore v0.A.8
+2018-04-27 23:09:15.426+0000 INFO [o.n.k.i.DiagnosticsManager]   SchemaStore v0.A.8
+2018-04-27 23:09:15.426+0000 INFO [o.n.k.i.DiagnosticsManager]   RelationshipGroupStore v0.A.8
+2018-04-27 23:09:15.426+0000 INFO [o.n.k.i.DiagnosticsManager]   NeoStore v0.A.8
+2018-04-27 23:09:15.426+0000 INFO [o.n.k.i.DiagnosticsManager] --- STARTED diagnostics for NEO_STORE_VERSIONS END ---
+2018-04-27 23:09:15.427+0000 INFO [o.n.k.i.DiagnosticsManager] --- STARTED diagnostics for NEO_STORE_ID_USAGE START ---
+2018-04-27 23:09:15.427+0000 INFO [o.n.k.i.DiagnosticsManager] Id usage:
+2018-04-27 23:09:15.427+0000 INFO [o.n.k.i.DiagnosticsManager] Id usage:
+2018-04-27 23:09:15.428+0000 INFO [o.n.k.i.DiagnosticsManager]   ArrayPropertyStore: used=1 high=0
+2018-04-27 23:09:15.429+0000 INFO [o.n.k.i.DiagnosticsManager]   NodeStore: used=22351 high=22350
+2018-04-27 23:09:15.430+0000 INFO [o.n.k.i.DiagnosticsManager]   StringPropertyStore: used=1027 high=1026
+2018-04-27 23:09:15.430+0000 INFO [o.n.k.i.DiagnosticsManager]   PropertyIndexStore: used=5 high=33
+2018-04-27 23:09:15.431+0000 INFO [o.n.k.i.DiagnosticsManager]   StringPropertyStore: used=1 high=0
+2018-04-27 23:09:15.432+0000 INFO [o.n.k.i.DiagnosticsManager]   ArrayPropertyStore: used=3050 high=3049
+2018-04-27 23:09:15.432+0000 INFO [o.n.k.i.DiagnosticsManager]   PropertyStore: used=26159 high=26158
+2018-04-27 23:09:15.433+0000 INFO [o.n.k.i.DiagnosticsManager]   RelationshipStore: used=79776 high=79775
+2018-04-27 23:09:15.434+0000 INFO [o.n.k.i.DiagnosticsManager]   StringPropertyStore: used=8 high=7
+2018-04-27 23:09:15.434+0000 INFO [o.n.k.i.DiagnosticsManager]   RelationshipTypeStore: used=7 high=6
+2018-04-27 23:09:15.435+0000 INFO [o.n.k.i.DiagnosticsManager]   StringPropertyStore: used=1029 high=1028
+2018-04-27 23:09:15.436+0000 INFO [o.n.k.i.DiagnosticsManager]   LabelTokenStore: used=5 high=35
+2018-04-27 23:09:15.436+0000 INFO [o.n.k.i.DiagnosticsManager]   SchemaStore: used=1 high=0
+2018-04-27 23:09:15.437+0000 INFO [o.n.k.i.DiagnosticsManager]   RelationshipGroupStore: used=2134 high=2133
+2018-04-27 23:09:15.437+0000 INFO [o.n.k.i.DiagnosticsManager]   NeoStore: used=15 high=14
+2018-04-27 23:09:15.437+0000 INFO [o.n.k.i.DiagnosticsManager] --- STARTED diagnostics for NEO_STORE_ID_USAGE END ---
+2018-04-27 23:09:15.438+0000 INFO [o.n.k.i.DiagnosticsManager] --- STARTED diagnostics for NEO_STORE_RECORDS START ---
+2018-04-27 23:09:15.438+0000 INFO [o.n.k.i.DiagnosticsManager] Neostore records:
+2018-04-27 23:09:15.440+0000 INFO [o.n.k.i.DiagnosticsManager] TIME (Creation time): 1524766931262
+2018-04-27 23:09:15.440+0000 INFO [o.n.k.i.DiagnosticsManager] RANDOM_NUMBER (Random number for store id): 5113800735112930453
+2018-04-27 23:09:15.440+0000 INFO [o.n.k.i.DiagnosticsManager] LOG_VERSION (Current log version): 0
+2018-04-27 23:09:15.441+0000 INFO [o.n.k.i.DiagnosticsManager] LAST_TRANSACTION_ID (Last committed transaction): 46846
+2018-04-27 23:09:15.441+0000 INFO [o.n.k.i.DiagnosticsManager] STORE_VERSION (Store format version): 15813456178476550
+2018-04-27 23:09:15.441+0000 INFO [o.n.k.i.DiagnosticsManager] FIRST_GRAPH_PROPERTY (First property record containing graph properties): -1
+2018-04-27 23:09:15.441+0000 INFO [o.n.k.i.DiagnosticsManager] LAST_CONSTRAINT_TRANSACTION (Last committed transaction containing constraint changes): 0
+2018-04-27 23:09:15.442+0000 INFO [o.n.k.i.DiagnosticsManager] UPGRADE_TRANSACTION_ID (Transaction id most recent upgrade was performed at): 1
+2018-04-27 23:09:15.442+0000 INFO [o.n.k.i.DiagnosticsManager] UPGRADE_TIME (Time of last upgrade): 1524766931262
+2018-04-27 23:09:15.442+0000 INFO [o.n.k.i.DiagnosticsManager] LAST_TRANSACTION_CHECKSUM (Checksum of last committed transaction): -160721246784
+2018-04-27 23:09:15.442+0000 INFO [o.n.k.i.DiagnosticsManager] UPGRADE_TRANSACTION_CHECKSUM (Checksum of transaction id the most recent upgrade was performed at): 0
+2018-04-27 23:09:15.443+0000 INFO [o.n.k.i.DiagnosticsManager] LAST_CLOSED_TRANSACTION_LOG_VERSION (Log version where the last transaction commit entry has been written into): 0
+2018-04-27 23:09:15.443+0000 INFO [o.n.k.i.DiagnosticsManager] LAST_CLOSED_TRANSACTION_LOG_BYTE_OFFSET (Byte offset in the log file where the last transaction commit entry has been written into): 16
+2018-04-27 23:09:15.443+0000 INFO [o.n.k.i.DiagnosticsManager] LAST_TRANSACTION_COMMIT_TIMESTAMP (Commit time timestamp for last committed transaction): 1524869556361
+2018-04-27 23:09:15.443+0000 INFO [o.n.k.i.DiagnosticsManager] UPGRADE_TRANSACTION_COMMIT_TIMESTAMP (Commit timestamp of transaction the most recent upgrade was performed at): 0
+2018-04-27 23:09:15.443+0000 INFO [o.n.k.i.DiagnosticsManager] --- STARTED diagnostics for NEO_STORE_RECORDS END ---
+2018-04-27 23:09:15.446+0000 INFO [o.n.k.i.DiagnosticsManager] --- STARTED diagnostics for TRANSACTION_RANGE START ---
+2018-04-27 23:09:15.447+0000 INFO [o.n.k.i.DiagnosticsManager] Transaction log:
+2018-04-27 23:09:15.450+0000 INFO [o.n.k.i.DiagnosticsManager] Oldest transaction 2 found in log with version 0
+2018-04-27 23:09:15.450+0000 INFO [o.n.k.i.DiagnosticsManager] --- STARTED diagnostics for TRANSACTION_RANGE END ---
+2018-04-27 23:09:15.454+0000 INFO [o.n.k.i.DiagnosticsManager] --- STARTED diagnostics for KernelDiagnostics:StoreFiles START ---
+2018-04-27 23:09:15.456+0000 INFO [o.n.k.i.DiagnosticsManager] Disk space on partition (Total / Free / Free %): 188925452288 / 139335946240 / 73
+Storage files: (filename : modification date - size)
+2018-04-27 23:09:15.462+0000 INFO [o.n.k.i.DiagnosticsManager]   debug.log: 2018-04-28T02:09:15+0300 - 52.62 kB
+2018-04-27 23:09:15.463+0000 INFO [o.n.k.i.DiagnosticsManager]   index:
+2018-04-27 23:09:15.464+0000 INFO [o.n.k.i.DiagnosticsManager]   - Total: 2018-04-28T02:09:13+0300 - 0.00 B
+2018-04-27 23:09:15.465+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore: 2018-04-28T02:09:11+0300 - 16.00 kB
+2018-04-27 23:09:15.466+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.counts.db.a: 2018-04-28T02:09:10+0300 - 1.22 kB
+2018-04-27 23:09:15.467+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.counts.db.b: 2018-04-28T02:09:10+0300 - 8.00 kB
+2018-04-27 23:09:15.468+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.id: 2018-04-28T02:09:14+0300 - 9.00 B
+2018-04-27 23:09:15.469+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.labelscanstore.db: 2018-04-28T02:09:13+0300 - 88.00 kB
+2018-04-27 23:09:15.470+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.labeltokenstore.db: 2018-04-28T02:09:10+0300 - 8.00 kB
+2018-04-27 23:09:15.470+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.labeltokenstore.db.id: 2018-04-28T02:09:14+0300 - 257.00 B
+2018-04-27 23:09:15.473+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.labeltokenstore.db.names: 2018-04-28T02:09:10+0300 - 39.89 kB
+2018-04-27 23:09:15.474+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.labeltokenstore.db.names.id: 2018-04-28T02:09:14+0300 - 9.00 B
+2018-04-27 23:09:15.474+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.nodestore.db: 2018-04-28T02:09:10+0300 - 327.92 kB
+2018-04-27 23:09:15.475+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.nodestore.db.id: 2018-04-28T02:09:13+0300 - 9.00 B
+2018-04-27 23:09:15.476+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.nodestore.db.labels: 2018-04-28T02:09:10+0300 - 8.00 kB
+2018-04-27 23:09:15.476+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.nodestore.db.labels.id: 2018-04-28T02:09:13+0300 - 9.00 B
+2018-04-27 23:09:15.477+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.propertystore.db: 2018-04-28T02:09:10+0300 - 1.03 MB
+2018-04-27 23:09:15.478+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.propertystore.db.arrays: 2018-04-28T02:09:10+0300 - 384.00 kB
+2018-04-27 23:09:15.478+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.propertystore.db.arrays.id: 2018-04-28T02:09:13+0300 - 9.00 B
+2018-04-27 23:09:15.479+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.propertystore.db.id: 2018-04-28T02:09:13+0300 - 9.00 B
+2018-04-27 23:09:15.480+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.propertystore.db.index: 2018-04-28T02:09:10+0300 - 8.00 kB
+2018-04-27 23:09:15.482+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.propertystore.db.index.id: 2018-04-28T02:09:13+0300 - 241.00 B
+2018-04-27 23:09:15.482+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.propertystore.db.index.keys: 2018-04-28T02:09:10+0300 - 39.89 kB
+2018-04-27 23:09:15.482+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.propertystore.db.index.keys.id: 2018-04-28T02:09:13+0300 - 9.00 B
+2018-04-27 23:09:15.483+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.propertystore.db.strings: 2018-04-28T02:09:10+0300 - 8.00 kB
+2018-04-27 23:09:15.483+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.propertystore.db.strings.id: 2018-04-28T02:09:13+0300 - 9.00 B
+2018-04-27 23:09:15.484+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.relationshipgroupstore.db: 2018-04-28T02:09:10+0300 - 55.88 kB
+2018-04-27 23:09:15.485+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.relationshipgroupstore.db.id: 2018-04-28T02:09:14+0300 - 9.00 B
+2018-04-27 23:09:15.487+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.relationshipstore.db: 2018-04-28T02:09:10+0300 - 2.59 MB
+2018-04-27 23:09:15.487+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.relationshipstore.db.id: 2018-04-28T02:09:13+0300 - 9.00 B
+2018-04-27 23:09:15.488+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.relationshiptypestore.db: 2018-04-28T02:09:10+0300 - 8.00 kB
+2018-04-27 23:09:15.489+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.relationshiptypestore.db.id: 2018-04-28T02:09:14+0300 - 9.00 B
+2018-04-27 23:09:15.491+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.relationshiptypestore.db.names: 2018-04-28T02:09:10+0300 - 15.96 kB
+2018-04-27 23:09:15.491+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.relationshiptypestore.db.names.id: 2018-04-28T02:09:13+0300 - 9.00 B
+2018-04-27 23:09:15.492+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.schemastore.db: 2018-04-28T02:09:10+0300 - 8.00 kB
+2018-04-27 23:09:15.493+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.schemastore.db.id: 2018-04-28T02:09:14+0300 - 9.00 B
+2018-04-27 23:09:15.493+0000 INFO [o.n.k.i.DiagnosticsManager]   neostore.transaction.db.0: 2018-04-28T02:09:11+0300 - 34.00 B
+2018-04-27 23:09:15.495+0000 INFO [o.n.k.i.DiagnosticsManager]   store_lock: 2018-04-28T02:09:12+0300 - 0.00 B
+2018-04-27 23:09:15.497+0000 INFO [o.n.k.i.DiagnosticsManager] --- STARTED diagnostics for KernelDiagnostics:StoreFiles END ---
+2018-04-27 23:09:15.584+0000 INFO [o.n.c.s.ExternallyManagedPageCache$GraphDatabaseFactoryWithPageCacheFactory$1] Shutdown started
+2018-04-27 23:09:15.585+0000 INFO [o.n.c.s.ExternallyManagedPageCache$GraphDatabaseFactoryWithPageCacheFactory$1] Database is now unavailable
+2018-04-27 23:09:15.600+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Check Pointing triggered by database shutdown [46846]:  Starting check pointing...
+2018-04-27 23:09:15.600+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Check Pointing triggered by database shutdown [46846]:  Starting store flush...
+2018-04-27 23:09:15.686+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Check Pointing triggered by database shutdown [46846]:  Store flush completed
+2018-04-27 23:09:15.687+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Check Pointing triggered by database shutdown [46846]:  Starting appending check point entry into the tx log...
+2018-04-27 23:09:15.732+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Check Pointing triggered by database shutdown [46846]:  Appending check point entry into the tx log completed
+2018-04-27 23:09:15.732+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Check Pointing triggered by database shutdown [46846]:  Check pointing completed
+2018-04-27 23:09:15.732+0000 INFO [o.n.k.i.t.l.p.LogPruningImpl] Log Rotation [0]:  Starting log pruning.
+2018-04-27 23:09:15.732+0000 INFO [o.n.k.i.t.l.p.LogPruningImpl] Log Rotation [0]:  Log pruning complete.
+2018-04-27 23:09:16.147+0000 INFO [o.n.k.i.DiagnosticsManager] --- STOPPING diagnostics START ---
+2018-04-27 23:09:16.148+0000 INFO [o.n.k.i.DiagnosticsManager] --- STOPPING diagnostics END ---

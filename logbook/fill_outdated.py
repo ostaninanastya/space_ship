@@ -20,8 +20,9 @@ from data_adapters import string_to_bytes
 config = configparser.ConfigParser()
 config.read('../databases.config')
 
-DB_URL = os.environ.get('DB_URL') if os.environ.get('DB_URL') else config['CASSANDRA']['host'] 
-DB_NAME = os.environ.get('DB_NAME') if os.environ.get('DB_NAME') else config['CASSANDRA']['db_name'] 
+DB_NAME = os.environ.get('DB_NAME') if os.environ.get('DB_NAME') else config['CASSANDRA']['db_name']
+HOST_DELIMITER = os.environ.get('HOST_DELIMITER') if os.environ.get('HOST_DELIMITER') else config['CASSANDRA']['host_delimiter']
+DB_URLS = os.environ.get('DB_URLS') if os.environ.get('DB_URLS') else config['CASSANDRA']['hosts']
 
 POSITION_DATA_PATH = 'data/position.csv'
 SYSTEM_TEST_DATA_PATH = 'data/system_test.csv'
@@ -255,7 +256,7 @@ def fill_operation_state():
 			)
 
 def main():
-	connection.setup([DB_URL], DB_NAME)
+	connection.setup([item.lstrip().rstrip() for item in DB_URLS.split(HOST_DELIMITER)], DB_NAME)
 	
 	#fill_position()
 	#fill_system_test()

@@ -3,16 +3,17 @@ from py2neo import Graph
 import configparser
 import os, sys, re
 
+sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/connectors')
+from neo4j_connector import connect
+
 config = configparser.ConfigParser()
 config.read(os.environ.get('SPACE_SHIP_HOME') + '/databases.config')
 
-NEO4J_DB_URL = os.environ.get('NEO4J_DB_URL') if os.environ.get('NEO4J_DB_URL') else config['NEO4J']['host']
-NEO4J_DB_PORT = int(os.environ.get('NEO4J_DB_PORT') if os.environ.get('NEO4J_DB_PORT') else config['NEO4J']['port'])
+sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/connectors')
+from neo4j_connector import connect
 
-USERNAME = os.environ.get('NEO4J_DB_USERNAME') if os.environ.get('NEO4J_DB_USERNAME') else config['NEO4J']['username']
-PASSWORD = os.environ.get('NEO4J_DB_PASSWORD') if os.environ.get('NEO4J_DB_PASSWORD') else config['NEO4J']['password']
-
-graph = Graph(bolt = True, user = USERNAME, password = PASSWORD, host = NEO4J_DB_URL, http_port = NEO4J_DB_PORT)
+conn = connect()
+graph = Graph(bolt = True, user = conn['username'], password = conn['password'], host = conn['host'], bolt_port = conn['port'])
 
 def get_operation_ids_by_requirement(requirement_id):
 	return [\

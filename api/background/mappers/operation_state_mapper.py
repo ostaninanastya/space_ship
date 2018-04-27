@@ -19,18 +19,16 @@ sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/api/background/')
 
 from converters import time_to_str, date_to_str
 
+sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/connectors')
+from neo4j_connector import connect
+
 configp = configparser.ConfigParser()
 configp.read(os.environ.get('SPACE_SHIP_HOME') + '/databases.config')
 
-NEO4J_DB_URL = os.environ.get('NEO4J_DB_URL') if os.environ.get('NEO4J_DB_URL') else configp['NEO4J']['host']
-NEO4J_DB_PORT = int(os.environ.get('NEO4J_DB_PORT') if os.environ.get('NEO4J_DB_PORT') else configp['NEO4J']['port'])
-
 BOATS_COLLECTION_NAME = os.environ.get('BOATS_COLLECTION_NAME') or configp['MONGO']['boats_collection_name']
 
-USERNAME = os.environ.get('NEO4J_DB_USERNAME') if os.environ.get('NEO4J_DB_USERNAME') else configp['NEO4J']['username']
-PASSWORD = os.environ.get('NEO4J_DB_PASSWORD') if os.environ.get('NEO4J_DB_PASSWORD') else configp['NEO4J']['password']
-
-config.DATABASE_URL = 'bolt://' + USERNAME + ':' + PASSWORD + '@' + NEO4J_DB_URL + ':' + str(NEO4J_DB_PORT)
+conn = connect()
+config.DATABASE_URL = 'bolt://{0}:{1}@{2}:{3}/'.format(conn['username'], conn['password'], conn['host'], int(conn['port']))
 
 class OperationStateMapper(graphene.ObjectType):
     date = graphene.String()

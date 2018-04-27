@@ -12,7 +12,11 @@ HOST_DELIMITER = os.environ.get('HOST_DELIMITER') if os.environ.get('HOST_DELIMI
 DB_URLS = os.environ.get('DB_URLS') if os.environ.get('DB_URLS') else config['CASSANDRA']['hosts']
 DB_NAME = os.environ.get('DB_NAME') if os.environ.get('DB_NAME') else config['CASSANDRA']['db_name']
 
+conn = None
+
 def setup_connection():
-	urls = DB_URLS.split(HOST_DELIMITER)
-	for i in range(len(urls)):
-		connection.setup([DB_URL], DB_NAME)
+	global conn
+
+	if not conn:
+		conn.setup([item.lstrip().rstrip() for item in DB_URLS.split(HOST_DELIMITER)], DB_NAME)
+	return conn

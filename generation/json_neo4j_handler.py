@@ -22,13 +22,11 @@ DATE_PATTERN = os.environ.get('DATE_PATTERN') or config['FORMATS']['date']
 
 from py2neo import Graph
 
-NEO4J_DB_URL = os.environ.get('NEO4J_DB_URL') if os.environ.get('NEO4J_DB_URL') else config['NEO4J']['host']
-NEO4J_DB_PORT = int(os.environ.get('NEO4J_DB_PORT') if os.environ.get('NEO4J_DB_PORT') else config['NEO4J']['port'])
+sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/connectors')
+from neo4j_connector import connect_to_leader
 
-USERNAME = os.environ.get('NEO4J_DB_USERNAME') if os.environ.get('NEO4J_DB_USERNAME') else config['NEO4J']['username']
-PASSWORD = os.environ.get('NEO4J_DB_PASSWORD') if os.environ.get('NEO4J_DB_PASSWORD') else config['NEO4J']['password']
-
-graph = Graph(bolt = True, user = USERNAME, password = PASSWORD, host = NEO4J_DB_URL, http_port = NEO4J_DB_PORT)
+conn = connect_to_leader()
+graph = Graph(bolt = True, user = conn['username'], password = conn['password'], host = conn['host'], bolt_port = conn['port'])
 
 def try_to_repair(key, value, mongo_ids, neo_ids, strings):
 	if key in mongo_ids:
@@ -209,11 +207,19 @@ def import_requirements(filepath, base):
 	return "ok"
 
 if __name__ == '__main__':
+	direction = sys.argv[1]
+	
+	if not direction or direction == 'departments':
+		import_departments(os.environ['SPACE_SHIP_HOME'] + '/generation/dummyMarket/neo4j json/department.json', 'department')
+	if not direction or direction == 'shifts':
+		import_shifts(os.environ['SPACE_SHIP_HOME'] + '/generation/dummyMarket/neo4j json/shift.json', 'shift')
+	if not direction or direction == 'operations':
+		import_operations(os.environ['SPACE_SHIP_HOME'] + '/generation/dummyMarket/neo4j json/operation.json', 'operation')
+	if not direction or direction == 'requirements':
+		import_requirements(os.environ['SPACE_SHIP_HOME'] + '/generation/dummyMarket/neo4j json/requirement.json', 'requirements')
+	
 	start = time.time()
-	import_departments(os.environ['SPACE_SHIP_HOME'] + '/generation/dummyMarket/neo4j json/department.json', 'department')
-	import_shifts(os.environ['SPACE_SHIP_HOME'] + '/generation/dummyMarket/neo4j json/shift.json', 'shift')
-	import_operations(os.environ['SPACE_SHIP_HOME'] + '/generation/dummyMarket/neo4j json/operation.json', 'operation')
-	import_requirements(os.environ['SPACE_SHIP_HOME'] + '/generation/dummyMarket/neo4j json/requirement.json', 'requirements')
+	
 	print('took ', time.time() - start)
 	#print(import_departments(os.environ['SPACE_SHIP_HOME'] + '/generation/dummyMarket/neo4j json/department.json', 'department'))
 	#print(import_operations(os.environ['SPACE_SHIP_HOME'] + '/generation/dummyMarket/neo4j json/operation.json', 'operation'))

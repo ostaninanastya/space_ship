@@ -14,8 +14,9 @@ from system_test import SystemTest
 config = configparser.ConfigParser()
 config.read('../databases.config')
 
-DB_URL = os.environ.get('DB_URL') if os.environ.get('DB_URL') else config['CASSANDRA']['host']
 DB_NAME = os.environ.get('DB_NAME') if os.environ.get('DB_NAME') else config['CASSANDRA']['db_name']
+HOST_DELIMITER = os.environ.get('HOST_DELIMITER') if os.environ.get('HOST_DELIMITER') else config['CASSANDRA']['host_delimiter']
+DB_URLS = os.environ.get('DB_URLS') if os.environ.get('DB_URLS') else config['CASSANDRA']['hosts']
 
 CREATE_GET_X_SPEED_FUNCTION_QUERY = """
 CREATE OR REPLACE FUNCTION {0}.get_x_speed (speed double, attack_angle double, direction_angle double) 
@@ -39,7 +40,7 @@ def get_avg_x_speed():
 	#return Position.objects_in(db).aggregate(value = 'avg(speed * cos(atack_angle) * cos(direction_angle))')[0].value
 
 def main():
-	connection.setup([DB_URL], DB_NAME)
+	connection.setup([item.lstrip().rstrip() for item in DB_URLS.split(HOST_DELIMITER)], DB_NAME)
 	print(get_avg_x_speed())
 
 if __name__ == '__main__':
