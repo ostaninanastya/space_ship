@@ -1,8 +1,11 @@
-from pymongo import MongoClient
+import pymongo
+from pymongo import MongoClient, UpdateOne
 import configparser
 import sys, os, re
-
+import datetime
 from bson.objectid import ObjectId
+
+import time
 
 config = configparser.ConfigParser()
 config.read(os.environ.get('SPACE_SHIP_HOME') + '/databases.config')
@@ -32,6 +35,10 @@ import neo4j_adapter
 sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/relations')
 
 import neo4j_mediator
+
+sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/transporters')
+
+import frontal_transporter
 
 ##
 
@@ -258,7 +265,8 @@ def eradicate_specialization(id):
 
 def create_boat(name, capacity):
 	#print('omg')
-	id = db[BOATS_COLLECTION_NAME].insert({'name' : name, 'capacity' : capacity})
+	id = db[BOATS_COLLECTION_NAME].insert({'name': name, 'capacity': capacity, 
+		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
 	return get_boat_by_id(str(id))
 
 def remove_boat(id):
@@ -419,7 +427,51 @@ def parse_params_for_select(params):
 
 def select(params, collection):
 	#print(parse_params_for_select(params))
+
+	try:
+		frontal_transporter.extract(params, collection)
+	except pymongo.errors.DuplicateKeyError:
+		pass
+
+	parsed_params = parse_params_for_select(params)
+	current_timestamp = datetime.datetime.now()
+	items = [item for item in db[collection].find(parsed_params)]
+
+	try:
+		result = db[collection].bulk_write([UpdateOne({'_id' : record['_id']},
+			{ 
+				'$set':  { '__accessed__': current_timestamp}, 
+				'$push': { '__gaps__': (current_timestamp - record['__accessed__']).total_seconds() }
+			}) 
+		for record in items])
+	except KeyError:
+		result = db[collection].bulk_write([UpdateOne({'_id' : record['_id']}, {'$set':  { '__accessed__': current_timestamp, '__gaps__': [0]}}) for record in items])
+	
+
+	#db[collection].update_many(parse_params_for_select(params), {'__accessed__': current_timestamp, '$push': { '__gaps__': int((current_timestamp - ).strftime("%s"))}})
+	return items
+
+
+	
+	'''
+	print(dir(db))
+
+	bulk = db.coll.initialize_ordered_bulk_op()
+	counter = 0
+
+	for record in coll.find(parse_params_for_select(params), snapshot=True):
+	    bulk.find({ '_id': record['_id'] }).update({ '$set': { '__accessed__': current_timestamp, '$push': { '__gaps__': int((current_timestamp - record['__accessed__']).strftime("%s")) } }})
+	    counter += 1
+
+	    if counter % 1000 == 0:
+	        bulk.execute()
+	        bulk = db.coll.initialize_ordered_bulk_op()
+
+	if counter % 1000 != 0:
+	    bulk.execute()
+
 	return [item for item in db[collection].find(parse_params_for_select(params))]
+	'''
 
 def select_sensors(**kwargs):
 	return select(kwargs, SENSORS_COLLECTION_NAME)
