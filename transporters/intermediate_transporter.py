@@ -6,6 +6,8 @@ import datetime
 from bson.objectid import ObjectId
 import time
 
+import rear_transporter
+
 import cassandra
 from cassandra.cqlengine import connection
 
@@ -149,6 +151,14 @@ def neo4j_repair_fields(item):
 
 def extract(params, collection):
 	items = []
+
+	for item in rear_transporter.extract(params, collection):
+		try:
+			query = 'create (n:{0} {{{1}}});'.format(collection, neo4j_querify(item, field_delimiter = ', '))
+			graph.run(query)
+		except py2neo.database.status.ConstraintError as e:
+			print(e)
+
 	print('match (n:{0}) where {1} return {2};'.format(collection, 
 		neo4j_querify(params, prefix = 'n.', delimiter = ' = '), 
 		(', '.join(['n.' + item for item in boats_fields + common_fields])).replace('n._id', 'space_ship.get_hex_ident(n._id) as _id')))
@@ -185,9 +195,9 @@ def show_ages(collection):
 
 def main():
 	print('Intermediate transporter has started')
-	#while True:
-	show_ages(BOATS_COLLECTION_NAME)
-	#	time.sleep(CHECK_PERIOD)
+	while True:
+		show_ages(BOATS_COLLECTION_NAME)
+		time.sleep(CHECK_PERIOD)
 
 if __name__ == '__main__':
 	main()
