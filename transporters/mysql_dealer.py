@@ -1,6 +1,10 @@
 import sys, os, datetime
 from bson.objectid import ObjectId
 import configparser
+import pickle
+
+sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/relations/adapters/')
+from mongo_adapter import mongo_str_id_to_int
 
 config = configparser.ConfigParser()
 config.read(os.environ.get('SPACE_SHIP_HOME') + '/databases.config')
@@ -9,18 +13,16 @@ TIMESTAMP_PATTERN = os.environ.get('TIMESTAMP_PATTERN') or config['FORMATS']['ti
 TIME_PATTERN = os.environ.get('TIME_PATTERN') or config['FORMATS']['time']
 DATE_PATTERN = os.environ.get('DATE_PATTERN') or config['FORMATS']['date']
 
-
 ## Convert stringified list back to list 
 def string_to_list(strlist):
 	return [float(item.lstrip().rstrip()) for item in strlist.replace('[','').replace(']','').split(',')]
 
-
-## Convert item's property from mongo format to cassandra query format
+## Convert item's property from mongo format to mysql query format
 def stringify(value):
 	if isinstance(value, datetime.datetime):
 		return '\'' + value.strftime(TIMESTAMP_PATTERN) + '\''
 	elif isinstance(value, list):
-		return '\'' + str(value) + '\''
+		return '0x' + pickle.dumps(value).hex()
 	elif isinstance(value, int) or isinstance(value, float):
 		return str(value)
 	elif isinstance(value, ObjectId):
@@ -29,53 +31,36 @@ def stringify(value):
 		return '0x' + value.hex()
 	return '\'' + str(value) + '\''
 
-
-## Convert item from mongo format to cassandra query format
+## Convert item from mongo format to mysql query format
 def querify(item, mode = 'INSERT', keys = None):
 	querified = []
 	for key in item:
 		if item[key] and (not keys or key in keys):
-			try:
-				if key.index('__') == 0:
-					querified.append([key[2:], stringify(item[key])])
-				else:
-					querified.append([key, cassandra_stringify_value(item[key])])
-			except:
-				try:
-					if key.index('_') == 0:
-						querified.append([key[1:], stringify(item[key])])
-					else:
-						querified.append([key, cassandra_stringify_value(item[key])])
-				except:
-					querified.append([key, stringify(item[key])])
-					continue
+			querified.append([key, stringify(item[key])])
+			continue
 
 	if mode == 'INSERT':
 		return '(' + ', '.join([item[0] for item in querified]) + ') values (' + ', '.join([item[1] for item in querified]) + ')'
 	elif mode == 'SELECT':
 		criterias = [item[0] + ' = ' + item[1] for item in querified]
 		joined_criterias = ', '.join(criterias)
-		return 'where {0} allow filtering'.format(joined_criterias) if (len(criterias) > 0) else joined_criterias
+		return 'where {0}'.format(joined_criterias) if len(criterias) > 0 else joined_criterias
 	elif mode == 'DELETE':
 		return ' and '.join([item[0] + ' = ' + item[1] for item in querified])
 
-
-## Convert item, came from cassandra, to mongo format
-def repair(item):
+## Convert item, came from mysql, to mongo format
+def repair(item, field_names):
 	repaired = {}
-	for key in item:
-		if key == 'cause__':
-			continue
-		elif key == 'gaps__':
-			repaired['__' + key] = string_to_list(item[key])
+	index = 0
+	for key in field_names:
+		if key == '__gaps__':
+			repaired[key] = pickle.loads(item[index])
+		elif key == '_id':
+			repaired[key] = ObjectId(item[index])
 		else:
-			try:
-				if key.index('__') == len(key) - 2:
-					repaired['__' + key] = item[key]
-			except:
-				if key == 'id':
-					repaired['_' + key] = ObjectId(item[key])
-				else:
-					repaired[key] = item[key]
+			repaired[key] = item[index]
+
+		index += 1
+					
 
 	return repaired

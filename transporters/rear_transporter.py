@@ -1,23 +1,27 @@
+
+
+#import modules
+
+
+import configparser, sys, os, re, datetime, time
+from bson.objectid import ObjectId
+import numpy
+import json
+
 import py2neo
 from py2neo import Graph
-import configparser
-import sys, os, re
-import datetime
-from bson.objectid import ObjectId
-import time
-import numpy
-
-import cassandra
-from cassandra.cqlengine import connection
+import mysql.connector
 
 sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/relations/adapters/')
-
 from mongo_adapter import mongo_str_id_to_int
-
 sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/connectors')
 from neo4j_connector import connect_to_leader
-import mysql.connector
-import pickle
+import neo4j_dealer
+import mysql_dealer
+from json_encoder import JSONEncoder
+
+
+#set global constants
 
 
 config = configparser.ConfigParser()
@@ -43,157 +47,66 @@ TIMESTAMP_PATTERN = os.environ.get('TIMESTAMP_PATTERN') or config['FORMATS']['ti
 TIME_PATTERN = os.environ.get('TIME_PATTERN') or config['FORMATS']['time']
 DATE_PATTERN = os.environ.get('DATE_PATTERN') or config['FORMATS']['date']
 
+MYSQL_DB_NAME = os.environ.get('MYSQL_DB_NAME') if os.environ.get('MYSQL_DB_NAME') else config['MYSQL']['db_name']
+
+FIELD_DELIMITER = config['FIELDS']['field_delimiter']
+
+fields = {
+	'common': [item.lstrip().rstrip() for item in config['FIELDS']['common'].split(FIELD_DELIMITER)],
+	'boats': [item.lstrip().rstrip() for item in config['FIELDS']['boats'].split(FIELD_DELIMITER)]
+}
+
+MYSQL_FIELD_DELIMITER = config['MYSQL_FIELDS']['field_delimiter']
+
+mysql_fields = {
+	'boats': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['boats'].split(MYSQL_FIELD_DELIMITER)]
+}
+
+
+#make db connections
+
+
+connection = mysql.connector.connect(user='root', password='cassadaga', host='127.0.0.1', database = MYSQL_DB_NAME)
+
 conn = connect_to_leader()
 graph = Graph(bolt = True, user = conn['username'], password = conn['password'], host = conn['host'], bolt_port = conn['port'])
 graph.begin()
 
-boats_fields = ['name', 'capacity']
-common_fields = ['_id', '__accessed__', '__created__', '__gaps__']
-
-mysql_fields = ['_id', 'name', 'capacity', '__created__', '__accessed__', '__gaps__']
-
-MYSQL_DB_NAME = os.environ.get('MYSQL_DB_NAME') if os.environ.get('MYSQL_DB_NAME') else config['MYSQL']['db_name']
-
-connection = mysql.connector.connect(user='root', password='cassadaga', host='127.0.0.1', database = MYSQL_DB_NAME)
-
-def mysql_stringify_value(value):
-	if isinstance(value, datetime.datetime):
-		return '\'' + value.strftime(TIMESTAMP_PATTERN) + '\''
-	elif isinstance(value, list):
-		return '0x' + pickle.dumps(value).hex()
-	elif isinstance(value, int) or isinstance(value, float):
-		return str(value)
-	elif isinstance(value, ObjectId):
-		return '0x' + str(value)
-	elif isinstance(value, bytearray) or isinstance(value, bytes):
-		return '0x' + value.hex()
-	return '\'' + str(value) + '\''
-
-def neo4j_stringify_value(value):
-	#print(value)
-	if isinstance(value, datetime.datetime):
-		return '\'' + value.strftime(TIMESTAMP_PATTERN) + '\''
-	elif isinstance(value, int) or isinstance(value, float) or isinstance(value, list):
-		return str(value)
-	elif isinstance(value, ObjectId):
-		return  str(list(mongo_str_id_to_int(str(value))))
-	return '\'' + str(value) + '\''
-
-def neo4j_querify(item, prefix = '', delimiter = ' : ', field_delimiter = ' and '):
-	querified = []
-	for key in item:
-		if item[key]:
-			querified.append([key, neo4j_stringify_value(item[key])])
-
-	return field_delimiter.join([prefix + item[0] + delimiter + item[1] for item in querified])
-
-def mysql_querify(item, mode = 'INSERT', keys = None):
-	querified = []
-	for key in item:
-		if item[key] and (not keys or key in keys):
-			querified.append([key, mysql_stringify_value(item[key])])
-			continue
-
-	if mode == 'INSERT':
-		return '(' + ', '.join([item[0] for item in querified]) + ') values (' + ', '.join([item[1] for item in querified]) + ')'
-	elif mode == 'SELECT':
-		return ', '.join([item[0] + ' = ' + item[1] for item in querified])
-	elif mode == 'DELETE':
-		return ' and '.join([item[0] + ' = ' + item[1] for item in querified])
-
-def string_to_list(strlist):
-	return [float(item.lstrip().rstrip()) for item in strlist.replace('[','').replace(']','').split(',')]
-
-def mysql_repair_fields(item, field_names):
-	repaired = {}
-	index = 0
-	for key in field_names:
-		if key == '__gaps__':
-			repaired[key] = pickle.loads(item[index])
-		elif key == '_id':
-			repaired[key] = ObjectId(item[index])
-		else:
-			repaired[key] = item[index]
-
-		index += 1
-					
-
-	return repaired
-
-
-def neo4j_repair_fields(item):
-	repaired = {}
-	for key in dict(item):
-		value = item[key]
-		if key == '_id':
-			value = ObjectId(item[key])
-		else:
-			try:
-				value = datetime.datetime.strptime(value, TIMESTAMP_PATTERN)
-			except:
-				pass
-		repaired[key.replace('n.', '')] = value
-
-	return repaired
-
-
+## Move items according to collection and query one level up
 def extract(params, collection):
 	items = []
 
 	cursor = connection.cursor()
+	cursor.execute('select * from {0} {1};'.format(collection, mysql_dealer.querify(params, mode = 'SELECT')))
 
-	cursor.execute('select * from {0} where {1};'.format(collection, mysql_querify(params, mode = 'SELECT')))
+	# Return found items to upper level
 	
-	return [mysql_repair_fields(item, mysql_fields) for item in cursor]
+	return [mysql_dealer.repair(item, mysql_fields[collection]) for item in cursor]
 
-	#print('match (n:{0}) where {1} return {2};'.format(collection, 
-	#	neo4j_querify(params, prefix = 'n.', delimiter = ' = '), 
-	#	(', '.join(['n.' + item for item in boats_fields + common_fields])).replace('n._id', 'space_ship.get_hex_ident(n._id) as _id')))
-	
-	#return [neo4j_repair_fields(item) for item in graph.run('match (n:{0}) where {1} return {2};'.format(collection, 
-	#	neo4j_querify(params, prefix = 'n.', delimiter = ' = '), 
-	#	(', '.join(['n.' + item for item in boats_fields + common_fields])).replace('n._id', 'space_ship.get_hex_ident(n._id) as _id')))]
 
-def move(item, collection, cause):
+## Move item one level below
+def immerse(item, collection, cause):
 	item['__cause__'] = cause;
-	print(item)
 	
 	cursor = connection.cursor()
 
-	try:
-		cursor.execute('insert into {0} {1};'.format(collection, mysql_querify(item)))
-		print('insert into {0} {1};'.format(collection, mysql_querify(item)))
-	except mysql.connector.errors.IntegrityError as e:
-		print(e)
-		cursor.execute('delete from {0} where {1};'.format(collection, mysql_querify(item, mode = 'DELETE', keys = ['_id'])))
-		print('insert into {0} {1};'.format(collection, mysql_querify(item)))
-		cursor.execute('insert into {0} {1};'.format(collection, mysql_querify(item)))
+	#create item in mysql with replacement
+
+	cursor.execute('delete from {0} where {1};'.format(collection, mysql_dealer.querify(item, mode = 'DELETE', keys = ['_id'])))
+	cursor.execute('insert into {0} {1};'.format(collection, mysql_dealer.querify(item)))
 
 	connection.commit()
 
-	query = 'match (n:{0}) where space_ship.get_hex_ident(n._id) = "{1}" detach delete n;'.format(collection, mysql_stringify_value(item['_id'])[2:])
-	graph.run(query)
-	
-	#try:
-	#	query = 'create (n:{0} {{{1}}});'.format(collection, neo4j_querify(cassandra_repair_fields(item), field_delimiter = ', '))
-	#	graph.run(query)
-	#except py2neo.database.status.ConstraintError:
-	#	query = 'match (n:{0}) where space_ship.get_hex_ident(n._id) = "{1}" detach delete n;'.format(collection, cassandra_stringify_value(item['id'])[2:])
-		#query = 'match (n:{0}) where {1} detach delete n;'.format(collection, neo4j_querify(cassandra_repair_fields(item), delimiter = ' = ', field_delimiter = ' and '))
-	#	graph.run(query)
-	#	query = 'create (n:{0} {{{1}}});'.format(collection, neo4j_querify(cassandra_repair_fields(item), field_delimiter = ', '))
-	#	graph.run(query)
-	#print('\n\n', query, '\n\n')
-	#graph.run(query)
-	#print('delete from {0}.{1} where {2} allow filtering;'.format(CASSANDRA_DB_NAME, collection, cassandra_querify(item, 'DELETE')))
-	#connection.execute('delete from {0}.{1} where {2};'.format(CASSANDRA_DB_NAME, collection, cassandra_querify(item, 'DELETE', keys = ['id', 'name'])))
-	#db[collection].delete_one({'_id': ObjectId(item['_id'])})
+	#delete item from neo4j
 
+	delete_query = 'match (n:{0}) where space_ship.get_hex_ident(n._id) = "{1}" detach delete n;'.format(collection, mysql_dealer.stringify(item['_id'])[2:])
+	graph.run(delete_query)
+
+
+## Get average frequency by last timestamp, set of gaps and length of interval for counting frequency
 def get_frequency(last_timestamp, gaps, interval_length):
 	current_timestamp = datetime.datetime.now()
 	gaps.append((current_timestamp - last_timestamp).total_seconds())
-
-	#print(gaps)
 
 	gaps_sum = numpy.sum(gaps)
 	
@@ -217,40 +130,56 @@ def get_frequency(last_timestamp, gaps, interval_length):
 		current_low_bound += interval_length
 		current_up_bound += interval_length
 
-		#while (distance < interval_length) and (current_gap < len(gaps)):
-		#	number_of_requests += 1
-		#	current_gap += 1
-		#	distance += gaps[-current_gap]
-
 		frequencies.append(number_of_requests)
 
-	#frequencies.reverse()
-
-	return numpy.average(frequencies)	
+	return numpy.average(frequencies)
 
 
-def show_ages(collection):
+## Check items inside collection and start moving them down if necessary
+def inspect(collection, verbose = False):
 	current_timestamp = datetime.datetime.now()
+	current_timestamp_str = current_timestamp.strftime(TIMESTAMP_PATTERN)
+
+	if verbose:
+		print('{0} : inspecting {1}...'.format(current_timestamp_str, collection))
+
 	for item in graph.run('match (n:{0}) return {1};'.format(collection, 
-		(', '.join(['n.' + item for item in boats_fields + common_fields])).replace('n._id', 'space_ship.get_hex_ident(n._id) as _id'))):
+		(', '.join(['n.' + item for item in fields['common'] + fields[collection]])).replace('n._id', 'space_ship.get_hex_ident(n._id) as _id'))):
 
-		repaired_item = neo4j_repair_fields(item)
-
-		#age = (current_timestamp - repaired_item['__accessed__']).total_seconds()
+		repaired_item = neo4j_dealer.repair(item)
 
 		frequency = get_frequency(last_timestamp = repaired_item['__accessed__'], gaps = repaired_item['__gaps__'], interval_length = CHECK_INTERVAL)
 
-		print('{0} has been accessed with frequency {1} times per {2} seconds'.format(repaired_item['_id'], frequency, CHECK_INTERVAL))
-		if frequency < MIN_FREQUENCY:
-			print('Is going to move')
-			move(repaired_item, collection, 'too rarely accessed')
+		if verbose:
+			print('{0}{1} has been accessed with frequency {1} times per {2} seconds'.format(' '*(len(current_timestamp_str) + 3),
+			repaired_item['_id'], frequency, CHECK_INTERVAL))
 
+		if frequency < MIN_FREQUENCY:
+
+			if verbose:
+				print('{0}{1} will be immersed'.format(' '*(len(current_timestamp_str) + 3), repaired_item['_id']))
+			
+			immerse(repaired_item, collection, 'too rarely accessed')
+
+
+## Get content of the lower level in json format
+def get_content_on_lower():
+	return JSONEncoder().encode({'boats' : extract({}, 'boats')})
+
+
+## Start main loop
 def main():
 	print('Rear transporter has started')
+	verbose = '-v' in sys.argv
+	once = '-o' in sys.argv
 	while True:
-		show_ages(BOATS_COLLECTION_NAME)
+		inspect(BOATS_COLLECTION_NAME, verbose = verbose)
+		if once:
+			return
 		time.sleep(CHECK_PERIOD)
+
 
 if __name__ == '__main__':
 	main()
-	#print(extract({'name' : 'Third'}, 'boats'))
+	#print(extract({}, 'boats'))
+	#print(get_content_on_lower())

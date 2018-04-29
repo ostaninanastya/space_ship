@@ -1,8 +1,12 @@
 
+
 #import modules
+
 
 import configparser, sys, os, datetime, time
 from bson.objectid import ObjectId
+import json
+
 
 from pymongo import MongoClient
 
@@ -11,8 +15,10 @@ from cassandra.cqlengine import connection
 
 import intermediate_transporter
 import cassandra_dealer
+from json_encoder import JSONEncoder
 
 #set global constants
+
 
 config = configparser.ConfigParser()
 config.read(os.environ.get('SPACE_SHIP_HOME') + '/databases.config')
@@ -44,7 +50,9 @@ TIMESTAMP_PATTERN = os.environ.get('TIMESTAMP_PATTERN') or config['FORMATS']['ti
 TIME_PATTERN = os.environ.get('TIME_PATTERN') or config['FORMATS']['time']
 DATE_PATTERN = os.environ.get('DATE_PATTERN') or config['FORMATS']['date']
 
+
 #make db connections
+
 
 db = MongoClient(MONGO_DB_URL, MONGO_DB_PORT)[MONGO_DB_NAME]
 connection.setup([item.lstrip().rstrip() for item in CASSANDRA_DB_URLS.split(CASSANDRA_HOST_DELIMITER)], CASSANDRA_DB_NAME)
@@ -52,29 +60,27 @@ connection.setup([item.lstrip().rstrip() for item in CASSANDRA_DB_URLS.split(CAS
 
 ## Move items according to collection and query one level up
 def extract(params, collection):
-	items = []
-	print('select * from {0}.{1} {2};'.format(CASSANDRA_DB_NAME, collection, cassandra_dealer.querify(params, 'SELECT')))
+
+	# Copy items from cassandra to mongo
+
 	for item in connection.execute('select * from {0}.{1} {2};'.format(CASSANDRA_DB_NAME, collection, cassandra_dealer.querify(params, 'SELECT'))):
-		repaired_item = cassandra_dealer.repair(item)
-		items.append(repaired_item)
-		db[collection].insert_one(repaired_item)
+		db[collection].insert_one(cassandra_dealer.repair(item))
 
-	backended = intermediate_transporter.extract(params, collection)
+	# Copy items from lower levels to cassandra and mongo without replacing
 
-	for item in backended:
+	for item in intermediate_transporter.extract(params, collection):
 		try:
 			connection.execute('insert into {0}.{1} {2};'.format(CASSANDRA_DB_NAME, collection, cassandra_dealer.querify(item)))
 		except Exception as e:
 			pass
-			#print(e)
 		
 		try:
 			db[collection].insert_one(item)
 		except Exception as e:
 			pass
-			#print(e)
 	
 	return
+
 
 ## Move item one level below
 def immerse(item, collection, cause):
@@ -95,23 +101,32 @@ def inspect(collection, verbose = False):
 		age = (current_timestamp - item['__accessed__']).total_seconds()
 
 		if verbose:
-			print('{0}{1} has not been accessed for {2} seconds'.format(' '*len(current_timestamp_str), item['_id'], age))
+			print('{0}{1} has not been accessed for {2} seconds'.format(' '*(len(current_timestamp_str) + 3), item['_id'], age))
 		
 		if age > MAX_AGE:
 
 			if verbose:
-				print('{0}{1} will be immersed'.format(' '*len(current_timestamp_str), item['_id']))
+				print('{0}{1} will be immersed'.format(' '*(len(current_timestamp_str) + 3), item['_id']))
 			
 			immerse(item, collection, 'too old')
+
+
+## Get content of the lower level in json format
+def get_content_on_lower():
+	return JSONEncoder().encode({'boats' : extract({}, 'boats')})
 
 
 ## Start main loop
 def main():
 	print('Frontal transporter has started')
-	verbose = len(sys.argv) == 2 and sys.argv[1] == '-v'
+	verbose = '-v' in sys.argv
+	once = '-o' in sys.argv
 	while True:
 		inspect(BOATS_COLLECTION_NAME, verbose = verbose)
+		if once:
+			return
 		time.sleep(CHECK_PERIOD)
 
 if __name__ == '__main__':
 	main()
+	#print(get_content_on_lower())
