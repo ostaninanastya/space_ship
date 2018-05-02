@@ -1,0 +1,3 @@
+port: 1881
+last_response_chunk_sign: ====
+requirement_delimiter: '='

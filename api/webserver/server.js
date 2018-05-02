@@ -1,211 +1,47 @@
-var express = require('express');
-var spawn = require("child_process").spawn;
-var app = express();
-
-const PORT = 1881
-const LAST_RESPONSE_CHUNK_SIGN = '====='
-
-function fix_fields(entity_name){
-	if (entity_name == 'position'){
-		return 'x, y, z'
-	} else if (entity_name == 'controlaction'){
-		return 'userid, command, params, result'
-	} else if (entity_name == 'systemtest'){
-		return 'system, result, date, time'
-	}  else if (entity_name == 'operationstate'){
-		return 'zenith, azimuth, date, time'
-	}   else if (entity_name == 'shiftstate'){
-		return 'date, time, remainingcartridges, remainingair, remainingelectricity, warninglevel'
-	} else if (entity_name == 'sensordata'){
-		return 'date, time, valuename, value, units'
-	}
-}
-
-function split2(str, delim) {
-    var p=str.indexOf(delim);
-    if (p !== -1) {
-        return [str.substring(0,p), str.substring(p+1)];
-    } else {
-        return [str];
-    }
-}
-
-function translate_to_graphsql(original_query){
-	
-	let query = original_query.replace(/%26/g, '&').replace(/%27/g, '\'').split('/')
-
-	console.log(query)
-	
-	let entity_name = query[2]
-
-	if (entity_name == 'create' || entity_name == 'remove' || entity_name == 'eradicate'){
-		let action_name = entity_name
-		entity_name = query[3]
-		let requirements = (query[4] + query.slice(5).join('')).split('&')
-
-		let fields = ''
-		let where = ''
-
-		requirements.forEach(function(item){
-			requirement = item.split('=');
-			if (requirement[0] == 'fields'){
-				fields = requirement[1]
-			} else if (requirement[0] == 'where'){
-				where = requirement[1]
-			}
-		});
-
-		if (fields.length == 0){
-			fields = fix_fields(entity_name)
-		}
-
-		entity_name = entity_name[0].toUpperCase() + entity_name.substring(1,entity_name.length).toLowerCase();
-
-		if (where.length == 0){
-			return ''
-		} else {
-			return `mutation Mutation{ ${action_name}${entity_name}(${where})`.replace(/\'/g, '"') + `{ ${fields} }}`.replace(/\(/g, '{').replace(/\)/g, '}').replace(/\%20/g, ' ')
-		}
 
 
-	} else {
-		let requirements = (query[3] + (query.length > 4 ? query.slice(3).join('/') : '')).split('&')
+// import
 
-		let fields = ''
-		let where = ''
-		let set = ''
 
-		console.log(requirements)
+const fs = require('fs');
 
-		requirements.forEach(function(item){
-			requirement = item.split('=');
-			if (requirement[0] == 'fields'){
-				fields = requirement[1]
-			} else if (requirement[0] == 'where'){
-				where = requirement[1]
-			} else if (requirement[0] == 'set'){
-				set = requirement[1]
-			}
-		});
+const express = require('express');
+const yaml_js = require('yaml-js');
 
-		if (fields.length == 0){
-			fields = fix_fields(entity_name)
-		}
+const handle_docs_request = require(process.env.SPACE_SHIP_HOME + '/api/webserver/docs_handlers/main.js').handle_docs_request;
+const handle_api_request = require(process.env.SPACE_SHIP_HOME + '/api/webserver/api_handlers/main.js').handle_api_request;
 
-		if ((where.length == 0) && (set.length == 0)){
-			return `query Query{ ${entity_name}{ ${fields} }}`.replace(/\(/g, '{').replace(/\)/g, '}')
-		} else if (set.length == 0){
-			return `query Query{ ${entity_name}(${where})`.replace(/\'/g, '"') + `{ ${fields} }}`.replace(/\(/g, '{').replace(/\)/g, '}')
-		} else {
-			console.log(set)
-			new_set = ''
-			set.split(',').forEach(function(field){
-				splitted_field = split2(field, ':')
-				field_name = splitted_field[0]
-				new_set += 'set' + field_name[0].toUpperCase() + field_name.substring(1,field_name.length).toLowerCase() + ':' + splitted_field[1] + ','
-			})
-			console.log(new_set)
 
-			entity_name = entity_name[0].toUpperCase() + entity_name.substring(1,entity_name.length).toLowerCase();
+// set global variables
 
-			return `mutation Mutation{ update${entity_name}(${where}, ${new_set})`.replace(/\'/g, '"') + `{ ${fields} }}`.replace(/\(/g, '{').replace(/\)/g, '}').replace(/\%20/g, ' ')
-		}
-	}
-}
 
-app.listen(PORT, function () {
-    console.log('The server is listening on port ' + PORT);
- });
+var PORT = 0;
+var LAST_RESPONSE_CHUNK_SIGN = '';
 
-app.get('/api/*', function(req, res){
-	
-	query = translate_to_graphsql(req.originalUrl).replace(/%20/g, ' ');
+fs.readFile(process.env.SPACE_SHIP_HOME + '/api/webserver/config.yaml', 'utf8', function(err, contents) {
+    var config = yaml_js.load(contents)
 
-	console.log(query)
+    PORT = config.port;
+	LAST_RESPONSE_CHUNK_SIGN = config.last_response_chunk_sign;
 
-	let process = spawn('python3', ["../background/main.py", query]);
-
-	res.write('')
-
-	process.stdout.on('data', function(data){
-		if (data.indexOf(LAST_RESPONSE_CHUNK_SIGN) == -1){
-			res.write(data.toString('utf8'));
-		} else {
-			res.end(data.toString('utf8').replace(LAST_RESPONSE_CHUNK_SIGN, '') + '');
-		}
-		console.log(data.toString('utf8'));
-	});
-
-	process.stderr.on('data', function(data){
-		console.log(data.toString('utf8'));
-	});
+	start_server();
 });
 
-app.get('/docs/', function(req, res){
-	
-	query = 'query Docs{__schema{types{name, fields{name, type{name, kind}}}}}';
 
-	console.log(query)
+// start server
 
-	let process = spawn('python3', ["../background/main.py", query]);
+const app = express();
 
-	res.write('<p style="white-space:pre;">')
+function start_server(){
+	app.listen(PORT, function () {
+    	console.log('The server is listening on port ' + PORT);
+ 	});
 
-	result = ''
-
-	res.write('=== Queries ===\n\n')
-
-	res.write('= Entities =\n\n')
-
-	process.stdout.on('data', function(data){
-		if (data.indexOf(LAST_RESPONSE_CHUNK_SIGN) == -1){
-			result += data.toString('utf8');
-		} else {
-			result += data.toString('utf8');
-			parsed = JSON.parse(result.replace(LAST_RESPONSE_CHUNK_SIGN, ''))
-			parsed['__schema']['types'].forEach(function(item){
-				if (item['name'].includes('Mapper')){
-					res.write('    ' + item['name'].toLowerCase().replace('mapper','') + '{\n')
-					item['fields'].forEach(function(field){
-						res.write('        ' + field['name'] + ': ' + (field['type']['name'] ? field['type']['name'] : 'List') + '\n');
-					});
-					res.write('    }\n\n');
-				}
-				
-			});
-
-			res.write('= Examples =\n\n')
-
-			res.write('http://localhost:1881/api/shiftstate/fields=shiftid,time,shift(id,start,end,chief(id))&where=minute:42\n\n');
-			
-			let nested_process = spawn('python3', ["../background/main.py", 'docs']);
-
-			result = ''
-
-			res.write('=== Mutations ===\n\n')
-
-			res.write('= Entities =\n\n')
-
-			nested_process.stdout.on('data', function(data){
-				if (data.indexOf(LAST_RESPONSE_CHUNK_SIGN) == -1){
-					res.write(data.toString('utf8'));
-				} else {
-					res.write(data.toString('utf8'));
-					res.write('= Examples =\n\n');
-					res.write("http://localhost:1881/api/create/position/fields=ok,position(x)&where=timestamp:'2017-02-18 23:59:57',x:10.0,y:10.2,z:10.3,speed:10.4,attackangle:10.5,directionangle:10.6\n\n");
-					res.end('</p>');
-				}
-				//console.log(data.toString('utf8'));
-			});
-
-			
-		}
-		//console.log(data.toString('utf8'));
+	app.get('/api/*', function(req, res){
+		handle_api_request(req, res);
 	});
 
-	process.stderr.on('data', function(data){
-		console.log(data.toString('utf8'));
+	app.get('/docs/', function(req, res){ 
+		handle_docs_request(req, res); 
 	});
-
-	
-});
+}
