@@ -1,5 +1,32 @@
-import datetime
+import sys, os
+
+import datetime, math
 import re
+import configparser
+
+config = configparser.ConfigParser()
+config.read(os.environ['SPACE_SHIP_HOME'] + '/databases.config')
+
+TIME_PATTERN = os.environ.get('TIME_PATTERN') or config['FORMATS']['time']
+DATE_PATTERN = os.environ.get('DATE_PATTERN') or config['FORMATS']['date']
+
+TIMESTAMP_PATTERN = os.environ.get('TIMESTAMP_PATTERN') or config['FORMATS']['timestamp']
+
+def parse_date_parameter(date):
+    return None if not date else datetime.datetime.strptime(date, DATE_PATTERN).date()
+
+def parse_time_parameter(time):
+    return None if not time else datetime.datetime.strptime(time, TIME_PATTERN).time()
+
+def parse_timestamp_parameter(timestamp):
+    return None if not timestamp else datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN)
+
+def parse_bytes_parameter(value):
+    return None if not value else string_to_bytes(value)
+
+def parse_float_parameter(value):
+    return value if not math.isnan(value) else None
+
 
 def get_strings(filename):
     with open(filename) as handle:

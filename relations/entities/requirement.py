@@ -25,14 +25,14 @@ class Requirement(StructuredNode):
     def __init__(self, *args, **kwargs):
         super(Requirement, self).__init__(self, *args, **kwargs)
         if isinstance(self.content, list):
-	        for i in range(len(self.content)):
-	            self.content[i]['ident'] = mongo_adapter.validate_id(SPECIALIZATIONS_COLLECTION_NAME, self.content[i]['ident'])
+            for i in range(len(self.content)):
+                self.content[i]['specialization'] = mongo_adapter.validate_id(SPECIALIZATIONS_COLLECTION_NAME, self.content[i]['specialization'])
 
     @property
     def content_hexes(self):
         hexes = []
         for i in range(len(self.content)):
-            hexes.append(mongo_adapter.int_to_mongo_str_id(self.content[i]['ident']) if self.content[i]['ident'] else None)
+            hexes.append(mongo_adapter.int_to_mongo_str_id(self.content[i]['specialization']) if self.content[i]['specialization'] else None)
         return hexes
 
     @staticmethod

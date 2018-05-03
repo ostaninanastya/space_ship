@@ -7,7 +7,7 @@ import csv
 import cassandra
 from cassandra.cqlengine import connection
 
-sys.path.append('entities')
+sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/logbook/entities')
 
 from position import Position
 from system_test import SystemTest
@@ -201,6 +201,9 @@ def select(table, params, dicted = False):
 	if not dicted:
 		return [namedtuple('Struct', item.keys())(*item.values()) for item in result]
 	return result
+
+def get_commands_by_user_id(user_id):
+	return connection.execute('select * from {0}.control_action where user_id = 0x{1} ALLOW FILTERING;'.format(DB_NAME, user_id)).current_rows
 
 def update(table, params, dicted = False):
 	where = {}

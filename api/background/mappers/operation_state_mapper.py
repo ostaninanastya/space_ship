@@ -1,53 +1,38 @@
-import sys, os
+import sys, os, datetime
 import graphene
 from neomodel import config
 from person_mapper import PersonMapper
 from operation_mapper import OperationMapper
+from boat_mapper import BoatMapper
 
-sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/logbook/adapters/')
+sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/logbook')
 
-import mongo_adapter
-import neo4j_adapter
-
-sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/relations/entities/')
-
-from operation import Operation
-
-import configparser
+import cassandra_mediator
+from data_adapters import parse_bytes_parameter, parse_date_parameter, parse_time_parameter
 
 sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/api/background/')
 
 from converters import time_to_str, date_to_str
 
-sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/connectors')
-from neo4j_connector import connect
+sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/recital/')
 
-configp = configparser.ConfigParser()
-configp.read(os.environ.get('SPACE_SHIP_HOME') + '/databases.config')
+import mongo_mediator
 
-BOATS_COLLECTION_NAME = os.environ.get('BOATS_COLLECTION_NAME') or configp['MONGO']['boats_collection_name']
+sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/relations/')
 
-conn = connect()
-config.DATABASE_URL = 'bolt://{0}:{1}@{2}:{3}/'.format(conn['username'], conn['password'], conn['host'], int(conn['port']))
+import neo4j_mediator
 
 class OperationStateMapper(graphene.ObjectType):
+    
     date = graphene.String()
     time = graphene.String()
     
-    boatid = graphene.String()
-    boatname = graphene.String()
-    operationid = graphene.String()
-    #operationname = graphene.String()
-    #directorid = graphene.String()
-    #directorname = graphene.String()
-    operation = graphene.Field(OperationMapper)
-    
+    boat = graphene.Field(lambda: BoatMapper)
+    operation = graphene.Field(lambda: OperationMapper)
     operationstatus = graphene.String()
-    
     distancetotheship = graphene.Float()
     zenith = graphene.Float()
     azimuth = graphene.Float()
-
     hydrogenium = graphene.Float()
     helium = graphene.Float()
     lithium = graphene.Float()
@@ -166,20 +151,58 @@ class OperationStateMapper(graphene.ObjectType):
     livermorium = graphene.Float()
     tennessium = graphene.Float()
     oganesson = graphene.Float()
-    
     comment = graphene.String()
 
     def resolve_operation(self, info):
-    	return OperationMapper.init_scalar(Operation.nodes.get(ident = self.operationid))
+    	return OperationMapper.init_scalar(neo4j_mediator.get_operation_by_id(self.operation))
 
+    def resolve_boat(self, info):
+      return BoatMapper.init_scalar(mongo_mediator.get_boat_by_id(self.boat))
+
+    @staticmethod
+    def eject(date, time, boat, operation, status, distancetotheship, zenith, azimuth, hydrogenium,
+        helium, lithium, beryllium, borum,
+        carboneum, nitrogenium, oxygenium, fluorum, neon, natrium, magnesium, aluminium, silicium, phosphorus, sulfur, chlorum, argon, kalium, calcium,
+        scandium, titanium, vanadium, chromium, manganum, ferrum, cobaltum, niccolum, cuprum, zincum, gallium, germanium, arsenicum, selenium, bromum,
+        crypton, rubidium, strontium, yttrium, zirconium, niobium, molybdaenum, technetium, ruthenium, rhodium, palladium, argentum, cadmium, indium,
+        stannum, stibium, tellurium, iodium, xenon, caesium, barium, lanthanum, cerium, praseodymium, neodymium, promethium, samarium, europium, gadolinium,
+        terbium, dysprosium, holmium, erbium, thulium, ytterbium, lutetium, hafnium, tantalum, wolframium, rhenium, osmium, iridium, platinum, aurum,
+        hydrargyrum, thallium, plumbum, bismuthum, polonium, astatum, radon, francium, radium, actinium, thorium, protactinium, uranium, neptunium,
+        plutonium, americium, curium, berkelium, californium, einsteinium, fermium, mendelevium, nobelium, lawrencium, rutherfordium, dubnium,
+        seaborgium, bohrium, hassium, meitnerium, darmstadtium, roentgenium, copernicium, nihonium, flerovium, moscovium, livermorium, tennessium,
+        oganesson, comment):
+        return [OperationStateMapper.init_scalar(item) for item in cassandra_mediator.select_operation_states(
+            date = parse_date_parameter(date),
+            time = parse_time_parameter(time),
+            boat_id = parse_bytes_parameter(boat),
+            operation_id = parse_bytes_parameter(operation),
+            status = status, distance_to_the_ship = distancetotheship, zenith = zenith, azimuth = azimuth, 
+            hydrogenium = hydrogenium, helium = helium, lithium = lithium, beryllium = beryllium, borum = borum, carboneum = carboneum, 
+            nitrogenium = nitrogenium, oxygenium = oxygenium, fluorum = fluorum, neon = neon, natrium = natrium, magnesium = magnesium, 
+            aluminium = aluminium, silicium = silicium, phosphorus = phosphorus, sulfur = sulfur, chlorum = chlorum, argon = argon, kalium = kalium, 
+            calcium = calcium, scandium = scandium, titanium = titanium, vanadium = vanadium, chromium = chromium, manganum = manganum, 
+            ferrum = ferrum, cobaltum = cobaltum, niccolum = niccolum, cuprum = cuprum, zincum = zincum, gallium = gallium, germanium = germanium, 
+            arsenicum = arsenicum, selenium = selenium, bromum = bromum, crypton = crypton, rubidium = rubidium, strontium = strontium, 
+            yttrium = yttrium, zirconium = zirconium, niobium = niobium, molybdaenum = molybdaenum, technetium = technetium, ruthenium = ruthenium, 
+            rhodium = rhodium, palladium = palladium, argentum = argentum, cadmium = cadmium, indium = indium, stannum = stannum, stibium = stibium, 
+            tellurium = tellurium, iodium = iodium, xenon = xenon, caesium = caesium, barium = barium, lanthanum = lanthanum, cerium = cerium, 
+            praseodymium = praseodymium, neodymium = neodymium, promethium = promethium, samarium = samarium, europium = europium, gadolinium = gadolinium, 
+            terbium = terbium, dysprosium = dysprosium, holmium = holmium, erbium = erbium, thulium = thulium, ytterbium = ytterbium, lutetium = lutetium, 
+            hafnium = hafnium, tantalum = tantalum, wolframium = wolframium, rhenium = rhenium, osmium = osmium, iridium = iridium, platinum = platinum, 
+            aurum = aurum, hydrargyrum = hydrargyrum, thallium = thallium, plumbum = plumbum, bismuthum = bismuthum, polonium = polonium, astatum = astatum, 
+            radon = radon, francium = francium, radium = radium, actinium = actinium, thorium = thorium, protactinium = protactinium, uranium = uranium, 
+            neptunium = neptunium, plutonium = plutonium, americium = americium, curium = curium, berkelium = berkelium, californium = californium, 
+            einsteinium = einsteinium, fermium = fermium, mendelevium = mendelevium, nobelium = nobelium, lawrencium = lawrencium, 
+            rutherfordium = rutherfordium, dubnium = dubnium, seaborgium = seaborgium, bohrium = bohrium, hassium = hassium, meitnerium = meitnerium, 
+            darmstadtium = darmstadtium, roentgenium = roentgenium, copernicium = copernicium, nihonium = nihonium, flerovium = flerovium, 
+            moscovium = moscovium, livermorium = livermorium, tennessium = tennessium, oganesson = oganesson, comment = comment)]
 
     @staticmethod
     def init_scalar(item):
         return OperationStateMapper(date = date_to_str(item['date']),
                                time = time_to_str(item['time']),
-                               boatid = item['boat_id'].hex(),
-                               boatname = mongo_adapter.get_name_by_id(BOATS_COLLECTION_NAME, item['boat_id'].hex()),
-                               operationid = item['operation_id'].hex(),
+                               boat = item['boat_id'].hex(),
+                               operation = item['operation_id'].hex(),
                                operationstatus = item['operation_status'],
                                distancetotheship = item['distance_to_the_ship'],
                                zenith = item['zenith'],

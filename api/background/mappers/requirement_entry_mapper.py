@@ -8,6 +8,7 @@ import mongo_adapter
 from specialization_mapper import SpecializationMapper
 
 class RequirementEntryMapper(graphene.ObjectType):
+    
     specialization = graphene.Field(lambda: SpecializationMapper)
     quantity = graphene.Int()
 
@@ -16,4 +17,4 @@ class RequirementEntryMapper(graphene.ObjectType):
 
     @staticmethod
     def init_scalar(item):
-    	return RequirementEntryMapper(specialization = mongo_adapter.int_to_mongo_str_id(item['ident']), quantity = item['quantity'])
+    	return RequirementEntryMapper(specialization = mongo_adapter.int_to_mongo_str_id(item['specialization']), quantity = item['quantity'])

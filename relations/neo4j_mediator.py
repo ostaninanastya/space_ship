@@ -55,6 +55,14 @@ def get_shift_requirements_id(shift_id):
 			return r.ident as ident
 			""" % shift_id)]
 
+def get_shift_requirements(shift_id):
+	return [\
+		item for item in graph.data("""
+			match (r:Requirement)-[:USER]->(s:Shift)
+			where s.ident = '%s'
+			return r.ident as ident, r.content as content, r.name as name
+			""" % shift_id)]
+
 
 
 def int_to_mongo_str_id(value):
@@ -316,7 +324,9 @@ def select_operations(**kwargs):
 	return [item for item in Operation.nodes.filter(**{arg : kwargs[arg] for arg in kwargs if kwargs[arg]})]
 
 def select_shifts(**kwargs):
-	return [item for item in Shift.nodes.filter(**{arg : kwargs[arg] for arg in kwargs if kwargs[arg]})]
+	id_matcher = None if 'id' not in kwargs else re.compile(kwargs['id'] + '.*')
+	return [item for item in Shift.nodes.filter(**{arg : kwargs[arg] for arg in kwargs if kwargs[arg] and arg != 'id'})\
+		if not id_matcher or id_matcher.match(item.ident)]
 
 def are_specializations_relevant(requirement_content, specializations):
 	for searched_specialization in specializations:
@@ -417,6 +427,17 @@ def update_requirements(**kwargs):
 				remove_requirement_fragment(requirement, Requirement.specialization_id_to_neo4j_format(specialization_id))
 
 		requirement.save()
+
+# # # #
+
+def get_operation_by_id(ident):
+	return Operation.nodes.get(ident = ident)
+
+def get_shift_by_id(ident):
+	return Shift.nodes.get(ident = ident)
+
+def requirement_by_id(ident):
+	return Requirement.nodes.get(ident = ident)
 
 
 if __name__ == '__main__':

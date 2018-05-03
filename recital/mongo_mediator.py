@@ -452,15 +452,16 @@ def select(params, collection):
 
 	ids = params.pop('ids', None)
 
-	try:
+	'''try:
 		frontal_transporter.extract(params, collection)
 	except pymongo.errors.DuplicateKeyError:
 		pass
-
+	'''
 	parsed_params = parse_params_for_select(params)
 	current_timestamp = datetime.datetime.now()
 	items = [item for item in db[collection].find(parsed_params)]
 
+	'''
 	try:
 		result = db[collection].bulk_write([UpdateOne({'_id' : record['_id']},
 			{ 
@@ -470,7 +471,7 @@ def select(params, collection):
 		for record in items])
 	except KeyError:
 		result = db[collection].bulk_write([UpdateOne({'_id' : record['_id']}, {'$set':  { '__accessed__': current_timestamp, '__gaps__': [0]}}) for record in items])
-	
+	'''
 
 	#db[collection].update_many(parse_params_for_select(params), {'__accessed__': current_timestamp, '$push': { '__gaps__': int((current_timestamp - ).strftime("%s"))}})
 	return filter_by_ids(items, ids)

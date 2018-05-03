@@ -60,14 +60,6 @@ def get_properties_with_type(type_id):
 	type_object_id = ObjectId(type_id)
 	return [item for item in db[PROPERTIES_COLLECTION_NAME].find({'type' : type_object_id})]
 
-def get_people_with_department(department_id):
-	department_object_id = ObjectId(department_id)
-	return [item for item in db[PEOPLE_COLLECTION_NAME].find({'department' : department_object_id})]
-
-def get_people_with_specialization(specialization_id):
-	specialization_object_id = ObjectId(specialization_id)
-	return [item for item in db[PEOPLE_COLLECTION_NAME].find({'specialization' : specialization_object_id})]
-
 def get_people_ids_with_spec(specialization_id):
 	specialization_object_id = ObjectId(specialization_id)
 	return [str(item['_id']) for item in db[PEOPLE_COLLECTION_NAME].find({'specialization' : specialization_object_id}, {'_id' : 1})]
