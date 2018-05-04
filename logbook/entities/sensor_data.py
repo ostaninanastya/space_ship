@@ -39,7 +39,7 @@ class SensorData(Model):
         SensorData.validate_units(self.units)
 
     @staticmethod
-    def validate_source_id(id):
+    def validate_source_id(source_id):
         if len(source_id) != 12 or not mongo_adapter.is_valid_foreign_id(SENSORS_COLLECTION_NAME, source_id.hex()):
             raise ValidationError('not a valid source id')
         return id

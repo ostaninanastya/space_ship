@@ -1,4 +1,5 @@
 import sys, os
+from bson.objectid import ObjectId
 
 import graphene
 
@@ -6,9 +7,9 @@ sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/api/background/mappers')
 
 from department_mapper import DepartmentMapper
 
-sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/recital/native')
+sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/recital/')
 
-import mongo_native
+import mongo_mediator
 
 class CreateDepartment(graphene.Mutation):
     class Arguments:
@@ -20,8 +21,8 @@ class CreateDepartment(graphene.Mutation):
 
     def mutate(self, info, name, vk):
         #print('omg')
-        new_department = mongo_native.create_department(name, vk)
-        department = DepartmentMapper(id = str(new_department['_id']))
+        new_department = mongo_mediator.create_department(name, vk)
+        department = DepartmentMapper.init_scalar(new_department)
         ok = True
         return CreateDepartment(department = department, ok = ok)
 
@@ -33,8 +34,7 @@ class RemoveDepartment(graphene.Mutation):
     department = graphene.Field(lambda: DepartmentMapper)
 
     def mutate(self, info, id):
-        department = DepartmentMapper(id = id)
-        mongo_native.remove_department(id)
+        department = DepartmentMapper.init_scalar(mongo_mediator.remove_department(id))
         ok = True
         return RemoveDepartment(department = department, ok = ok)
 
@@ -47,7 +47,7 @@ class EradicateDepartment(graphene.Mutation):
 
     def mutate(self, info, id):
         department = DepartmentMapper(id = id)
-        mongo_native.eradicate_department(id)
+        mongo_mediator.eradicate_department(id)
         ok = True
         return EradicateDepartment(department = department, ok = ok)
 
@@ -65,7 +65,7 @@ class UpdateDepartments(graphene.Mutation):
 
     def mutate(self, info, id, name, vk, set_name, set_vk):
         #print('omg')
-        new_departments = mongo_native.update_departments(_id = ObjectId(id) if id else None, name = name, vk = vk, set_name = set_name, set_vk = set_vk)
+        new_departments = mongo_mediator.update_departments(_id = ObjectId(id) if id else None, name = name, vk = vk, set_name = set_name, set_vk = set_vk)
         departments = [DepartmentMapper.init_scalar(item) for item in new_departments]
         ok = True
         return UpdateDepartments(departments = departments, ok = ok)

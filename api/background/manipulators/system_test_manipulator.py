@@ -28,25 +28,25 @@ class CreateSystemTest(graphene.Mutation):
         result = graphene.Int()
 
     ok = graphene.Boolean()
-    systemtest = graphene.Field(lambda: SystemTestMapper)
+    system_test = graphene.Field(lambda: SystemTestMapper)
 
     def mutate(self, info, timestamp, system, result):
-        systemtest = SystemTestMapper.init_scalar(cassandra_mediator.create_system_test(datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN),\
+        system_test = SystemTestMapper.init_scalar(cassandra_mediator.create_system_test(datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN),\
             system, result))
         ok = True
-        return CreateSystemTest(systemtest = systemtest, ok = ok)
+        return CreateSystemTest(system_test = system_test, ok = ok)
 
 class RemoveSystemTest(graphene.Mutation):
     class Arguments:
         timestamp = graphene.String()
 
     ok = graphene.Boolean()
-    systemtest = graphene.Field(lambda: SystemTestMapper)
+    system_test = graphene.Field(lambda: SystemTestMapper)
 
     def mutate(self, info, timestamp):
-        systemtest = SystemTestMapper.init_scalar(cassandra_mediator.remove_system_test(datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN)))
+        system_test = SystemTestMapper.init_scalar(cassandra_mediator.remove_system_test(datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN)))
         ok = True
-        return RemoveSystemTest(systemtest = systemtest, ok = ok)
+        return RemoveSystemTest(system_test = system_test, ok = ok)
 
 class UpdateSystemTests(graphene.Mutation):
     class Arguments:
@@ -61,9 +61,12 @@ class UpdateSystemTests(graphene.Mutation):
 
     def mutate(self, info, timestamp, system, result, set_system, set_result):
         parsed_timestamp = None if not timestamp else datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN)
-        SystemTest.validate_system_id(string_to_bytes(set_system))
-        cassandra_mediator.update_system_tests(date = None if not parsed_timestamp else parsed_timestamp.date,\
-            time = None if not parsed_timestamp else parsed_timestamp.time, system_id = None if not system else string_to_bytes(system),\
+        
+        if set_system:
+            SystemTest.validate_system_id(string_to_bytes(set_system))
+        
+        cassandra_mediator.update_system_tests(date = None if not parsed_timestamp else parsed_timestamp.date(),\
+            time = None if not parsed_timestamp else parsed_timestamp.time(), system_id = None if not system else string_to_bytes(system),\
             result = result, set_system_id = None if not set_system else string_to_bytes(set_system), set_result = set_result)
         ok = True
         return UpdateSystemTests(ok = ok)

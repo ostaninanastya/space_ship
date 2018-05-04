@@ -1,69 +1,40 @@
-from py2neo import Graph
+
+
+# import
+
+
 import datetime
 import configparser
 import os, sys, re
+
+from py2neo import Graph
 from neomodel import config
 
-sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/connectors')
-from neo4j_connector import connect_to_leader
-
-conn = connect_to_leader()
-
-graph = Graph(bolt = True, user = conn['username'], password = conn['password'], host = conn['host'], bolt_port = conn['port'])
-config.DATABASE_URL = 'bolt://{0}:{1}@{2}:{3}/'.format(conn['username'], conn['password'], conn['host'], int(conn['port']))
-
 sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/relations/entities')
-
 from shift import Shift
 from person import Person
 from department import Department
 from operation import Operation
 from requirement import Requirement
 
-def get_operation_ids_by_requirement(requirement_id):
-	return [\
-		item['ident'] for item in graph.data("""
-			match (r:Requirement)-[:USER]->(o:Operation)
-			where r.ident = '%s'
-			return o.ident as ident
-			""" % requirement_id)]
-
-def get_shift_ids_by_requirement(requirement_id):
-	return [\
-		item['ident'] for item in graph.data("""
-			match (r:Requirement)-[:USER]->(s:Shift)
-			where r.ident = '%s'
-			return s.ident as ident
-			""" % requirement_id)]
+sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/connectors')
+from neo4j_connector import connect_to_leader
 
 
-#
-
-def get_operation_requirements_id(operation_id):
-	return [\
-		item['ident'] for item in graph.data("""
-			match (r:Requirement)-[:USER]->(o:Operation)
-			where o.ident = '%s'
-			return r.ident as ident
-			""" % operation_id)]
-
-def get_shift_requirements_id(shift_id):
-	return [\
-		item['ident'] for item in graph.data("""
-			match (r:Requirement)-[:USER]->(s:Shift)
-			where s.ident = '%s'
-			return r.ident as ident
-			""" % shift_id)]
-
-def get_shift_requirements(shift_id):
-	return [\
-		item for item in graph.data("""
-			match (r:Requirement)-[:USER]->(s:Shift)
-			where s.ident = '%s'
-			return r.ident as ident, r.content as content, r.name as name
-			""" % shift_id)]
+# set global variables
 
 
+conn = connect_to_leader()
+
+graph = Graph(bolt = True, user = conn['username'], password = conn['password'], host = conn['host'], bolt_port = conn['port'])
+config.DATABASE_URL = 'bolt://{0}:{1}@{2}:{3}/'.format(conn['username'], conn['password'], conn['host'], int(conn['port']))
+
+ID_DELIMITER = ','
+REQ_COMPONENT_DELIMITER = ':'
+
+#------------------------------------------------------------------------------------------------
+# general methods
+#------------------------------------------------------------------------------------------------
 
 def int_to_mongo_str_id(value):
 	return (value).to_bytes(12, byteorder='big').hex()
@@ -72,24 +43,36 @@ def mongo_str_id_to_int(value):
 	return int.from_bytes(bytearray.fromhex(' '.join(re.findall('..', value))), 'big')
 
 def get_name_by_id(label, id):
-	#print([item for item in graph.data("MATCH (item:%s) WHERE item.ident = '%s' RETURN item.ident" % (label, id))])
 	return [item['item.name'] for item in graph.data("MATCH (item:%s) WHERE item.ident = '%s' RETURN item.name" % (label, id))][0]
 
-def get_operation_head_id(operation_id):
-	return [\
-		item['ident'] for item in graph.data("""
-			match (p:Person)-[:HEAD]->(o:Operation)
-			where o.ident = '%s'
-			return space_ship.get_hex_ident(p.ident) as ident
-			""" % operation_id)][0]
+def get_all_ids(label):
+	return [item['item.ident'] for item in graph.data("MATCH (item:%s) RETURN item.ident" % label)]
 
-def get_headed_operations(person_id):
-	return [\
-		item for item in graph.data("""
-			match (p:Person)-[:HEAD]->(o:Operation)
-			where space_ship.get_hex_ident(p.ident) = '%s'
-			return o.ident as ident, o.start as start, o.end as end, o.name as name
-			""" % person_id)]
+def is_valid_foreign_id(label, id):
+	return id in get_all_ids(label)
+
+def ensure_person_existance(person_id):
+	if not len(graph.data("match (p:Person) where space_ship.get_hex_ident(p.ident) = '%s' return p.ident as ident" % person_id)) > 0:
+		Person(ident = person_id).save()
+
+def remove_leading_zeros(string):
+	corrected_string = string.strip("0")
+	if corrected_string != string:
+		return '0' + corrected_string
+	else:
+		return string
+
+#-----------------------------------------------------------------------------------------------------
+# particular methods
+#-----------------------------------------------------------------------------------------------------
+
+# - departments --------------------------------------------------------------------------------------
+
+def ensure_department_existance(department_id):
+	if not len(graph.data("match (d:Department) where space_ship.get_hex_ident(d.ident) = '%s' return d.ident as ident" % department_id)) > 0:
+		Department(ident = department_id).save()
+
+# -- by person
 
 def get_directed_ids(person_id):
 	return [\
@@ -99,6 +82,8 @@ def get_directed_ids(person_id):
 			return space_ship.get_hex_ident(d.ident) as ident
 			""" % person_id)]
 
+# -- for person
+
 def get_director_id(department_id):
 	return [\
 		item['ident'] for item in graph.data("""
@@ -107,180 +92,74 @@ def get_director_id(department_id):
 			return space_ship.get_hex_ident(p.ident) as ident
 			""" % department_id)][0]
 
-def get_chiefed_shifts(person_id):
+# - operations ---------------------------------------------------------------------------------------
+
+def get_operation_by_id(ident):
+	return Operation.nodes.get(ident = ident)
+
+# -- by requirement
+
+def get_operation_ids_by_requirement(requirement_id):
+	return [ item['ident'] for item in graph.data("""
+			match (r:Requirement)-[:USER]->(o:Operation)
+			where r.ident = '%s'
+			return o.ident as ident
+			""" % requirement_id)]
+
+# -- for requirement
+
+def get_operation_requirements_id(operation_id):
+	return [ item['ident'] for item in graph.data("""
+			match (r:Requirement)-[:USER]->(o:Operation)
+			where o.ident = '%s'
+			return r.ident as ident
+			""" % operation_id)]
+
+def get_operation_requirements(operation_id):
 	return [\
 		item for item in graph.data("""
-			match (p:Person)-[:CHIEF]->(s:Shift)
+			match (r:Requirement)-[:USER]->(o:Operation)
+			where o.ident = '%s'
+			return r.ident as ident, r.content as content, r.name as name
+			""" % operation_id)]
+
+# -- by person
+
+def get_headed_operations(person_id):
+	return [\
+		item for item in graph.data("""
+			match (p:Person)-[:HEAD]->(o:Operation)
 			where space_ship.get_hex_ident(p.ident) = '%s'
-			return s.ident as ident, s.start as start, s.end as end
+			return o.ident as ident, o.start as start, o.end as end, o.name as name
 			""" % person_id)]
 
 def get_executed_operations(person_id):
-	return [\
-		item for item in graph.data("""
+	return [ item for item in graph.data("""
 			match (p:Person)-[:EXECUTOR]->(o:Operation)
 			where space_ship.get_hex_ident(p.ident) = '%s'
 			return o.ident as ident, o.start as start, o.end as end, o.name as name
 			""" % person_id)]
 
-def get_worked_shifts(person_id):
-	return [\
-		item for item in graph.data("""
-			match (p:Person)-[:WORKER]->(s:Shift)
-			where space_ship.get_hex_ident(p.ident) = '%s'
-			return s.ident as ident, s.start as start, s.end as end
-			""" % person_id)]
+# -- for person
 
-def get_shift_chief_id(shift_id):
-	return [\
-		item['ident'] for item in graph.data("""
-			match (p:Person)-[:CHIEF]->(s:Shift)
-			where s.ident = '%s'
+def get_operation_head_id(operation_id):
+	return [ item['ident'] for item in graph.data("""
+			match (p:Person)-[:HEAD]->(o:Operation)
+			where o.ident = '%s'
 			return space_ship.get_hex_ident(p.ident) as ident
-			""" % shift_id)][0]
+			""" % remove_leading_zeros(operation_id))][0]
 
 def get_executors_id(operation_id):
-	return [\
-		item['ident'] for item in graph.data("""
+	return [ item['ident'] for item in graph.data("""
 			match (p:Person)-[:EXECUTOR]->(o:Operation)
 			where o.ident = '%s'
 			return space_ship.get_hex_ident(p.ident) as ident
 			""" % operation_id)]
 
-def get_workers_id(shift_id):
-	return [\
-		item['ident'] for item in graph.data("""
-			match (p:Person)-[:WORKER]->(s:Shift)
-			where s.ident = '%s'
-			return space_ship.get_hex_ident(p.ident) as ident
-			""" % shift_id)]
-	
-
-def get_all_ids(label):
-	return [item['item.ident'] for item in graph.data("MATCH (item:%s) RETURN item.ident" % label)]
-
-def is_valid_foreign_id(label, id):
-	return id in get_all_ids(label)
-
-####
-
-ID_DELIMITER = ','
-REQ_COMPONENT_DELIMITER = ':'
-
-def ensure_person_existance(person_id):
-	if not len(graph.data("match (p:Person) where space_ship.get_hex_ident(p.ident) = '%s' return p.ident as ident" % person_id)) > 0:
-		Person(ident = person_id).save()
-
-def ensure_department_existance(department_id):
-	if not len(graph.data("match (d:Department) where space_ship.get_hex_ident(d.ident) = '%s' return d.ident as ident" % department_id)) > 0:
-		Department(ident = department_id).save()
-
-def ensure_requirement_existance(requirement_id):
-	if not len(graph.data("match (r:Requirement) where r.ident = '%s' return r.ident as ident" % requirement_id)) > 0:
-		raise ValueError('requirement not exists')
-
-def add_worker(shift_id, worker_id):
-	ensure_person_existance(worker_id)
-	graph.data("""match (p:Person), (s:Shift) 
-				  where space_ship.get_hex_ident(p.ident) = '%s' and
-                  s.ident = '%s'
-                  create (p)-[:WORKER]->(s)
-                  return s.ident as ident;""" % (worker_id, shift_id))
-
-def remove_worker(shift_id, worker_id):
-	graph.data("""match (p:Person)-[relation:WORKER]->(s:Shift) 
-				  where space_ship.get_hex_ident(p.ident) = '%s' and
-                  s.ident = '%s'
-                  delete relation;""" % (worker_id, shift_id))
-
-def add_shift_requirement(shift_id, requirement_id):
-	ensure_requirement_existance(requirement_id)
-	graph.data("""match (r:Requirement), (s:Shift) 
-				  where r.ident = '%s' and
-                  s.ident = '%s'
-                  create (r)-[:USER]->(s)
-                  return s.ident as ident;""" % (requirement_id, shift_id))
-
-def remove_shift_requirement(shift_id, requirement_id):
-	graph.data("""match (r:Requirement)-[relation:USER]->(s:Shift) 
-				  where r.ident = '%s' and
-                  s.ident = '%s'
-                  delete relation;""" % (requirement_id, shift_id))
-
-def set_chief(shift_id, chief_id):
-	ensure_person_existance(chief_id)
-	graph.data("""match (p:Person), (s:Shift) 
-				  where space_ship.get_hex_ident(p.ident) = '%s' and
-                  s.ident = '%s'
-                  create (p)-[:CHIEF]->(s)
-                  return s.ident as ident;""" % (chief_id, shift_id))
-
-def set_shift_department(shift_id, department_id):
-	ensure_department_existance(department_id)
-	graph.data("""match (d:Department), (s:Shift) 
-				  where space_ship.get_hex_ident(d.ident) = '%s' and
-                  s.ident = '%s'
-                  create (s)-[:INCORPORATION]->(d)
-                  return s.ident as ident;""" % (department_id, shift_id))
-
-def create_shift(chief, department, start, end, workers, requirements):
-	new_shift = Shift(start = start, end = end).save()
-	
-	for person_id in workers.split(ID_DELIMITER):
-		add_worker(new_shift.ident, person_id)
-
-	for requirement_id in requirements.split(ID_DELIMITER):
-		add_shift_requirement(new_shift.ident, requirement_id)
-
-	set_chief(new_shift.ident, chief)	
-	set_shift_department(new_shift.ident, department)
-
-	return new_shift
-
-def remove_shift(ident):
-	deleted = Shift.nodes.get(ident = ident)
-	graph.data("""match (s:Shift) where s.ident = '%s' detach delete s""" % ident)
-	return deleted
-
-#
-
-def add_executor(operation_id, executor_id):
-	ensure_person_existance(executor_id)
-	graph.data("""match (p:Person), (o:Operation) 
-				  where space_ship.get_hex_ident(p.ident) = '%s' and
-                  o.ident = '%s'
-                  create (p)-[:EXECUTOR]->(o)
-                  return o.ident as ident;""" % (executor_id, operation_id))
-
-def remove_executor(operation_id, executor_id):
-	graph.data("""match (p:Person)-[relation:EXECUTOR]->(o:Operation) 
-				  where space_ship.get_hex_ident(p.ident) = '%s' and
-                  o.ident = '%s'
-                  delete relation;""" % (executor_id, operation_id))
-
-def add_operation_requirement(operation_id, requirement_id):
-	ensure_requirement_existance(requirement_id)
-	graph.data("""match (r:Requirement), (o:Operation) 
-				  where r.ident = '%s' and
-                  o.ident = '%s'
-                  create (r)-[:USER]->(o)
-                  return o.ident as ident;""" % (requirement_id, operation_id))
-
-def remove_operation_requirement(operation_id, requirement_id):
-	graph.data("""match (r:Requirement)-[relation:USER]->(o:Operation) 
-				  where r.ident = '%s' and
-                  o.ident = '%s'
-                  delete relation;""" % (requirement_id, operation_id))
-
-def set_head(operation_id, head_id):
-	ensure_person_existance(head_id)
-	graph.data("""match (p:Person), (o:Operation) 
-				  where space_ship.get_hex_ident(p.ident) = '%s' and
-                  o.ident = '%s'
-                  create (p)-[:HEAD]->(o)
-                  return o.ident as ident;""" % (head_id, operation_id))
+# -- manipulators
 
 def create_operation(name, head, start, end, executors, requirements):
+	
 	new_operation = Operation(name = name, start = start, end = end).save()
 	
 	for person_id in executors.split(ID_DELIMITER):
@@ -297,46 +176,6 @@ def remove_operation(ident):
 	deleted = Operation.nodes.get(ident = ident)
 	graph.data("""match (o:Operation) where o.ident = '%s' detach delete o""" % ident)
 	return deleted
-
-#
-
-def create_requirement(name, content):
-	requirement_parts = []
-	
-	for requirement_str_part in content.split(ID_DELIMITER):
-		specialization, quantity = requirement_str_part.split(REQ_COMPONENT_DELIMITER)
-		requirement_parts.append({'ident' : specialization, 'quantity' : quantity})
-
-	return Requirement(name = name, content = requirement_parts).save()
-
-def remove_requirement(ident):
-	deleted = Requirement.nodes.get(ident = ident)
-	graph.data("""match (r:Requirement) where r.ident = '%s' detach delete r""" % ident)
-	return deleted
-
-#
-
-#
-
-#
-
-def select_operations(**kwargs):
-	return [item for item in Operation.nodes.filter(**{arg : kwargs[arg] for arg in kwargs if kwargs[arg]})]
-
-def select_shifts(**kwargs):
-	id_matcher = None if 'id' not in kwargs else re.compile(kwargs['id'] + '.*')
-	return [item for item in Shift.nodes.filter(**{arg : kwargs[arg] for arg in kwargs if kwargs[arg] and arg != 'id'})\
-		if not id_matcher or id_matcher.match(item.ident)]
-
-def are_specializations_relevant(requirement_content, specializations):
-	for searched_specialization in specializations:
-		if searched_specialization in requirement_content:
-			return True
-	return False
-
-def select_requirements(**kwargs):
-	return [item for item in Requirement.nodes.filter(**{arg : kwargs[arg] for arg in kwargs if kwargs[arg] and arg != 'specializations'})
-		if not kwargs.get('specializations') or are_specializations_relevant(item.content_hexes, kwargs['specializations'].split(ID_DELIMITER))]
 
 def update_operations(**kwargs):
 	arg_complex_handlers = {'rookies' : add_executor, 'dismissed' : remove_executor,
@@ -362,6 +201,143 @@ def update_operations(**kwargs):
 
 		operation.save()
 
+# --- people
+
+def add_executor(operation_id, executor_id):
+	ensure_person_existance(executor_id)
+	graph.data("""match (p:Person), (o:Operation) 
+				  where space_ship.get_hex_ident(p.ident) = '%s' and
+                  o.ident = '%s'
+                  create (p)-[:EXECUTOR]->(o)
+                  return o.ident as ident;""" % (executor_id, operation_id))
+
+def remove_executor(operation_id, executor_id):
+	graph.data("""match (p:Person)-[relation:EXECUTOR]->(o:Operation) 
+				  where space_ship.get_hex_ident(p.ident) = '%s' and
+                  o.ident = '%s'
+                  delete relation;""" % (executor_id, operation_id))
+
+def set_head(operation_id, head_id):
+	ensure_person_existance(head_id)
+	graph.data("""match (p:Person), (o:Operation) 
+				  where space_ship.get_hex_ident(p.ident) = '%s' and
+                  o.ident = '%s'
+                  create (p)-[:HEAD]->(o)
+                  return o.ident as ident;""" % (remove_leading_zeros(head_id), remove_leading_zeros(operation_id)))
+
+
+# --- requirements
+
+def add_operation_requirement(operation_id, requirement_id):
+	ensure_requirement_existance(requirement_id)
+	graph.data("""match (r:Requirement), (o:Operation) 
+				  where r.ident = '%s' and
+                  o.ident = '%s'
+                  create (r)-[:USER]->(o)
+                  return o.ident as ident;""" % (requirement_id, operation_id))
+
+def remove_operation_requirement(operation_id, requirement_id):
+	graph.data("""match (r:Requirement)-[relation:USER]->(o:Operation) 
+				  where r.ident = '%s' and
+                  o.ident = '%s'
+                  delete relation;""" % (requirement_id, operation_id))
+
+# -- selectors
+
+def select_operations(**kwargs):
+	return [item for item in Operation.nodes.filter(**{arg : kwargs[arg] for arg in kwargs if kwargs[arg]})]
+
+
+# - shifts -------------------------------------------------------------------------------------------
+
+def get_shift_by_id(ident):
+	return Shift.nodes.get(ident = ident)
+
+# -- by requirement
+
+def get_shift_ids_by_requirement(requirement_id):
+	return [\
+		item['ident'] for item in graph.data("""
+			match (r:Requirement)-[:USER]->(s:Shift)
+			where r.ident = '%s'
+			return s.ident as ident
+			""" % requirement_id)]
+
+# -- for requirement
+
+def get_shift_requirements_id(shift_id):
+	return [\
+		item['ident'] for item in graph.data("""
+			match (r:Requirement)-[:USER]->(s:Shift)
+			where s.ident = '%s'
+			return r.ident as ident
+			""" % shift_id)]
+
+def get_shift_requirements(shift_id):
+	return [\
+		item for item in graph.data("""
+			match (r:Requirement)-[:USER]->(s:Shift)
+			where s.ident = '%s'
+			return r.ident as ident, r.content as content, r.name as name
+			""" % shift_id)]
+
+# -- by person
+
+def get_chiefed_shifts(person_id):
+	return [\
+		item for item in graph.data("""
+			match (p:Person)-[:CHIEF]->(s:Shift)
+			where space_ship.get_hex_ident(p.ident) = '%s'
+			return s.ident as ident, s.start as start, s.end as end
+			""" % person_id)]
+
+def get_worked_shifts(person_id):
+	return [\
+		item for item in graph.data("""
+			match (p:Person)-[:WORKER]->(s:Shift)
+			where space_ship.get_hex_ident(p.ident) = '%s'
+			return s.ident as ident, s.start as start, s.end as end
+			""" % person_id)]
+
+# -- for person
+
+def get_shift_chief_id(shift_id):
+	return [\
+		item['ident'] for item in graph.data("""
+			match (p:Person)-[:CHIEF]->(s:Shift)
+			where s.ident = '%s'
+			return space_ship.get_hex_ident(p.ident) as ident
+			""" % remove_leading_zeros(shift_id))][0]
+
+def get_workers_id(shift_id):
+	return [\
+		item['ident'] for item in graph.data("""
+			match (p:Person)-[:WORKER]->(s:Shift)
+			where s.ident = '%s'
+			return space_ship.get_hex_ident(p.ident) as ident
+			""" % shift_id)]
+
+# -- manipulators
+
+def create_shift(chief, department, start, end, workers, requirements):
+	new_shift = Shift(start = start, end = end).save()
+	
+	for person_id in workers.split(ID_DELIMITER):
+		add_worker(new_shift.ident, person_id)
+
+	for requirement_id in requirements.split(ID_DELIMITER):
+		add_shift_requirement(new_shift.ident, requirement_id)
+
+	set_chief(new_shift.ident, chief)	
+	set_shift_department(new_shift.ident, department)
+
+	return new_shift
+
+def remove_shift(ident):
+	deleted = Shift.nodes.get(ident = ident)
+	graph.data("""match (s:Shift) where s.ident = '%s' detach delete s""" % ident)
+	return deleted
+
 def update_shifts(**kwargs):
 	arg_complex_handlers = {'rookies' : add_worker, 'dismissed' : remove_worker,
 		'toughenings' : add_shift_requirement, 'softenings' : remove_shift_requirement}
@@ -386,11 +362,92 @@ def update_shifts(**kwargs):
 
 		shift.validate().save()
 
+# --- people
+
+def add_worker(shift_id, worker_id):
+	ensure_person_existance(worker_id)
+	graph.data("""match (p:Person), (s:Shift) 
+				  where space_ship.get_hex_ident(p.ident) = '%s' and
+                  s.ident = '%s'
+                  create (p)-[:WORKER]->(s)
+                  return s.ident as ident;""" % (worker_id, shift_id))
+
+def remove_worker(shift_id, worker_id):
+	graph.data("""match (p:Person)-[relation:WORKER]->(s:Shift) 
+				  where space_ship.get_hex_ident(p.ident) = '%s' and
+                  s.ident = '%s'
+                  delete relation;""" % (worker_id, shift_id))
+
+def set_chief(shift_id, chief_id):
+	ensure_person_existance(chief_id)
+	graph.data("""match (p:Person), (s:Shift) 
+				  where space_ship.get_hex_ident(p.ident) = '%s' and
+                  s.ident = '%s'
+                  create (p)-[:CHIEF]->(s)
+                  return s.ident as ident;""" % (remove_leading_zeros(chief_id), remove_leading_zeros(shift_id)))
+
+# --- requirements
+
+def add_shift_requirement(shift_id, requirement_id):
+	ensure_requirement_existance(requirement_id)
+	graph.data("""match (r:Requirement), (s:Shift) 
+				  where r.ident = '%s' and
+                  s.ident = '%s'
+                  create (r)-[:USER]->(s)
+                  return s.ident as ident;""" % (requirement_id, shift_id))
+
+def remove_shift_requirement(shift_id, requirement_id):
+	graph.data("""match (r:Requirement)-[relation:USER]->(s:Shift) 
+				  where r.ident = '%s' and
+                  s.ident = '%s'
+                  delete relation;""" % (requirement_id, shift_id))
+
+# --- departments
+
+def set_shift_department(shift_id, department_id):
+	ensure_department_existance(department_id)
+	graph.data("""match (d:Department), (s:Shift) 
+				  where space_ship.get_hex_ident(d.ident) = '%s' and
+                  s.ident = '%s'
+                  create (s)-[:INCORPORATION]->(d)
+                  return s.ident as ident;""" % (department_id, shift_id))
+
+# -- selectors
+
+def select_shifts(**kwargs):
+	id_matcher = None if 'id' not in kwargs else re.compile(kwargs['id'] + '.*')
+	return [item for item in Shift.nodes.filter(**{arg : kwargs[arg] for arg in kwargs if kwargs[arg] and arg != 'id'})\
+		if not id_matcher or id_matcher.match(item.ident)]
+
+# - requirements -------------------------------------------------------------------------------------
+
+def get_requirement_by_id(ident):
+	return Requirement.nodes.get(ident = ident)
+
+def ensure_requirement_existance(requirement_id):
+	if not len(graph.data("match (r:Requirement) where r.ident = '%s' return r.ident as ident" % requirement_id)) > 0:
+		raise ValueError('requirement not exists')
+
+def create_requirement(name, content):
+	requirement_parts = []
+	
+	for requirement_str_part in content.split(ID_DELIMITER):
+		specialization, quantity = requirement_str_part.split(REQ_COMPONENT_DELIMITER)
+		requirement_parts.append({'specialization' : specialization, 'quantity' : quantity})
+
+	return Requirement(name = name, content = requirement_parts).save()
+
+def remove_requirement(ident):
+	deleted = Requirement.nodes.get(ident = ident)
+	graph.data("""match (r:Requirement) where r.ident = '%s' detach delete r""" % ident)
+	return deleted
+
+# -- manipulators
+
 def find_same_requirement_fragment(requirement, identifier):
 	index = 0
 	for item in requirement.content:
-		#print(item['ident'], identifier)
-		if tuple(item['ident']) == identifier:
+		if tuple(item['specialization']) == identifier:
 			return index
 		index += 1
 	return None
@@ -419,7 +476,7 @@ def update_requirements(**kwargs):
 				parced_id = Requirement.specialization_id_to_neo4j_format(id)
 				remove_requirement_fragment(requirement, parced_id)
 				#print({'ident' : Requirement.specialization_id_to_neo4j_format(id), 'quantity' : int(quantity)})
-				requirement.content.append({'ident' : parced_id, 'quantity' : int(quantity)})
+				requirement.content.append({'selection' : parced_id, 'quantity' : int(quantity)})
 
 		if 'excesses' in kwargs and kwargs['excesses']:
 			#print(kwargs)
@@ -428,16 +485,17 @@ def update_requirements(**kwargs):
 
 		requirement.save()
 
-# # # #
+# -- selectors
 
-def get_operation_by_id(ident):
-	return Operation.nodes.get(ident = ident)
+def are_specializations_relevant(requirement_content, specializations):
+	for searched_specialization in specializations:
+		if searched_specialization in requirement_content:
+			return True
+	return False
 
-def get_shift_by_id(ident):
-	return Shift.nodes.get(ident = ident)
-
-def requirement_by_id(ident):
-	return Requirement.nodes.get(ident = ident)
+def select_requirements(**kwargs):
+	return [item for item in Requirement.nodes.filter(**{arg : kwargs[arg] for arg in kwargs if kwargs[arg] and arg != 'specializations'})
+		if not kwargs.get('specializations') or are_specializations_relevant(item.content_hexes, kwargs['specializations'].split(ID_DELIMITER))]
 
 
 if __name__ == '__main__':

@@ -1,4 +1,5 @@
 import sys, os, math
+from bson.objectid import ObjectId
 import configparser
 import datetime
 import graphene
@@ -7,9 +8,9 @@ sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/api/background/mappers')
 
 from system_mapper import SystemMapper
 
-sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/recital/native')
+sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/recital/')
 
-import mongo_native
+import mongo_mediator
 
 config = configparser.ConfigParser()
 config.read(os.environ['SPACE_SHIP_HOME'] + '/databases.config')
@@ -30,7 +31,7 @@ class CreateSystem(graphene.Mutation):
     system = graphene.Field(lambda: SystemMapper)
 
     def mutate(self, info, name, serialnumber, launched, checked, state, supervisor, type):
-        system = SystemMapper.init_scalar(mongo_native.create_system(\
+        system = SystemMapper.init_scalar(mongo_mediator.create_system(\
             name, serialnumber, datetime.datetime.strptime(launched, TIMESTAMP_PATTERN), datetime.datetime.strptime(checked, TIMESTAMP_PATTERN), state, supervisor, type\
         ))
         ok = True
@@ -44,7 +45,7 @@ class RemoveSystem(graphene.Mutation):
     system = graphene.Field(lambda: SystemMapper)
 
     def mutate(self, info, id):
-        system = SystemMapper.init_scalar(mongo_native.remove_system(id))
+        system = SystemMapper.init_scalar(mongo_mediator.remove_system(id))
         ok = True
         return RemoveSystem(system = system, ok = ok)
 
@@ -72,7 +73,7 @@ class UpdateSystems(graphene.Mutation):
 
     def mutate(self, info, id, name, serialnumber, launched, checked, state, supervisor, type, 
         set_name, set_serialnumber, set_launched, set_checked, set_state, set_supervisor, set_type):
-        systems = [SystemMapper.init_scalar(item) for item in mongo_native.update_systems(\
+        systems = [SystemMapper.init_scalar(item) for item in mongo_mediator.update_systems(\
             _id = ObjectId(id) if id else None, name = name, 
             serialnumber = serialnumber if not math.isnan(serialnumber) else None, 
             launched = datetime.datetime.strptime(launched, TIMESTAMP_PATTERN) if launched else None, 

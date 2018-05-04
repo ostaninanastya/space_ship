@@ -22,7 +22,7 @@ class Department(StructuredNode):
     controller = RelationshipFrom('person.Person', 'DIRECTOR', cardinality=One)
 
     def __init__(self, *args, **kwargs):
-        kwargs['ident'] = mongo_adapter.validate_id('department_test', kwargs['ident'])
+        kwargs['ident'] = mongo_adapter.validate_id('departments', kwargs['ident'])
         super(Department, self).__init__(self, *args, **kwargs)
 
     @property

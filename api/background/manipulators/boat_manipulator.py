@@ -1,4 +1,5 @@
 import sys, os
+from bson.objectid import ObjectId
 
 import graphene
 
@@ -6,9 +7,9 @@ sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/api/background/mappers')
 
 from boat_mapper import BoatMapper
 
-sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/recital/native')
+sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/recital/')
 
-import mongo_native
+import mongo_mediator
 
 class CreateBoat(graphene.Mutation):
     class Arguments:
@@ -20,7 +21,7 @@ class CreateBoat(graphene.Mutation):
 
     def mutate(self, info, name, capacity):
         #print('omg')
-        boat = BoatMapper.init_scalar(mongo_native.create_boat(name, capacity))
+        boat = BoatMapper.init_scalar(mongo_mediator.create_boat(name, capacity))
         ok = True
         return CreateBoat(boat = boat, ok = ok)
 
@@ -32,7 +33,7 @@ class RemoveBoat(graphene.Mutation):
     boat = graphene.Field(lambda: BoatMapper)
 
     def mutate(self, info, id):
-        boat = BoatMapper.init_scalar(mongo_native.remove_boat(id))
+        boat = BoatMapper.init_scalar(mongo_mediator.remove_boat(id))
         ok = True
         return RemoveBoat(boat = boat, ok = ok)
 
@@ -50,7 +51,7 @@ class UpdateBoats(graphene.Mutation):
 
     def mutate(self, info, id, name, capacity, set_name, set_capacity):
         #print('omg')
-        boats = [BoatMapper.init_scalar(item) for item in mongo_native.update_boats(_id = ObjectId(id) if id else None, name = name, 
+        boats = [BoatMapper.init_scalar(item) for item in mongo_mediator.update_boats(_id = ObjectId(id) if id else None, name = name, 
             capacity = capacity if capacity != -1 else None, set_name = set_name, set_capacity = set_capacity if set_capacity != -1 else None)]
         ok = True
         return UpdateBoats(boats = boats, ok = ok)

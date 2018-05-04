@@ -7,13 +7,17 @@ import mongo_adapter
 
 from specialization_mapper import SpecializationMapper
 
+sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/recital/')
+
+import mongo_mediator
+
 class RequirementEntryMapper(graphene.ObjectType):
     
     specialization = graphene.Field(lambda: SpecializationMapper)
     quantity = graphene.Int()
 
     def resolve_specialization(self, info):
-    	return SpecializationMapper(id = self.specialization)
+    	return SpecializationMapper.init_scalar(mongo_mediator.get_specialization_by_id(self.specialization))
 
     @staticmethod
     def init_scalar(item):

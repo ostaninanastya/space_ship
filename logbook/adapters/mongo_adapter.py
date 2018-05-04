@@ -35,7 +35,7 @@ def is_valid_foreign_id(collection_name, id):
 ###
 
 def splitword(w):
-    print('got word', w)
+    #print('got word', w)
     split = -((-len(w))//2)
     return w[:split], w[split:]
 

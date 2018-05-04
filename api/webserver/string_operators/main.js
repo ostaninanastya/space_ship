@@ -9,7 +9,7 @@ function split2(str, delim){
 }
 
 function capitalize(str){
-	return str[0].toUpperCase() + str.substring(1, str.length).toLowerCase();
+	return str[0].toUpperCase() + str.substring(1, str.length);//.toLowerCase();
 }
 
 exports.split2 = split2;

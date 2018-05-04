@@ -165,7 +165,7 @@ class OperationState(Model):
         OperationState.validate_angle(self.zenith)
         OperationState.validate_angle(self.azimuth)
         OperationState.validate_elements_quantities([self[element] for element in CHEMICAL_ELEMENTS])
-        OperationState.validate_comment(self.comment)
+        #OperationState.validate_comment(self.comment)
 
     @staticmethod
     def validate_boat_id(boat_id):

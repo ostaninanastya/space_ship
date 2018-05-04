@@ -14,6 +14,8 @@ import cassandra_mediator
 config = configparser.ConfigParser()
 config.read(os.environ['SPACE_SHIP_HOME'] + '/databases.config')
 
+DATE_PATTERN = os.environ.get('TIMESTAMP_PATTERN') or config['FORMATS']['date']
+TIME_PATTERN = os.environ.get('TIMESTAMP_PATTERN') or config['FORMATS']['time']
 TIMESTAMP_PATTERN = os.environ.get('TIMESTAMP_PATTERN') or config['FORMATS']['timestamp']
 
 class CreatePosition(graphene.Mutation):
@@ -67,10 +69,11 @@ class UpdatePositions(graphene.Mutation):
     ok = graphene.Boolean()
 
     def mutate(self, info, timestamp, x, y, z, speed, attackangle, directionangle, set_x, set_y, set_z, set_speed, set_attackangle, set_directionangle):
+        #print('==================================',set_z)
         parsed_timestamp = None if not timestamp else datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN)
-        cassandra_mediator.update_positions(date = None if not parsed_timestamp else parsed_timestamp.date,\
-            time = None if not parsed_timestamp else parsed_timestamp.time, x = x, y = y, z = z, speed = speed,\
-            attackangle = attackangle, directionangle = directionangle, set_x = set_x, set_y = set_y, set_speed = set_speed,\
+        cassandra_mediator.update_positions(date = None if not parsed_timestamp else parsed_timestamp.date(),\
+            time = None if not parsed_timestamp else parsed_timestamp.time(), x = x, y = y, z = z, speed = speed,\
+            attackangle = attackangle, directionangle = directionangle, set_x = set_x, set_y = set_y, set_z = set_z, set_speed = set_speed,\
             set_attackangle = set_attackangle, set_directionangle = set_directionangle)
         ok = True
         return UpdatePositions(ok = ok)

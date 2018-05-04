@@ -31,25 +31,25 @@ class CreateControlAction(graphene.Mutation):
         result = graphene.String()
 
     ok = graphene.Boolean()
-    controlaction = graphene.Field(lambda: ControlActionMapper)
+    control_action = graphene.Field(lambda: ControlActionMapper)
 
     def mutate(self, info, timestamp, mac, user, command, params, result):
-        controlaction = ControlActionMapper.init_scalar(cassandra_mediator.create_control_action(datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN),\
+        control_action = ControlActionMapper.init_scalar(cassandra_mediator.create_control_action(datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN),\
             mac, user, command, params, result))
         ok = True
-        return CreateControlAction(controlaction = controlaction, ok = ok)
+        return CreateControlAction(control_action = control_action, ok = ok)
 
 class RemoveControlAction(graphene.Mutation):
     class Arguments:
         timestamp = graphene.String()
 
     ok = graphene.Boolean()
-    controlaction = graphene.Field(lambda: ControlActionMapper)
+    control_action = graphene.Field(lambda: ControlActionMapper)
 
     def mutate(self, info, timestamp):
-        controlaction = ControlActionMapper.init_scalar(cassandra_mediator.remove_control_action(datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN)))
+        control_action = ControlActionMapper.init_scalar(cassandra_mediator.remove_control_action(datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN)))
         ok = True
-        return RemoveControlAction(controlaction = controlaction, ok = ok)
+        return RemoveControlAction(control_action = control_action, ok = ok)
 
 class UpdateControlActions(graphene.Mutation):
     class Arguments:
@@ -70,8 +70,8 @@ class UpdateControlActions(graphene.Mutation):
 
     def mutate(self, info, timestamp, mac, user, command, params, result, set_mac, set_user, set_command, set_params, set_result):
         parsed_timestamp = None if not timestamp else datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN)
-        cassandra_mediator.update_control_actions(date = None if not parsed_timestamp else parsed_timestamp.date,\
-            time = None if not parsed_timestamp else parsed_timestamp.time, user_id = None if not user else string_to_bytes(user),\
+        cassandra_mediator.update_control_actions(date = None if not parsed_timestamp else parsed_timestamp.date(),\
+            time = None if not parsed_timestamp else parsed_timestamp.time(), user_id = None if not user else string_to_bytes(user),\
             mac_address = None if not mac else string_to_bytes(mac), command = command, params = params, result = result, 
             set_user_id = None if not set_user else ControlAction.validate_user_id(string_to_bytes(set_user)),\
             set_mac_address = None if not set_mac else ControlAction.validate_mac_address(string_to_bytes(set_mac)),\

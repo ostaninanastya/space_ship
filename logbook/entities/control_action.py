@@ -29,8 +29,8 @@ class ControlAction(Model):
 
     def validate(self):
         super(ControlAction, self).validate()
-        validate_mac_address(self.mac_address)
-        validate_user_id(self.user_id)
+        ControlAction.validate_mac_address(self.mac_address)
+        ControlAction.validate_user_id(self.user_id)
 
     @staticmethod
     def validate_mac_address(id):

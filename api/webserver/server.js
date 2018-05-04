@@ -38,6 +38,7 @@ function start_server(){
  	});
 
 	app.get('/api/*', function(req, res){
+		console.log('SSS')
 		handle_api_request(req, res);
 	});
 

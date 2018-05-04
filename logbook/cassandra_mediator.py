@@ -1,8 +1,14 @@
+
+
+# import
+
+
 import sys, os
 import configparser
 import datetime
 from collections import namedtuple
 import csv
+import math
 
 import cassandra
 from cassandra.cqlengine import connection
@@ -16,12 +22,12 @@ from sensor_data import SensorData
 from shift_state import ShiftState
 from operation_state import OperationState
 
-#from data_adapters import string_to_bytes
-import math
-
 sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/logbook')
-
 from data_adapters import string_to_bytes, get_strings
+
+
+# set global constants
+
 
 config = configparser.ConfigParser()
 config.read(os.environ['SPACE_SHIP_HOME'] + '/databases.config')
@@ -37,7 +43,11 @@ DATE_PATTERN = os.environ.get('DATE_PATTERN') or config['FORMATS']['date']
 
 connection.setup([item.lstrip().rstrip() for item in DB_URLS.split(HOST_DELIMITER)], DB_NAME)
 
-#
+#------------------------------------------------------------------------------------------------
+# general methods
+#------------------------------------------------------------------------------------------------
+
+# remove
 
 def remove(timestamp, entity_name, dicted = False):
 	deleted = connection.execute("select * from {0}.{3} where date='{1}' and time='{2}';"\
@@ -49,7 +59,103 @@ def remove(timestamp, entity_name, dicted = False):
 	if not dicted:
 		return namedtuple('Struct', deleted.keys())(*deleted.values())
 	return deleted
-#
+
+def isreal(value):
+    try: 
+        float(str(value))
+    except ValueError: 
+        return False
+    return True
+
+# select
+
+def parse_params(params, delimiter):
+
+	where = []
+
+	infinity = float('inf')
+
+	for key in params:
+		if (params[key] or params[key] == 0) and not (isinstance(params[key], int) and params[key] == -1) and not (isreal(params[key]) and math.isnan(params[key])):
+			if isinstance(params[key], datetime.date):
+				where.append(key + ' = \'' + params[key].strftime(DATE_PATTERN) + '\'')
+			elif isinstance(params[key], datetime.time):
+				where.append(key + ' = \'' + params[key].strftime(TIME_PATTERN) + '\'')
+			elif isinstance(params[key], bytearray):
+				where.append(key + ' = 0x' + params[key].hex())
+			elif not isinstance(params[key], str) and not isinstance(params[key], cassandra.util.Date) and not isinstance(params[key], cassandra.util.Time):
+				where.append(key + ' = ' + str(params[key]))
+			else:
+				where.append(key + ' = \'' + str(params[key]) + '\'')
+
+	return delimiter.join(where)
+
+def extract_keys(item, keys):
+	selected = {}
+	for key in item:
+		#print(dir(item))
+		if key in keys:
+			selected[key] = item[key]
+	return parse_params(selected, ' and ')
+
+def select(table, params, dicted = False):
+	#print('select * from {0}.{1} where {2} allow filtering;'.format(DB_NAME, table, parse_params(params, ' and ')))
+	parsed_params = parse_params(params, ' and ')
+
+	query = 'select * from {0}.{1} {2};'.format(DB_NAME, table,
+	 'where {0} allow filtering'.format(parsed_params) if len(parsed_params) else '')
+
+	#print(query)
+
+	with open(os.environ['SPACE_SHIP_HOME'] + "/test.txt", "a") as myfile:
+		myfile.write(query)
+
+	result = connection.execute(query).current_rows
+
+	if not dicted:
+		return [namedtuple('Struct', item.keys())(*item.values()) for item in result]
+	return result
+
+# update
+
+def update(table, params, dicted = False):
+	where = {}
+	update = {}
+
+	#print(params)
+
+	for param in params:
+		if 'set_' in param:
+			update[param.replace('set_','')] = params[param]
+		else:
+			where[param] = params[param]
+
+	select_result = select(table, where, dicted = True)
+	parsed_update_params = parse_params(update, ', ')
+
+	#result = connection.execute
+	#print('BEGIN BATCH ' + ' '.join(['update {0}.{1} set {3} where {2};'.format(DB_NAME, table,
+	#	extract_keys(item, ['date', 'time']), parsed_update_params) for item in select_result ]) + ' APPLY BATCH;')
+
+	query = 'BEGIN BATCH ' + ' '.join(['update {0}.{1} set {3} where {2};'.format(DB_NAME, table,
+		extract_keys(item, ['date', 'time']), parsed_update_params) for item in select_result ]) + ' APPLY BATCH;'
+
+
+
+	result = connection.execute(query).current_rows
+	#.current_rows
+	if not dicted:
+		return [namedtuple('Struct', item.keys())(*item.values()) for item in result]
+	return result
+
+#-----------------------------------------------------------------------------------------------------
+# particular methods
+#-----------------------------------------------------------------------------------------------------
+
+# - position -----------------------------------------------------------------------------------------
+
+def select_positions(**kwargs):
+	return select(table = 'position', params = kwargs)
 
 def create_position(timestamp, x, y, z, speed, attack_angle, direction_angle):
 	return Position.create(date = timestamp.date(), time = timestamp.time(), x = x, y = y, z = z,\
@@ -58,7 +164,16 @@ def create_position(timestamp, x, y, z, speed, attack_angle, direction_angle):
 def remove_position(timestamp):
 	return remove(timestamp, 'position')
 
-#
+def update_positions(**kwargs):
+	return update(table = 'position', params = kwargs)
+
+# - control action -----------------------------------------------------------------------------------
+
+def get_commands_by_user_id(user_id):
+	return connection.execute('select * from {0}.control_action where user_id = 0x{1} ALLOW FILTERING;'.format(DB_NAME, user_id)).current_rows
+
+def select_control_actions(**kwargs):
+	return select(table = 'control_action', params = kwargs)
 
 def create_control_action(timestamp, mac_address, user_id, command, params, result):
 	return ControlAction.create(\
@@ -68,10 +183,16 @@ def create_control_action(timestamp, mac_address, user_id, command, params, resu
 def remove_control_action(timestamp):
 	return remove(timestamp, 'control_action')
 
+def update_control_actions(**kwargs):
+	return update(table = 'control_action', params = kwargs)
+
 #/api/create/controlaction/fields=ok&where=timestamp:'2017-02-12 23:59:59',mac:'acb57df96885',user:'5ac8a57c1767171855a9dd8d',command:'find',params:'smth',result:'smth'
 #/api/remove/controlaction/fields=ok&where=timestamp:'2017-02-12 23:59:59'
 
-#
+# - system test --------------------------------------------------------------------------------------
+
+def select_system_tests(**kwargs):
+	return select(table = 'system_test', params = kwargs, dicted = True)
 
 def create_system_test(timestamp, system_id, result):
 	return SystemTest.create(date = timestamp.date(), time = timestamp.time(), system_id = string_to_bytes(system_id), result = result)
@@ -79,9 +200,16 @@ def create_system_test(timestamp, system_id, result):
 def remove_system_test(timestamp):
 	return remove(timestamp, 'system_test', dicted = True)
 
+def update_system_tests(**kwargs):
+	return update(table = 'system_test', params = kwargs)
+
 #/api/create/systemtest/fields=ok&where=timestamp:'2017-02-12 23:59:59',system:'5abfcb1aa75ef28692553915',result:69
 #/api/remove/systemtest/fields=ok&where=timestamp:'2017-02-12 23:59:59'
 
+# - sensor data --------------------------------------------------------------------------------------
+
+def select_sensor_data(**kwargs):
+	return select(table = 'sensor_data', params = kwargs, dicted = True)
 
 def create_sensor_data(timestamp, source, event, meaning, value, units):
 	return SensorData.create(\
@@ -91,8 +219,16 @@ def create_sensor_data(timestamp, source, event, meaning, value, units):
 def remove_sensor_data(timestamp):
 	return remove(timestamp, 'sensor_data', dicted = True)
 
+def update_sensor_data(**kwargs):
+	return update(table = 'sensor_data', params = kwargs)
+
 #/api/create/sensordata/fields=ok&where=timestamp:'2017-02-12 23:59:59',source:'5ad21f46d678f464107e6d63',event:'timeout',meaning:'space_radiation',value:13.17,units:'eV'
 #/api/remove/sensordata/fields=ok&where=timestamp:'2017-02-12 23:59:59'
+
+# - shift state --------------------------------------------------------------------------------------
+
+def select_shift_states(**kwargs):
+	return select(table = 'shift_state', params = kwargs, dicted = True)
 
 def create_shift_state(timestamp, shift_id, warning_level, remaining_cartridges, remaining_air, remaining_electricity, comment):
 	return ShiftState.create(\
@@ -103,8 +239,16 @@ def create_shift_state(timestamp, shift_id, warning_level, remaining_cartridges,
 def remove_shift_state(timestamp):
 	return remove(timestamp, 'shift_state', dicted = True)
 
+def update_shift_state(**kwargs):
+	return update(table = 'shift_state', params = kwargs)
+
 #/api/create/shiftstate/fields=ok&where=timestamp:'2017-02-12 23:59:59',shift:'1d16608544224e24b6b986f1b1390101',warninglevel:'medium',remainingcartridges:69,remainingelectricity:69,remainingair:69,comment:'THERE IS A BALROG!!!'
 #/api/remove/shiftstate/fields=ok&where=timestamp:'2017-02-12 23:59:59'
+
+# - operation state ----------------------------------------------------------------------------------
+
+def select_operation_states(**kwargs):
+	return select(table = 'operation_state', params = kwargs, dicted = True)
 
 def create_operation_state(timestamp, boat_id, operation_id, operation_status, distance_to_the_ship, zenith, azimuth,\
  	hydrogenium, helium, lithium, beryllium, borum,\
@@ -143,107 +287,6 @@ def create_operation_state(timestamp, boat_id, operation_id, operation_status, d
 def remove_operation_state(timestamp):
 	return remove(timestamp, 'operation_state', dicted = True)
 
-#/api/create/operationstate/fields=ok&where=timestamp:'2017-02-12 23:59:59',operation:'e85b8f435d6f4867af90133d4e8807a2',boat:'5acd0904ee18bbcfe8035ae1',status:'finishing',distancetotheship:100.12,zenith:2.02,azimuth:3.03,hassium:80,helium:20,comment:'all is perfect'
-#/api/remove/operationstate/fields=ok&where=timestamp:'2017-02-12 23:59:59'
-
-#
-
-#
-
-#
-
-def isreal(value):
-    try: 
-        float(str(value))
-    except ValueError: 
-        return False
-    return True
-
-def parse_params(params, delimiter):
-
-	where = []
-
-	infinity = float('inf')
-
-
-
-	for key in params:
-		if (params[key] or params[key] == 0) and not (isinstance(params[key], int) and params[key] == -1) and not (isreal(params[key]) and math.isnan(params[key])):
-			if isinstance(params[key], datetime.date):
-				where.append(key + ' = \'' + params[key].strftime(DATE_PATTERN) + '\'')
-			elif isinstance(params[key], datetime.time):
-				where.append(key + ' = \'' + params[key].strftime(TIME_PATTERN) + '\'')
-			elif isinstance(params[key], bytearray):
-				where.append(key + ' = 0x' + params[key].hex())
-			elif not isinstance(params[key], str) and not isinstance(params[key], cassandra.util.Date) and not isinstance(params[key], cassandra.util.Time):
-				#print(type(params[key]))
-				where.append(key + ' = ' + str(params[key]))
-			else:
-				where.append(key + ' = \'' + str(params[key]) + '\'')
-
-	#print(where)
-	return delimiter.join(where)
-
-def extract_keys(item, keys):
-	selected = {}
-	for key in item:
-		#print(dir(item))
-		if key in keys:
-			selected[key] = item[key]
-	return parse_params(selected, ' and ')
-
-def select(table, params, dicted = False):
-	#print('select * from {0}.{1} where {2} allow filtering;'.format(DB_NAME, table, parse_params(params, ' and ')))
-	parsed_params = parse_params(params, ' and ')
-	result = connection.execute('select * from {0}.{1} {2};'.format(DB_NAME, table,
-	 'where {0} allow filtering'.format(parsed_params) if len(parsed_params) else '')).current_rows
-
-	if not dicted:
-		return [namedtuple('Struct', item.keys())(*item.values()) for item in result]
-	return result
-
-def get_commands_by_user_id(user_id):
-	return connection.execute('select * from {0}.control_action where user_id = 0x{1} ALLOW FILTERING;'.format(DB_NAME, user_id)).current_rows
-
-def update(table, params, dicted = False):
-	where = {}
-	update = {}
-	for param in params:
-		if 'set_' in param:
-			update[param.replace('set_','')] = params[param]
-		else:
-			where[param] = params[param]
-
-	select_result = select(table, where, dicted = True)
-	parsed_update_params = parse_params(update, ', ')
-
-	#result = connection.execute
-	#print('BEGIN BATCH ' + ' '.join(['update {0}.{1} set {3} where {2};'.format(DB_NAME, table,
-	#	extract_keys(item, ['date', 'time']), parsed_update_params) for item in select_result ]) + ' APPLY BATCH;')
-
-	result = connection.execute('BEGIN BATCH ' + ' '.join(['update {0}.{1} set {3} where {2};'.format(DB_NAME, table,
-		extract_keys(item, ['date', 'time']), parsed_update_params) for item in select_result ]) + ' APPLY BATCH;').current_rows
-	#.current_rows
-	if not dicted:
-		return [namedtuple('Struct', item.keys())(*item.values()) for item in result]
-	return result
-
-
-def update_positions(**kwargs):
-	return update(table = 'position', params = kwargs)
-
-def update_system_tests(**kwargs):
-	return update(table = 'system_test', params = kwargs)
-
-def update_control_actions(**kwargs):
-	return update(table = 'control_action', params = kwargs)
-
-def update_sensor_data(**kwargs):
-	return update(table = 'sensor_data', params = kwargs)
-
-def update_shift_state(**kwargs):
-	return update(table = 'shift_state', params = kwargs)
-
 def update_operation_states(**kwargs):
 
 	chemical_elements = get_strings(os.environ['SPACE_SHIP_HOME'] + '/logbook/enums/chemical_elements')
@@ -251,6 +294,7 @@ def update_operation_states(**kwargs):
 	changed_elements = {}
 
 	where = {}
+	
 	for param in kwargs:
 		if not 'set_' in param:
 			where[param] = kwargs[param]
@@ -281,24 +325,8 @@ def update_operation_states(**kwargs):
 	#	return [namedtuple('Struct', item.keys())(*item.values()) for item in result]
 	#return result
 
-def select_positions(**kwargs):
-	return select(table = 'position', params = kwargs)
-
-def select_control_actions(**kwargs):
-	return select(table = 'control_action', params = kwargs)
-
-def select_shift_states(**kwargs):
-	return select(table = 'shift_state', params = kwargs, dicted = True)
-
-def select_system_tests(**kwargs):
-	return select(table = 'system_test', params = kwargs, dicted = True)
-
-def select_sensor_data(**kwargs):
-	return select(table = 'sensor_data', params = kwargs, dicted = True)
-
-def select_operation_states(**kwargs):
-	return select(table = 'operation_state', params = kwargs, dicted = True)
-
+#/api/create/operationstate/fields=ok&where=timestamp:'2017-02-12 23:59:59',operation:'e85b8f435d6f4867af90133d4e8807a2',boat:'5acd0904ee18bbcfe8035ae1',status:'finishing',distancetotheship:100.12,zenith:2.02,azimuth:3.03,hassium:80,helium:20,comment:'all is perfect'
+#/api/remove/operationstate/fields=ok&where=timestamp:'2017-02-12 23:59:59'
 
 if __name__ == '__main__':
 	print(update_positions(attack_angle = 0, set_y = 10))

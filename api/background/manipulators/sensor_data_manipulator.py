@@ -27,25 +27,25 @@ class CreateSensorData(graphene.Mutation):
         units = graphene.String()
 
     ok = graphene.Boolean()
-    sensordata = graphene.Field(lambda: SensorDataMapper)
+    sensor_data = graphene.Field(lambda: SensorDataMapper)
 
     def mutate(self, info, timestamp, source, event, meaning, value, units):
-        sensordata = SensorDataMapper.init_scalar(cassandra_mediator.create_sensor_data(datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN),\
+        sensor_data = SensorDataMapper.init_scalar(cassandra_mediator.create_sensor_data(datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN),\
             source, event, meaning, value, units))
         ok = True
-        return CreateSensorData(sensordata = sensordata, ok = ok)
+        return CreateSensorData(sensor_data = sensor_data, ok = ok)
 
 class RemoveSensorData(graphene.Mutation):
     class Arguments:
         timestamp = graphene.String()
 
     ok = graphene.Boolean()
-    sensordata = graphene.Field(lambda: SensorDataMapper)
+    sensor_data = graphene.Field(lambda: SensorDataMapper)
 
     def mutate(self, info, timestamp):
-        sensordata = SensorDataMapper.init_scalar(cassandra_mediator.remove_sensor_data(datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN)))
+        sensor_data = SensorDataMapper.init_scalar(cassandra_mediator.remove_sensor_data(datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN)))
         ok = True
-        return RemoveSensorData(sensordata = sensordata, ok = ok)
+        return RemoveSensorData(sensor_data = sensor_data, ok = ok)
 
 class UpdateSensorData(graphene.Mutation):
     class Arguments:
@@ -66,8 +66,8 @@ class UpdateSensorData(graphene.Mutation):
 
     def mutate(self, info, timestamp, source, event, meaning, value, units, set_source, set_event, set_meaning, set_value, set_units):
         parsed_timestamp = None if not timestamp else datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN)
-        cassandra_mediator.update_sensor_data(date = None if not parsed_timestamp else parsed_timestamp.date,\
-            time = None if not parsed_timestamp else parsed_timestamp.time,
+        cassandra_mediator.update_sensor_data(date = None if not parsed_timestamp else parsed_timestamp.date(),\
+            time = None if not parsed_timestamp else parsed_timestamp.time(),
             source_id = source, event = event, meaning = meaning, value = value, units = units,
             set_source_id = None if not set_source else SensorData.validate_source_id(string_to_bytes(set_source)),
             set_event = None if not set_event else SensorData.validate_event(set_event), 

@@ -41,7 +41,7 @@ class OperationMapper(graphene.ObjectType):
     @staticmethod
     def eject(id, name, start, end):
         return [OperationMapper.init_scalar(item) for item in neo4j_mediator.select_operations(name__regex = '.*' + name + '.*',
-                start = parse_timestamp_parameter(start), end = parse_timestamp_parameter(end), id = id)]
+                start = parse_timestamp_parameter(start), end = parse_timestamp_parameter(end), ident = id)]
 
     @staticmethod
     def init_scalar(item):

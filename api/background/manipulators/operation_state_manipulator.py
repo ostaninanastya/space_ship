@@ -156,7 +156,7 @@ class CreateOperationState(graphene.Mutation):
         comment = graphene.String()
 
     ok = graphene.Boolean()
-    operationstate = graphene.Field(lambda: OperationStateMapper)
+    operation_state = graphene.Field(lambda: OperationStateMapper)
 
     def mutate(self, info, timestamp, boat, operation, status, distancetotheship, zenith, azimuth, hydrogenium, helium, lithium, beryllium, borum,\
     carboneum, nitrogenium, oxygenium, fluorum, neon, natrium, magnesium, aluminium, silicium, phosphorus, sulfur, chlorum, argon, kalium, calcium,\
@@ -169,7 +169,7 @@ class CreateOperationState(graphene.Mutation):
     seaborgium, bohrium, hassium, meitnerium, darmstadtium, roentgenium, copernicium, nihonium, flerovium, moscovium, livermorium, tennessium,\
     oganesson, comment):
 
-        operationstate = OperationStateMapper.init_scalar(cassandra_mediator.create_operation_state(datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN),\
+        operation_state = OperationStateMapper.init_scalar(cassandra_mediator.create_operation_state(datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN),\
             boat, operation, status, distancetotheship, zenith, azimuth, hydrogenium, helium, lithium, beryllium, borum,\
             carboneum, nitrogenium, oxygenium, fluorum, neon, natrium, magnesium, aluminium, silicium, phosphorus, sulfur, chlorum, argon, kalium, calcium,\
             scandium, titanium, vanadium, chromium, manganum, ferrum, cobaltum, niccolum, cuprum, zincum, gallium, germanium, arsenicum, selenium, bromum,\
@@ -181,19 +181,19 @@ class CreateOperationState(graphene.Mutation):
             seaborgium, bohrium, hassium, meitnerium, darmstadtium, roentgenium, copernicium, nihonium, flerovium, moscovium, livermorium, tennessium,\
             oganesson, comment))
         ok = True
-        return CreateOperationState(operationstate = operationstate, ok = ok)
+        return CreateOperationState(operation_state = operation_state, ok = ok)
 
 class RemoveOperationState(graphene.Mutation):
     class Arguments:
         timestamp = graphene.String()
 
     ok = graphene.Boolean()
-    operationstate = graphene.Field(lambda: OperationStateMapper)
+    operation_state = graphene.Field(lambda: OperationStateMapper)
 
     def mutate(self, info, timestamp):
-        operationstate = OperationStateMapper.init_scalar(cassandra_mediator.remove_operation_state(datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN)))
+        operation_state = OperationStateMapper.init_scalar(cassandra_mediator.remove_operation_state(datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN)))
         ok = True
-        return RemoveOperationState(operationstate = operationstate, ok = ok)
+        return RemoveOperationState(operation_state = operation_state, ok = ok)
 
 
 class UpdateOperationStates(graphene.Mutation):
@@ -476,8 +476,8 @@ class UpdateOperationStates(graphene.Mutation):
     set_nobelium, set_lawrencium, set_rutherfordium, set_dubnium, set_seaborgium, set_bohrium, set_hassium, set_meitnerium, set_darmstadtium, 
     set_roentgenium, set_copernicium, set_nihonium, set_flerovium, set_moscovium, set_livermorium, set_tennessium, set_oganesson,set_comment):
         parsed_timestamp = None if not timestamp else datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN)
-        operationstate = cassandra_mediator.update_operation_states(date = None if not parsed_timestamp else parsed_timestamp.date,\
-            time = None if not parsed_timestamp else parsed_timestamp.time,
+        operation_state = cassandra_mediator.update_operation_states(date = None if not parsed_timestamp else parsed_timestamp.date(),\
+            time = None if not parsed_timestamp else parsed_timestamp.time(),
             boat_id = None if not boat else string_to_bytes(boat), 
             operation_id = None if not operation else string_to_bytes(operation), 
             operation_status = status, zenith = zenith, azimuth = azimuth, comment = comment, distancetotheship = distancetotheship,

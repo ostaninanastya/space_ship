@@ -10,7 +10,7 @@ class TestSearchMethod(unittest.TestCase):
         result = urlopen('http://localhost:1881/api/{0}/fields={1}'.format(collection, ','.join(fields)))
         return len(json.loads(result.read())[collection])
 
-    # *** plain tests ***
+    # *** plain selection tests ***
 
     # - recital
 

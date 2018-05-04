@@ -59,20 +59,20 @@ class EntityMutation(graphene.ObjectType):
     remove_boat = boat_manipulator.RemoveBoat.Field()
     update_boats = boat_manipulator.UpdateBoats.Field()
 
-    create_systemtype = system_type_manipulator.CreateSystemType.Field()
-    remove_systemtype = system_type_manipulator.RemoveSystemType.Field()
-    eradicate_systemtype = system_type_manipulator.EradicateSystemType.Field()
-    update_systemtypes = system_type_manipulator.UpdateSystemTypes.Field()
+    create_system_type = system_type_manipulator.CreateSystemType.Field()
+    remove_system_type = system_type_manipulator.RemoveSystemType.Field()
+    eradicate_system_type = system_type_manipulator.EradicateSystemType.Field()
+    update_system_types = system_type_manipulator.UpdateSystemTypes.Field()
 
-    create_systemstate = system_state_manipulator.CreateSystemState.Field()
-    remove_systemstate = system_state_manipulator.RemoveSystemState.Field()
-    eradicate_systemstate = system_state_manipulator.EradicateSystemState.Field()
-    update_systemstates = system_state_manipulator.UpdateSystemStates.Field()
+    create_system_state = system_state_manipulator.CreateSystemState.Field()
+    remove_system_state = system_state_manipulator.RemoveSystemState.Field()
+    eradicate_system_state = system_state_manipulator.EradicateSystemState.Field()
+    update_system_states = system_state_manipulator.UpdateSystemStates.Field()
 
-    create_propertytype = property_type_manipulator.CreatePropertyType.Field()
-    remove_propertytype = property_type_manipulator.RemovePropertyType.Field()
-    eradicate_propertytype = property_type_manipulator.EradicatePropertyType.Field()
-    update_propertytypes = property_type_manipulator.UpdatePropertyTypes.Field()
+    create_property_type = property_type_manipulator.CreatePropertyType.Field()
+    remove_property_type = property_type_manipulator.RemovePropertyType.Field()
+    eradicate_property_type = property_type_manipulator.EradicatePropertyType.Field()
+    update_property_types = property_type_manipulator.UpdatePropertyTypes.Field()
 
     create_system = system_manipulator.CreateSystem.Field()
     remove_system = system_manipulator.RemoveSystem.Field()
@@ -88,25 +88,25 @@ class EntityMutation(graphene.ObjectType):
     remove_position = position_manipulator.RemovePosition.Field()
     update_position = position_manipulator.UpdatePositions.Field()
 
-    create_controlaction = control_action_manipulator.CreateControlAction.Field()
-    remove_controlaction = control_action_manipulator.RemoveControlAction.Field()
-    update_controlaction = control_action_manipulator.UpdateControlActions.Field()
+    create_control_action = control_action_manipulator.CreateControlAction.Field()
+    remove_control_action = control_action_manipulator.RemoveControlAction.Field()
+    update_control_action = control_action_manipulator.UpdateControlActions.Field()
 
-    create_systemtest = system_test_manipulator.CreateSystemTest.Field()
-    remove_systemtest = system_test_manipulator.RemoveSystemTest.Field()
-    update_systemtest = system_test_manipulator.UpdateSystemTests.Field()
+    create_system_test = system_test_manipulator.CreateSystemTest.Field()
+    remove_system_test = system_test_manipulator.RemoveSystemTest.Field()
+    update_system_test = system_test_manipulator.UpdateSystemTests.Field()
 
-    create_sensordata = sensor_data_manipulator.CreateSensorData.Field()
-    remove_sensordata = sensor_data_manipulator.RemoveSensorData.Field()
-    update_sensordata = sensor_data_manipulator.UpdateSensorData.Field()
+    create_sensor_data = sensor_data_manipulator.CreateSensorData.Field()
+    remove_sensor_data = sensor_data_manipulator.RemoveSensorData.Field()
+    update_sensor_data = sensor_data_manipulator.UpdateSensorData.Field()
 
-    create_shiftstate = shift_state_manipulator.CreateShiftState.Field()
-    remove_shiftstate = shift_state_manipulator.RemoveShiftState.Field()
-    update_shiftstate = shift_state_manipulator.UpdateShiftStates.Field()
+    create_shift_state = shift_state_manipulator.CreateShiftState.Field()
+    remove_shift_state = shift_state_manipulator.RemoveShiftState.Field()
+    update_shift_state = shift_state_manipulator.UpdateShiftStates.Field()
 
-    create_operationstate = operation_state_manipulator.CreateOperationState.Field()
-    remove_operationstate = operation_state_manipulator.RemoveOperationState.Field()
-    update_operationstate = operation_state_manipulator.UpdateOperationStates.Field()
+    create_operation_state = operation_state_manipulator.CreateOperationState.Field()
+    remove_operation_state = operation_state_manipulator.RemoveOperationState.Field()
+    update_operation_state = operation_state_manipulator.UpdateOperationStates.Field()
 
     # relations
 

@@ -30,7 +30,7 @@ class RequirementMapper(graphene.ObjectType):
     @staticmethod
     def eject(id, name, specializations):
         return [RequirementMapper.init_scalar(item) for item in neo4j_mediator.select_requirements(
-            name__regex = '.*' + name + '.*', specializations = specializations, id = id)]
+            name__regex = '.*' + name + '.*', specializations = specializations, ident = id)]
 
     @staticmethod
     def init_scalar(node):

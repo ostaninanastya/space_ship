@@ -1,4 +1,5 @@
 import sys, os
+from bson.objectid import ObjectId
 import configparser
 import datetime
 import graphene
@@ -7,9 +8,9 @@ sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/api/background/mappers')
 
 from property_mapper import PropertyMapper
 
-sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/recital/native')
+sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/recital/')
 
-import mongo_native
+import mongo_mediator
 
 config = configparser.ConfigParser()
 config.read(os.environ['SPACE_SHIP_HOME'] + '/databases.config')
@@ -28,7 +29,7 @@ class CreateProperty(graphene.Mutation):
     property = graphene.Field(lambda: PropertyMapper)
 
     def mutate(self, info, name, type, admission, comissioning, department):
-        property = PropertyMapper.init_scalar(mongo_native.create_property(\
+        property = PropertyMapper.init_scalar(mongo_mediator.create_property(\
             name, type, datetime.datetime.strptime(admission, TIMESTAMP_PATTERN), datetime.datetime.strptime(comissioning, TIMESTAMP_PATTERN), department\
         ))
         ok = True
@@ -42,7 +43,7 @@ class RemoveProperty(graphene.Mutation):
     property = graphene.Field(lambda: PropertyMapper)
 
     def mutate(self, info, id):
-        property = PropertyMapper.init_scalar(mongo_native.remove_property(id))
+        property = PropertyMapper.init_scalar(mongo_mediator.remove_property(id))
         ok = True
         return RemoveProperty(property = property, ok = ok)
 
@@ -65,7 +66,7 @@ class UpdateProperties(graphene.Mutation):
     properties = graphene.List(lambda: PropertyMapper)
 
     def mutate(self, info, id, name, type, admission, comissioning, department, set_name, set_type, set_admission, set_comissioning, set_department):
-        properties = [PropertyMapper.init_scalar(item) for item in mongo_native.update_properties(\
+        properties = [PropertyMapper.init_scalar(item) for item in mongo_mediator.update_properties(\
             _id = ObjectId(id) if id else None, name = name, type = ObjectId(type) if type else None, 
             admission = datetime.datetime.strptime(admission, TIMESTAMP_PATTERN) if admission else None, 
             comissioning = datetime.datetime.strptime(comissioning, TIMESTAMP_PATTERN) if comissioning else None, 
