@@ -45,6 +45,7 @@ class PersonMapper(graphene.ObjectType):
         return [DepartmentMapper.init_scalar(mongo_mediator.get_department_by_id(deparment_id)) for deparment_id in neo4j_adapter.get_directed_ids(self.id)]
 
     def resolve_department(self, info):
+        #print(self.department)
         return DepartmentMapper.init_scalar(mongo_mediator.get_department_by_id(self.department))
     
     def resolve_chiefed(self, info):
@@ -79,6 +80,6 @@ class PersonMapper(graphene.ObjectType):
     @staticmethod
     def init_scalar(item):
         return PersonMapper(id = str(item['_id']), name = item['name'], surname = item.get('surname'), 
-            patronymic = item.get('patronymic'), phone = item.get('phone'))
+            patronymic = item.get('patronymic'), phone = item.get('phone'), department = item.get('department'))
 
 

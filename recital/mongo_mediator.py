@@ -70,14 +70,16 @@ def get_all_items_ids(collection_name):
 	return [str(item['_id']) for item in db[collection_name].find({}, {'_id' : 1})]
 
 def get_item_by_id(collection_name, id):
-	return db[collection_name].find({'_id' : ObjectId(id.zfill(24))})[0]
+	return db[collection_name].find({'_id' : ObjectId(str(id).zfill(24))})[0]
 
 # update
 
-def parse_params_for_update(params):
+def parse_params_for_update(params, ids_fields):
 
 	where = {}
 	update = {}
+	ids = {}
+	select_where = {}
 
 	for key in params:
 		if params[key]:
@@ -86,13 +88,41 @@ def parse_params_for_update(params):
 				continue
 			else:
 				where[key] = params[key]
+				if key in ids_fields:
+					ids[ids_fields[key]] = params[key]
+				else:
+					select_where[key] = params[key] 
 
-	return where, update
+	select_where['ids'] = ids
+
+	return where, update, select_where
 
 def update(params, collection):
-	where, update = parse_params_for_update(params)
+
+	ids_fields = {'_id': '_id'}
+
+	where, update, select_where = parse_params_for_update(params, ids_fields)
+
+	#print(select_where)
+
+	select(select_where, collection)
+
 	db[collection].update_many(where,{'$set': update})
 	return [item for item in db[collection].find(update)]
+
+def remove(id, get_item, collection):
+	
+	select({'ids': {'_id': id}}, collection)
+
+	deleted = get_item(str(id))
+
+	id = deleted['_id']
+
+	frontal_transporter.remove(collection, {'id': id})
+
+	return deleted
+
+#http://localhost:1881/api/remove/boat/fields=boat(name,id)&where=id:'5aedb8f1d678f40f92a279be'
 
 # select
 
@@ -119,25 +149,29 @@ def filter_by_ids(items, ids):
 	regexps = {}
 
 	for key in ids:
-		regexps[key] = re.compile(ids[key] + '.*')
+		regexps[key] = re.compile(str(ids[key]) + '.*')
 
 	return [item for item in items if match_ids(item, regexps)]
 
 def select(params, collection):
 	#print(parse_params_for_select(params))
 
+	#print(params)
+
 	ids = params.pop('ids', None)
 
-	'''try:
+
+
+	try:
 		frontal_transporter.extract(params, collection)
 	except pymongo.errors.DuplicateKeyError:
 		pass
-	'''
+	
 	parsed_params = parse_params_for_select(params)
 	current_timestamp = datetime.datetime.now()
 	items = [item for item in db[collection].find(parsed_params)]
 
-	'''
+	
 	try:
 		result = db[collection].bulk_write([UpdateOne({'_id' : record['_id']},
 			{ 
@@ -147,7 +181,7 @@ def select(params, collection):
 		for record in items])
 	except KeyError:
 		result = db[collection].bulk_write([UpdateOne({'_id' : record['_id']}, {'$set':  { '__accessed__': current_timestamp, '__gaps__': [0]}}) for record in items])
-	'''
+	
 
 	#db[collection].update_many(parse_params_for_select(params), {'__accessed__': current_timestamp, '$push': { '__gaps__': int((current_timestamp - ).strftime("%s"))}})
 	return filter_by_ids(items, ids)
@@ -196,9 +230,10 @@ def create_boat(name, capacity):
 	return get_boat_by_id(str(id))
 
 def remove_boat(id):
-	deleted = get_boat_by_id(str(id))
-	id = db[BOATS_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
-	return deleted
+	return remove(id, get_boat_by_id, BOATS_COLLECTION_NAME)
+	#deleted = get_boat_by_id(str(id))
+	#id = db[BOATS_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
+	#return deleted
 
 def update_boats(**kwargs):
 	return update(kwargs, BOATS_COLLECTION_NAME)
@@ -218,14 +253,16 @@ def get_department_by_id(id):
 
 # -- manipulators
 
-def create_department(name, vk):
-	id = db[DEPARTMENTS_COLLECTION_NAME].insert({'name' : name, 'vk' : vk})
+def create_department(name, vk, director):
+	id = db[DEPARTMENTS_COLLECTION_NAME].insert({'name' : name, 'vk' : vk, 'director': ObjectId(director),
+		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
 	return get_department_by_id(str(id))
 
 def remove_department(id):
-	deleted = get_department_by_id(str(id))
-	id = db[DEPARTMENTS_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
-	return deleted
+	return remove(id, get_department_by_id, DEPARTMENTS_COLLECTION_NAME)
+	#deleted = get_department_by_id(str(id))
+	#id = db[DEPARTMENTS_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
+	#return deleted
 
 def eradicate_department(id):
 	deleted_people = get_people_ids_with_dep(str(id))
@@ -257,13 +294,15 @@ def get_location_by_id(id):
 # -- manipulators
 
 def create_location(name):
-	id = db[LOCATIONS_COLLECTION_NAME].insert({'name' : name})
+	id = db[LOCATIONS_COLLECTION_NAME].insert({'name' : name,
+		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
 	return get_location_by_id(str(id))
 
 def remove_location(id):
-	deleted = get_location_by_id(str(id))
-	id = db[LOCATIONS_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
-	return deleted
+	return remove(id, get_specialization_by_id, SPECIALIZATIONS_COLLECTION_NAME)
+	#deleted = get_location_by_id(str(id))
+	#id = db[LOCATIONS_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
+	#return deleted
 
 def eradicate_location(id):
 	deleted_sensors = get_sensors_ids_by_location_id(str(id))
@@ -301,13 +340,16 @@ def select_people(**kwargs):
 # -- manipulators
 
 def create_person(name, surname, patronymic, phone, department, specialization):
-	id = db[PEOPLE_COLLECTION_NAME].insert({'name' : name, 'surname' : surname, 'patronymic' : patronymic, 'phone' : phone, 'department' : ObjectId(department), 'specialization' : ObjectId(specialization)})
+	id = db[PEOPLE_COLLECTION_NAME].insert({'name' : name, 'surname' : surname, 'patronymic' : patronymic, 
+		'phone' : phone, 'department' : ObjectId(department), 'specialization' : ObjectId(specialization),
+		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
 	return get_person_by_id(str(id))
 
 def remove_person(id):
-	deleted = get_person_by_id(str(id))
-	id = db[PEOPLE_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
-	return deleted
+	return remove(id, get_person_by_id, PEOPLE_COLLECTION_NAME)
+	#deleted = get_person_by_id(str(id))
+	#id = db[PEOPLE_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
+	#return deleted
 
 def eradicate_person(id):
 
@@ -358,13 +400,15 @@ def get_people_ids_with_spec(specialization_id):
 
 def create_property(name, type, admission, comissioning, department):
 	id = db[PROPERTIES_COLLECTION_NAME].insert({'name': name, 'type': ObjectId(type), 'admission': admission,\
-		'comissioning': comissioning, 'department': ObjectId(department)})
+		'comissioning': comissioning, 'department': ObjectId(department),
+		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
 	return get_property_by_id(str(id))
 
 def remove_property(id):
-	deleted = get_property_by_id(str(id))
-	id = db[PROPERTIES_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
-	return deleted
+	return remove(id, get_property_by_id, PROPERTIES_COLLECTION_NAME)
+	#deleted = get_property_by_id(str(id))
+	#id = db[PROPERTIES_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
+	#return deleted
 
 def update_properties(**kwargs):
 	return update(kwargs, PROPERTIES_COLLECTION_NAME)
@@ -385,13 +429,15 @@ def get_property_type_by_id(id):
 # -- manipulators
 
 def create_property_type(name, description):
-	id = db[PROPERTY_TYPES_COLLECTION_NAME].insert({'name' : name, 'description' : description})
+	id = db[PROPERTY_TYPES_COLLECTION_NAME].insert({'name' : name, 'description' : description,
+		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
 	return get_property_type_by_id(str(id))
 
 def remove_property_type(id):
-	deleted = get_property_type_by_id(str(id))
-	id = db[PROPERTY_TYPES_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
-	return deleted
+	return remove(id, get_property_type_by_id, PROPERTY_TYPES_COLLECTION_NAME)
+	#deleted = get_property_type_by_id(str(id))
+	#id = db[PROPERTY_TYPES_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
+	#return deleted
 
 def eradicate_property_type(id):
 	for property_id in get_item_ids_with_foreign_id(PROPERTIES_COLLECTION_NAME, 'type', str(id)):
@@ -425,13 +471,15 @@ def get_sensors_ids_by_location_id(location_id):
 # -- manipulators
 
 def create_sensor(name, location):
-	id = db[SENSORS_COLLECTION_NAME].insert({'name' : name, 'location' : ObjectId(location)})
+	id = db[SENSORS_COLLECTION_NAME].insert({'name': name, 'location': ObjectId(location),
+		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
 	return get_sensor_by_id(str(id))
 
 def remove_sensor(id):
-	deleted = get_sensor_by_id(str(id))
-	id = db[SENSORS_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
-	return deleted
+	return remove(id, get_sensor_by_id, SENSORS_COLLECTION_NAME)
+	#deleted = get_sensor_by_id(str(id))
+	#id = db[SENSORS_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
+	#return deleted
 
 def update_sensor(**kwargs):
 	return update(kwargs, SENSORS_COLLECTION_NAME)
@@ -452,13 +500,15 @@ def get_specialization_by_id(id):
 # -- manipulators
 
 def create_specialization(name):
-	id = db[SPECIALIZATIONS_COLLECTION_NAME].insert({'name' : name})
+	id = db[SPECIALIZATIONS_COLLECTION_NAME].insert({'name' : name,
+		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
 	return get_specialization_by_id(str(id))
 
 def remove_specialization(id):
-	deleted = get_specialization_by_id(str(id))
-	id = db[SPECIALIZATIONS_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
-	return deleted
+	return remove(id, get_specialization_by_id, SPECIALIZATIONS_COLLECTION_NAME)
+	#deleted = get_specialization_by_id(str(id))
+	#id = db[SPECIALIZATIONS_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
+	#return deleted
 
 def eradicate_specialization(id):
 	deleted_people = get_people_ids_with_spec(str(id))
@@ -504,13 +554,15 @@ def get_systems_by_supervisor_id(supervisor_id):
 
 def create_system(name, serial_number, launched, checked, state, supervisor, type):
 	id = db[SYSTEMS_COLLECTION_NAME].insert({'name': name, 'serial_number': serial_number, 'launched': launched,\
-		'checked': checked, 'state': ObjectId(state), 'supervisor': ObjectId(supervisor), 'type': ObjectId(type)})
+		'checked': checked, 'state': ObjectId(state), 'supervisor': ObjectId(supervisor), 'type': ObjectId(type),
+		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
 	return get_system_by_id(str(id))
 
 def remove_system(id):
-	deleted = get_system_by_id(str(id))
-	id = db[SYSTEMS_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
-	return deleted
+	return remove(id, get_system_state_by_id, SYSTEM_STATES_COLLECTION_NAME)
+	#deleted = get_system_by_id(str(id))
+	#id = db[SYSTEMS_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
+	#return deleted
 
 def update_systems(**kwargs):
 	return update(kwargs, SYSTEMS_COLLECTION_NAME)
@@ -531,13 +583,15 @@ def get_system_state_by_id(id):
 # -- manipulators
 
 def create_system_state(name, description):
-	id = db[SYSTEM_STATES_COLLECTION_NAME].insert({'name' : name, 'description' : description})
+	id = db[SYSTEM_STATES_COLLECTION_NAME].insert({'name' : name, 'description' : description,
+		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
 	return get_system_state_by_id(str(id))
 
 def remove_system_state(id):
-	deleted = get_system_state_by_id(str(id))
-	id = db[SYSTEM_STATES_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
-	return deleted
+	return remove(id, get_system_state_by_id, SYSTEM_STATES_COLLECTION_NAME)
+	#deleted = get_system_state_by_id(str(id))
+	#id = db[SYSTEM_STATES_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
+	#return deleted
 
 def eradicate_system_state(id):
 	deleted_systems = get_item_ids_with_foreign_id(SYSTEMS_COLLECTION_NAME, 'state', str(id))
@@ -564,13 +618,15 @@ def get_system_type_by_id(id):
 # -- manipulators
 
 def create_system_type(name, description):
-	id = db[SYSTEM_TYPES_COLLECTION_NAME].insert({'name' : name, 'description' : description})
+	id = db[SYSTEM_TYPES_COLLECTION_NAME].insert({'name' : name, 'description' : description,
+		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
 	return get_system_type_by_id(str(id))
 
 def remove_system_type(id):
-	deleted = get_system_type_by_id(str(id))
-	id = db[SYSTEM_TYPES_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
-	return deleted
+	return remove(id, get_system_type_by_id, SYSTEM_TYPES_COLLECTION_NAME)
+	#deleted = get_system_type_by_id(str(id))
+	#id = db[SYSTEM_TYPES_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
+	#return deleted
 
 def eradicate_system_type(id):
 	deleted_systems = get_item_ids_with_foreign_id(SYSTEMS_COLLECTION_NAME, 'type', str(id))

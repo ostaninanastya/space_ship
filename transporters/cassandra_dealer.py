@@ -76,6 +76,12 @@ def repair(item):
 				if key == 'id':
 					repaired['_' + key] = ObjectId(item[key])
 				else:
-					repaired[key] = item[key]
+					#print(',,,,,,,,,,,,,,,,,,,,,,,,,,,,',key)
+					if key in ['location', 'state', 'supervisor', 'type', 'department', 'specialization', 'director']:
+						repaired[key] = ObjectId(item[key])
+					else:
+						repaired[key] = item[key]
+
+	#print('lllllllllllllllllllllllllllllllllllllll',repaired)
 
 	return repaired

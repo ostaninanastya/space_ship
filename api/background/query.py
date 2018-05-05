@@ -44,7 +44,8 @@ class EntityQuery(graphene.ObjectType):
     departments = graphene.List(DepartmentMapper, 
     	id = graphene.String(default_value = ''),
         name = graphene.String(default_value = ''),
-        vk = graphene.String(default_value = ''))
+        vk = graphene.String(default_value = ''),
+        director = graphene.String(default_value = ''))
 
     property_types = graphene.List(PropertyTypeMapper, 
     	id = graphene.String(default_value = ''), 
@@ -286,8 +287,8 @@ class EntityQuery(graphene.ObjectType):
     def resolve_people(self, info, id, name, surname, patronymic, phone, department, specialization):
         return PersonMapper.eject(id, name, surname, patronymic, phone, department, specialization)
 
-    def resolve_departments(self, info, id, name, vk):
-    	return DepartmentMapper.eject(id, name, vk)
+    def resolve_departments(self, info, id, name, vk, director):
+    	return DepartmentMapper.eject(id, name, vk, director)
 
     def resolve_property_types(self, info, id, name, desc):
         return PropertyTypeMapper.eject(id, name, desc)

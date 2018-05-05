@@ -32,10 +32,10 @@ public class GetHexIdentTest
             Session session = driver.session();
 
             // When
-            String result = session.run( "RETURN space_ship.get_hex_ident([99780070403691, 140045671702986]) AS result").single().get("result").asString();
+            String result = session.run( "RETURN space_ship.get_hex_ident([0, 2]) AS result").single().get("result").asString();
 
             // Then
-            assertThat( result, equalTo( "5abfdba6ee6b7f5eec83a1ca" ) );
+            assertThat( result, equalTo( "000000000000000000000002" ) );
         }
     }
 }

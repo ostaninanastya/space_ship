@@ -147,7 +147,7 @@ def get_operation_head_id(operation_id):
 			match (p:Person)-[:HEAD]->(o:Operation)
 			where o.ident = '%s'
 			return space_ship.get_hex_ident(p.ident) as ident
-			""" % remove_leading_zeros(operation_id))][0]
+			""" % operation_id)][0]
 
 def get_executors_id(operation_id):
 	return [ item['ident'] for item in graph.data("""
@@ -223,7 +223,7 @@ def set_head(operation_id, head_id):
 				  where space_ship.get_hex_ident(p.ident) = '%s' and
                   o.ident = '%s'
                   create (p)-[:HEAD]->(o)
-                  return o.ident as ident;""" % (remove_leading_zeros(head_id), remove_leading_zeros(operation_id)))
+                  return o.ident as ident;""" % (head_id, operation_id))
 
 
 # --- requirements
@@ -307,7 +307,7 @@ def get_shift_chief_id(shift_id):
 			match (p:Person)-[:CHIEF]->(s:Shift)
 			where s.ident = '%s'
 			return space_ship.get_hex_ident(p.ident) as ident
-			""" % remove_leading_zeros(shift_id))][0]
+			""" % shift_id)][0]
 
 def get_workers_id(shift_id):
 	return [\
@@ -384,7 +384,7 @@ def set_chief(shift_id, chief_id):
 				  where space_ship.get_hex_ident(p.ident) = '%s' and
                   s.ident = '%s'
                   create (p)-[:CHIEF]->(s)
-                  return s.ident as ident;""" % (remove_leading_zeros(chief_id), remove_leading_zeros(shift_id)))
+                  return s.ident as ident;""" % (chief_id, shift_id))
 
 # --- requirements
 

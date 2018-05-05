@@ -1,6 +1,10 @@
 import sys, os, datetime
 from bson.objectid import ObjectId
 import configparser
+import pickle
+
+sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/relations/adapters/')
+from mongo_adapter import mongo_str_id_to_int, int_to_mongo_str_id
 
 sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/relations/adapters/')
 from mongo_adapter import mongo_str_id_to_int
@@ -18,12 +22,15 @@ def string_to_list(strlist):
 
 ## Convert item's property from mongo format to cassandra query format
 def stringify(value):
+	#print(type(value))
 	if isinstance(value, datetime.datetime):
 		return '\'' + value.strftime(TIMESTAMP_PATTERN) + '\''
 	elif isinstance(value, int) or isinstance(value, float) or isinstance(value, list):
 		return str(value)
 	elif isinstance(value, ObjectId):
 		return  str(list(mongo_str_id_to_int(str(value))))
+	elif isinstance(value, bytes):
+		return  str(list(mongo_str_id_to_int(value.hex())))
 	return '\'' + str(value) + '\''
 
 ## Convert item from mongo format to neo4j query format
@@ -42,13 +49,18 @@ def repair(item):
 	repaired = {}
 	for key in dict(item):
 		value = item[key]
-		if key == '_id':
+		if key == '_id' or key in ['location', 'state', 'supervisor', 'type', 'department', 'specialization', 'director']:
 			value = ObjectId(item[key])
 		else:
 			try:
 				value = datetime.datetime.strptime(value, TIMESTAMP_PATTERN)
 			except:
+				if key in ['n.location', 'n.state', 'n.supervisor', 'n.type', 'n.department', 'n.specialization', 'n.director']:
+					#print('==================================================',value)
+					value = ObjectId(int_to_mongo_str_id(value))
 				pass
 		repaired[key.replace('n.', '')] = value
+
+	#print('-----',repaired)
 
 	return repaired

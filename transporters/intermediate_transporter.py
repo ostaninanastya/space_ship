@@ -57,9 +57,18 @@ FIELD_DELIMITER = config['FIELDS']['field_delimiter']
 
 fields = {
 	'common': [item.lstrip().rstrip() for item in config['FIELDS']['common'].split(FIELD_DELIMITER)],
-	'boats': [item.lstrip().rstrip() for item in config['FIELDS']['boats'].split(FIELD_DELIMITER)]
+	'boats': [item.lstrip().rstrip() for item in config['FIELDS']['boats'].split(FIELD_DELIMITER)],
+	'property_types': [item.lstrip().rstrip() for item in config['FIELDS']['property_types'].split(FIELD_DELIMITER)],
+	'system_states': [item.lstrip().rstrip() for item in config['FIELDS']['system_states'].split(FIELD_DELIMITER)],
+	'system_types': [item.lstrip().rstrip() for item in config['FIELDS']['system_types'].split(FIELD_DELIMITER)],
+	'specializations': [item.lstrip().rstrip() for item in config['FIELDS']['specializations'].split(FIELD_DELIMITER)],
+	'locations': [item.lstrip().rstrip() for item in config['FIELDS']['locations'].split(FIELD_DELIMITER)],
+	'sensors': [item.lstrip().rstrip() for item in config['FIELDS']['sensors'].split(FIELD_DELIMITER)],
+	'systems': [item.lstrip().rstrip() for item in config['FIELDS']['systems'].split(FIELD_DELIMITER)],
+	'people': [item.lstrip().rstrip() for item in config['FIELDS']['people'].split(FIELD_DELIMITER)],
+	'departments': [item.lstrip().rstrip() for item in config['FIELDS']['departments'].split(FIELD_DELIMITER)],
+	'properties': [item.lstrip().rstrip() for item in config['FIELDS']['properties'].split(FIELD_DELIMITER)]
 }
-
 
 #make db connections
 
@@ -69,6 +78,12 @@ connection.setup([item.lstrip().rstrip() for item in CASSANDRA_DB_URLS.split(CAS
 conn = connect_to_leader()
 graph = Graph(bolt = True, user = conn['username'], password = conn['password'], host = conn['host'], bolt_port = conn['port'])
 graph.begin()
+
+def remove(collection, item):
+	rear_transporter.remove(collection, item)
+	query = 'match (n:{0}) where space_ship.get_hex_ident(n._id) = "{1}" detach delete n;'.format(collection, cassandra_dealer.stringify(item['_id'])[2:])
+	#print(query)
+	graph.run(query)
 
 ## Move items according to collection and query one level up
 def extract(params, collection):
@@ -105,6 +120,8 @@ def immerse(item, collection, cause):
 	
 	delete_query = 'match (n:{0}) where space_ship.get_hex_ident(n._id) = "{1}" detach delete n;'.format(collection, cassandra_dealer.stringify(item['id'])[2:])
 	graph.run(delete_query)
+
+	print(cassandra_dealer.repair(item))
 	
 	create_query = 'create (n:{0} {{{1}}});'.format(collection, neo4j_dealer.querify(cassandra_dealer.repair(item), with_where = False, field_delimiter = ', '))
 	graph.run(create_query)
@@ -143,6 +160,16 @@ def main():
 	once = '-o' in sys.argv
 	while True:
 		inspect(BOATS_COLLECTION_NAME, verbose = verbose)
+		inspect(PROPERTY_TYPES_COLLECTION_NAME, verbose = verbose)
+		inspect(SYSTEM_STATES_COLLECTION_NAME, verbose = verbose)
+		inspect(SYSTEM_TYPES_COLLECTION_NAME, verbose = verbose)
+		inspect(SPECIALIZATIONS_COLLECTION_NAME, verbose = verbose)
+		inspect(LOCATIONS_COLLECTION_NAME, verbose = verbose)
+		inspect(SENSORS_COLLECTION_NAME, verbose = verbose)
+		inspect(SYSTEMS_COLLECTION_NAME, verbose = verbose)
+		inspect(PEOPLE_COLLECTION_NAME, verbose = verbose)
+		inspect(DEPARTMENTS_COLLECTION_NAME, verbose = verbose)
+		inspect(PROPERTIES_COLLECTION_NAME, verbose = verbose)
 		if once:
 			return
 		time.sleep(CHECK_PERIOD)

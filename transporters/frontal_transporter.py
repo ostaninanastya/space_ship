@@ -57,6 +57,10 @@ DATE_PATTERN = os.environ.get('DATE_PATTERN') or config['FORMATS']['date']
 db = MongoClient(MONGO_DB_URL, MONGO_DB_PORT)[MONGO_DB_NAME]
 connection.setup([item.lstrip().rstrip() for item in CASSANDRA_DB_URLS.split(CASSANDRA_HOST_DELIMITER)], CASSANDRA_DB_NAME)
 
+def remove(collection, item):
+	intermediate_transporter.remove(collection, {'_id': item['id']})
+	query = 'delete from {0}.{1} where {2};'.format(CASSANDRA_DB_NAME, collection, cassandra_dealer.querify(item, 'DELETE', keys = ['id']))
+	connection.execute(query)
 
 ## Move items according to collection and query one level up
 def extract(params, collection):
@@ -72,9 +76,12 @@ def extract(params, collection):
 		try:
 			connection.execute('insert into {0}.{1} {2};'.format(CASSANDRA_DB_NAME, collection, cassandra_dealer.querify(item)))
 		except Exception as e:
+			#print(e)
 			pass
 		
 		try:
+			#item['location'] = ObjectId("5aede452d678f43e2c1db493")
+			#print('before instarting to mongo:', item)
 			db[collection].insert_one(item)
 		except Exception as e:
 			pass
@@ -97,7 +104,7 @@ def inspect(collection, verbose = False):
 	if verbose:
 		print('{0} : inspecting {1}...'.format(current_timestamp_str, collection))
 	
-	for item in db[BOATS_COLLECTION_NAME].find():
+	for item in db[collection].find():
 		age = (current_timestamp - item['__accessed__']).total_seconds()
 
 		if verbose:
@@ -123,6 +130,16 @@ def main():
 	once = '-o' in sys.argv
 	while True:
 		inspect(BOATS_COLLECTION_NAME, verbose = verbose)
+		inspect(PROPERTY_TYPES_COLLECTION_NAME, verbose = verbose)
+		inspect(SYSTEM_STATES_COLLECTION_NAME, verbose = verbose)
+		inspect(SYSTEM_TYPES_COLLECTION_NAME, verbose = verbose)
+		inspect(SPECIALIZATIONS_COLLECTION_NAME, verbose = verbose)
+		inspect(LOCATIONS_COLLECTION_NAME, verbose = verbose)
+		inspect(SENSORS_COLLECTION_NAME, verbose = verbose)
+		inspect(SYSTEMS_COLLECTION_NAME, verbose = verbose)
+		inspect(PEOPLE_COLLECTION_NAME, verbose = verbose)
+		inspect(DEPARTMENTS_COLLECTION_NAME, verbose = verbose)
+		inspect(PROPERTIES_COLLECTION_NAME, verbose = verbose)
 		if once:
 			return
 		time.sleep(CHECK_PERIOD)

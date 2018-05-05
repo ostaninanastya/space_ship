@@ -4,7 +4,7 @@ import configparser
 import pickle
 
 sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/relations/adapters/')
-from mongo_adapter import mongo_str_id_to_int
+from mongo_adapter import mongo_str_id_to_int, int_to_mongo_str_id
 
 config = configparser.ConfigParser()
 config.read(os.environ.get('SPACE_SHIP_HOME') + '/databases.config')
@@ -39,6 +39,8 @@ def querify(item, mode = 'INSERT', keys = None):
 			querified.append([key, stringify(item[key])])
 			continue
 
+	print(querified)
+
 	if mode == 'INSERT':
 		return '(' + ', '.join([item[0] for item in querified]) + ') values (' + ', '.join([item[1] for item in querified]) + ')'
 	elif mode == 'SELECT':
@@ -53,14 +55,17 @@ def repair(item, field_names):
 	repaired = {}
 	index = 0
 	for key in field_names:
-		if key == '__gaps__':
+		if key == '__gaps__' :
+			#
 			repaired[key] = pickle.loads(item[index])
-		elif key == '_id':
+		elif key == '_id' or key in ['location', 'state', 'supervisor', 'type', 'department', 'specialization', 'director']:
+			print(item[index].hex())
 			repaired[key] = ObjectId(item[index])
 		else:
 			repaired[key] = item[index]
 
 		index += 1
-					
 
+	#print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',repaired)
+					
 	return repaired

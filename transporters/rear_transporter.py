@@ -53,13 +53,33 @@ FIELD_DELIMITER = config['FIELDS']['field_delimiter']
 
 fields = {
 	'common': [item.lstrip().rstrip() for item in config['FIELDS']['common'].split(FIELD_DELIMITER)],
-	'boats': [item.lstrip().rstrip() for item in config['FIELDS']['boats'].split(FIELD_DELIMITER)]
+	'boats': [item.lstrip().rstrip() for item in config['FIELDS']['boats'].split(FIELD_DELIMITER)],
+	'property_types': [item.lstrip().rstrip() for item in config['FIELDS']['property_types'].split(FIELD_DELIMITER)],
+	'system_states': [item.lstrip().rstrip() for item in config['FIELDS']['system_states'].split(FIELD_DELIMITER)],
+	'system_types': [item.lstrip().rstrip() for item in config['FIELDS']['system_types'].split(FIELD_DELIMITER)],
+	'specializations': [item.lstrip().rstrip() for item in config['FIELDS']['specializations'].split(FIELD_DELIMITER)],
+	'locations': [item.lstrip().rstrip() for item in config['FIELDS']['locations'].split(FIELD_DELIMITER)],
+	'sensors': [item.lstrip().rstrip() for item in config['FIELDS']['sensors'].split(FIELD_DELIMITER)],
+	'systems': [item.lstrip().rstrip() for item in config['FIELDS']['systems'].split(FIELD_DELIMITER)],
+	'people': [item.lstrip().rstrip() for item in config['FIELDS']['people'].split(FIELD_DELIMITER)],
+	'departments': [item.lstrip().rstrip() for item in config['FIELDS']['departments'].split(FIELD_DELIMITER)],
+	'properties': [item.lstrip().rstrip() for item in config['FIELDS']['properties'].split(FIELD_DELIMITER)]
 }
 
 MYSQL_FIELD_DELIMITER = config['MYSQL_FIELDS']['field_delimiter']
 
 mysql_fields = {
-	'boats': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['boats'].split(MYSQL_FIELD_DELIMITER)]
+	'boats': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['boats'].split(MYSQL_FIELD_DELIMITER)],
+	'property_types': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['property_types'].split(MYSQL_FIELD_DELIMITER)],
+	'system_states': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['system_states'].split(MYSQL_FIELD_DELIMITER)],
+	'system_types': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['system_states'].split(MYSQL_FIELD_DELIMITER)],
+	'specializations': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['specializations'].split(MYSQL_FIELD_DELIMITER)],
+	'locations': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['locations'].split(MYSQL_FIELD_DELIMITER)],
+	'sensors': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['sensors'].split(MYSQL_FIELD_DELIMITER)],
+	'systems': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['systems'].split(MYSQL_FIELD_DELIMITER)],
+	'people': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['people'].split(MYSQL_FIELD_DELIMITER)],
+	'departments': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['departments'].split(MYSQL_FIELD_DELIMITER)],
+	'properties': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['properties'].split(MYSQL_FIELD_DELIMITER)]
 }
 
 
@@ -71,6 +91,17 @@ connection = mysql.connector.connect(user='root', password='cassadaga', host='12
 conn = connect_to_leader()
 graph = Graph(bolt = True, user = conn['username'], password = conn['password'], host = conn['host'], bolt_port = conn['port'])
 graph.begin()
+
+#select * from store.boats where _id = 0x5ae4ae86d678f41b6dff9163;
+def remove(collection, item):
+	cursor = connection.cursor()
+
+	query = 'delete from {0}.{1} where {2};'.format(MYSQL_DB_NAME, collection, mysql_dealer.querify(item, 'DELETE', keys = ['_id']))
+	#print(query)
+	cursor.execute(query)
+
+	connection.commit()
+	#graph.run(query)
 
 ## Move items according to collection and query one level up
 def extract(params, collection):
@@ -93,7 +124,12 @@ def immerse(item, collection, cause):
 	#create item in mysql with replacement
 
 	cursor.execute('delete from {0} where {1};'.format(collection, mysql_dealer.querify(item, mode = 'DELETE', keys = ['_id'])))
-	cursor.execute('insert into {0} {1};'.format(collection, mysql_dealer.querify(item)))
+	
+	query = 'insert into {0} {1};'.format(collection, mysql_dealer.querify(item))
+
+	print(query)
+
+	cursor.execute(query)
 
 	connection.commit()
 
@@ -174,6 +210,16 @@ def main():
 	once = '-o' in sys.argv
 	while True:
 		inspect(BOATS_COLLECTION_NAME, verbose = verbose)
+		inspect(PROPERTY_TYPES_COLLECTION_NAME, verbose = verbose)
+		inspect(SYSTEM_STATES_COLLECTION_NAME, verbose = verbose)
+		inspect(SYSTEM_TYPES_COLLECTION_NAME, verbose = verbose)
+		inspect(SPECIALIZATIONS_COLLECTION_NAME, verbose = verbose)
+		inspect(LOCATIONS_COLLECTION_NAME, verbose = verbose)
+		inspect(SENSORS_COLLECTION_NAME, verbose = verbose)
+		inspect(SYSTEMS_COLLECTION_NAME, verbose = verbose)
+		inspect(PEOPLE_COLLECTION_NAME, verbose = verbose)
+		inspect(DEPARTMENTS_COLLECTION_NAME, verbose = verbose)
+		inspect(PROPERTIES_COLLECTION_NAME, verbose = verbose)
 		if once:
 			return
 		time.sleep(CHECK_PERIOD)

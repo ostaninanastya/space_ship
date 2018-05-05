@@ -6,6 +6,8 @@ import org.neo4j.procedure.Description;
 import org.neo4j.procedure.Name;
 import org.neo4j.procedure.UserFunction;
 
+//import org.apache.commons.*;
+
 /**
  * This is an example how you can create a simple user-defined function for Neo4j.
  */
@@ -17,6 +19,9 @@ public class GetHexIdent
         if (ints == null || ints.size() != 2) {
             return null;
         }
-        return Long.toHexString(ints.get(0).longValue()) + Long.toHexString(ints.get(1).longValue());
+
+        String ident = Long.toHexString(ints.get(0).longValue()) + Long.toHexString(ints.get(1).longValue());
+
+        return ("000000000000000000000000" + ident).substring(ident.length());
     }
 }
