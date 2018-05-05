@@ -1,0 +1,19 @@
+--person
+
+CREATE INDEX ON :person(executor)
+
+--department 
+
+CREATE INDEX ON :department(controller)
+
+--operation 
+
+CREATE INDEX ON :operation(name, head)
+
+--shift 
+
+CREATE INDEX ON :shift(start)
+
+--requirement 
+
+CREATE INDEX ON :requirement(name)

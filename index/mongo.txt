@@ -1,0 +1,41 @@
+--department 
+
+db.department.createIndex({"name" : 1}, {"unique" : true})
+
+--people 
+
+db.people.createIndex({"name" : 1, "phoneNumber" : 1}, {"unique" : true})
+
+--properties 
+
+db.properties.createIndex({"name" : 1, "type" : 1})
+
+--propertyTypes
+
+db.propertyTypes.createIndex({"name" : 1}, {"unique" : true})
+
+--specializations
+
+db.specializations.createIndex({"name" : 1}, {"unique" : true})
+
+--states
+
+db.states.createIndex({"name" : 1}, {"unique" : true})
+
+--systems
+
+db.systems.createIndex({"name" : 1, "type" : 1})
+
+--systemTypes
+
+db.systemTypes.createIndex({"name" : 1}, {"unique" : true})
+
+--sensors
+
+db.sensors.createIndex({"name" : 1, "location" : 1})
+
+--locations
+
+db.locations.createIndex({"name" : 1}, {"unique" : true})
+
+

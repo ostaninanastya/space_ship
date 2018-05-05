@@ -1,0 +1,26 @@
+--Вторичный индекс создает новую таблицу, используя индексированный столбец в качестве первичного ключа
+
+--system_test 
+
+create index IndexSTDate on logbook.system_test(date);
+
+--control_action 
+
+create index IndexCADate on logbook.control_action(date);
+
+--position 
+
+create index IndexPositionDate on logbook.position(date);
+
+--sensors_data 
+
+create index IndexSensorsDate on logbook.sensors_data(date);
+
+--shift_state 
+
+create index IndexShiftDate on logbook.shift_state(date);
+
+--operation_state 
+
+create index IndexOperationStateDate on logbook.operation_state(date);
+
