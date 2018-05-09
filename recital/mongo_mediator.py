@@ -4,9 +4,10 @@
 
 
 import configparser
-import sys, os, re
+import sys, os, re, math
 import datetime
 from bson.objectid import ObjectId
+from bson.binary import Binary
 import time
 
 import pymongo
@@ -35,6 +36,7 @@ MONGO_DB_URL = os.environ.get('MONGO_DB_URL') if os.environ.get('MONGO_DB_URL') 
 MONGO_DB_PORT = int(os.environ.get('MONGO_DB_PORT') if os.environ.get('MONGO_DB_PORT') else config['MONGO']['port'])
 MONGO_DB_NAME = os.environ.get('MONGO_DB_NAME') if os.environ.get('MONGO_DB_NAME') else config['MONGO']['db_name']
 
+# recital
 BOATS_COLLECTION_NAME = os.environ.get('BOATS_COLLECTION_NAME') or config['MONGO']['boats_collection_name']
 DEPARTMENTS_COLLECTION_NAME = os.environ.get('DEPARTMENTS_COLLECTION_NAME') or config['MONGO']['departments_collection_name']
 LOCATIONS_COLLECTION_NAME = os.environ.get('LOCATIONS_COLLECTION_NAME') or config['MONGO']['locations_collection_name']
@@ -46,12 +48,35 @@ SPECIALIZATIONS_COLLECTION_NAME = os.environ.get('SPECIALIZATIONS_COLLECTION_NAM
 SYSTEM_STATES_COLLECTION_NAME = os.environ.get('SYSTEM_STATES_COLLECTION_NAME') or config['MONGO']['system_states_collection_name']
 SYSTEM_TYPES_COLLECTION_NAME = os.environ.get('SYSTEM_TYPES_COLLECTION_NAME') or config['MONGO']['system_types_collection_name']
 SYSTEMS_COLLECTION_NAME = os.environ.get('SYSTEMS_COLLECTION_NAME') or config['MONGO']['systems_collection_name']
+# relations
+SHIFTS_COLLECTION_NAME = os.environ.get('SHIFTS_COLLECTION_NAME') or config['MONGO']['shifts_collection_name']
+OPERATIONS_COLLECTION_NAME = os.environ.get('OPERATIONS_COLLECTION_NAME') or config['MONGO']['operations_collection_name']
+REQUIREMENTS_COLLECTION_NAME = os.environ.get('REQUIREMENTS_COLLECTION_NAME') or config['MONGO']['requirements_collection_name']
+# logbook
+SYSTEM_TESTS_COLLECTION_NAME = os.environ.get('SYSTEM_TESTS_COLLECTION_NAME') or config['MONGO']['system_tests_collection_name']
+CONTROL_ACTIONS_COLLECTION_NAME = os.environ.get('CONTROL_ACTIONS_COLLECTION_NAME') or config['MONGO']['control_actions_collection_name']
+POSITIONS_COLLECTION_NAME = os.environ.get('POSITIONS_COLLECTION_NAME') or config['MONGO']['positions_collection_name']
+SENSOR_DATA_COLLECTION_NAME = os.environ.get('SENSOR_DATA_COLLECTION_NAME') or config['MONGO']['sensor_data_collection_name']
+SHIFT_STATES_COLLECTION_NAME = os.environ.get('SHIFT_STATES_COLLECTION_NAME') or config['MONGO']['shift_states_collection_name']
+OPERATION_STATES_COLLECTION_NAME = os.environ.get('OPERATION_STATES_COLLECTION_NAME') or config['MONGO']['operation_states_collection_name']
 
 db = MongoClient(MONGO_DB_URL, MONGO_DB_PORT)[MONGO_DB_NAME]
+
+ID_DELIMITER = ','
+REQ_COMPONENT_DELIMITER = ':'
 
 #------------------------------------------------------------------------------------------------
 # general methods
 #------------------------------------------------------------------------------------------------
+
+def parse_objids_list(source):
+
+	parsed = []
+
+	for id in source.split(ID_DELIMITER):
+		parsed.append(ObjectId(id))
+
+	return parsed
 
 # get
 
@@ -82,7 +107,7 @@ def parse_params_for_update(params, ids_fields):
 	select_where = {}
 
 	for key in params:
-		if params[key]:
+		if params[key] and not math.isnan(params[key]):
 			if 'set_' in key:
 				update[key.replace('set_','')] = params[key]
 				continue
@@ -96,6 +121,18 @@ def parse_params_for_update(params, ids_fields):
 	select_where['ids'] = ids
 
 	return where, update, select_where
+
+def adjust_and_update(params, collection, lists_fields, id_fields):
+
+	for field in lists_fields:
+		if field in kwargs:
+			params[field] = parse_objids_list(params[field]) if params[field] else None
+
+	for field in id_fields:
+		if field in kwargs:
+			params[field] = ObjectId(params[field]) if params[field] else None
+
+	return update(params, collection)
 
 def update(params, collection):
 
@@ -131,7 +168,7 @@ def parse_params_for_select(params):
 	where = {}
 
 	for key in params:
-		if params[key]:
+		if params[key] and not math.isnan(params[key]):
 			if isinstance(params[key], str):
 				where[key] = {'$regex' : params[key], '$options' : 'i'}
 			else:
@@ -168,9 +205,9 @@ def select(params, collection):
 		pass
 	
 	parsed_params = parse_params_for_select(params)
+
 	current_timestamp = datetime.datetime.now()
 	items = [item for item in db[collection].find(parsed_params)]
-
 	
 	try:
 		result = db[collection].bulk_write([UpdateOne({'_id' : record['_id']},
@@ -182,6 +219,7 @@ def select(params, collection):
 	except KeyError:
 		result = db[collection].bulk_write([UpdateOne({'_id' : record['_id']}, {'$set':  { '__accessed__': current_timestamp, '__gaps__': [0]}}) for record in items])
 	
+	print([item for item in db[collection].find(parsed_params)])
 
 	#db[collection].update_many(parse_params_for_select(params), {'__accessed__': current_timestamp, '$push': { '__gaps__': int((current_timestamp - ).strftime("%s"))}})
 	return filter_by_ids(items, ids)
@@ -640,6 +678,303 @@ def update_system_types(**kwargs):
 def select_system_types(**kwargs):
 	return select(kwargs, SYSTEM_TYPES_COLLECTION_NAME)
 
+# - shifts -------------------------------------------------------------------------------------
+
+def get_all_shifts():
+    return get_all_items(SHIFTS_COLLECTION_NAME)
+
+# -- by id
+
+def get_shift_by_id(id):
+    return get_item_by_id(SHIFTS_COLLECTION_NAME, id)
+
+# -- manipulators
+
+def create_shift(chief, department, start, end, workers, requirements):
+	id = db[SHIFTS_COLLECTION_NAME].insert({'start' : start, 'end' : end, 'department': ObjectId(department),
+		'chief': ObjectId(chief), 'workers': parse_objids_list(workers), 'requirements': parse_objids_list(requirements),
+		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
+	return get_shift_by_id(str(id))
+
+def remove_shift(id):
+	return remove(id, get_shift_by_id, SHIFTS_COLLECTION_NAME)
+	#deleted = get_system_type_by_id(str(id))
+	#id = db[SYSTEM_TYPES_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
+	#return deleted
+
+def update_shifts(**kwargs):
+	lists_fields = ['set_workers', 'workers', 'set_requirements', 'requirements']
+	id_fields = ['set_chief', 'chief', 'set_department', 'department']
+	return adjust_and_update(kwargs, SHIFTS_COLLECTION_NAME, lists_fields, id_fields)
+
+def select_shifts(**kwargs):
+	return select(kwargs, SHIFTS_COLLECTION_NAME)
+
+# - operations ---------------------------------------------------------------------------------
+
+def get_all_operations():
+    return get_all_items(OPERATIONS_COLLECTION_NAME)
+
+# -- by id
+
+def get_operation_by_id(id):
+    return get_item_by_id(OPERATIONS_COLLECTION_NAME, id)
+
+# -- manipulators
+
+def create_operation(name, head, start, end, executors, requirements):
+	id = db[OPERATIONS_COLLECTION_NAME].insert({'name': name, 'start' : start, 'end' : end,
+		'head': ObjectId(head), 'executors': parse_objids_list(executors), 'requirements': parse_objids_list(requirements),
+		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
+	return get_operation_by_id(str(id))
+
+def remove_operation(id):
+	return remove(id, get_operation_by_id, OPERATIONS_COLLECTION_NAME)
+	#deleted = get_system_type_by_id(str(id))
+	#id = db[SYSTEM_TYPES_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
+	#return deleted
+
+def update_operations(**kwargs):
+	lists_fields = ['set_executors', 'executors', 'set_requirements', 'requirements']
+	id_fields = ['set_head', 'head']
+	return adjust_and_update(kwargs, OPERATIONS_COLLECTION_NAME, lists_fields, id_fields)
+
+def select_operations(**kwargs):
+	return select(kwargs, OPERATIONS_COLLECTION_NAME)
+
+# - requirements -------------------------------------------------------------------------------
+
+def get_all_requirements():
+    return get_all_items(REQUIREMENTS_COLLECTION_NAME)
+
+# -- by id
+
+def get_requirement_by_id(id):
+    return get_item_by_id(REQUIREMENTS_COLLECTION_NAME, id)
+
+# -- manipulators
+
+def create_requirement(name, content):
+
+	requirement_parts = []
+	
+	for requirement_str_part in content.split(ID_DELIMITER):
+		specialization, quantity = requirement_str_part.split(REQ_COMPONENT_DELIMITER)
+		requirement_parts.append({'specialization' : ObjectId(specialization), 'quantity' : int(quantity)})
+
+	id = db[REQUIREMENTS_COLLECTION_NAME].insert({'name': name, 'content': requirement_parts,
+		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
+	return get_requirement_by_id(str(id))
+
+def remove_requirement(id):
+	return remove(id, get_requirement_by_id, REQUIREMENTS_COLLECTION_NAME)
+	#deleted = get_system_type_by_id(str(id))
+	#id = db[SYSTEM_TYPES_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
+	#return deleted
+'''
+def update_requirements(**kwargs):
+	lists_fields = ['set_', 'executors', 'set_requirements', 'requirements']
+	id_fields = ['set_head', 'head']
+	return adjust_and_update(kwargs, OPERATIONS_COLLECTION_NAME, lists_fields, id_fields)
+'''
+def select_requirements(**kwargs):
+	return select(kwargs, REQUIREMENTS_COLLECTION_NAME)
+
+# //////////////////////////////////////////////////////////////////////////////////////////////
+# logbook //////////////////////////////////////////////////////////////////////////////////////
+# //////////////////////////////////////////////////////////////////////////////////////////////
+
+# - system_tests -------------------------------------------------------------------------------
+
+def get_all_system_tests():
+    return get_all_items(SYSTEM_TESTS_COLLECTION_NAME)
+
+# -- by id
+
+def get_system_test_by_id(id):
+    return get_item_by_id(SYSTEM_TESTS_COLLECTION_NAME, id)
+
+# -- manipulators
+
+def create_system_test(timestamp, system, result):
+	id = db[SYSTEM_TESTS_COLLECTION_NAME].insert({'timestamp': timestamp, 'system' : ObjectId(system), 'result' : result,
+		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
+	return get_system_test_by_id(str(id))
+
+def remove_system_test(id):
+	return remove(id, get_system_test_by_id, SYSTEM_TESTS_COLLECTION_NAME)
+
+def update_system_tests(**kwargs):
+	id_fields = ['set_system', 'system']
+	return adjust_and_update(kwargs, SYSTEM_TESTS_COLLECTION_NAME, None, id_fields)
+
+def select_system_tests(**kwargs):
+	return select(kwargs, SYSTEM_TESTS_COLLECTION_NAME)
+
+# - control_actions ----------------------------------------------------------------------------
+
+def get_all_control_actions():
+    return get_all_items(CONTROL_ACTIONS_COLLECTION_NAME)
+
+# -- by id
+
+def get_control_action_by_id(id):
+    return get_item_by_id(CONTROL_ACTIONS_COLLECTION_NAME, id)
+
+# -- manipulators
+
+def create_control_action(timestamp, mac, user, command, params, result):
+	id = db[CONTROL_ACTIONS_COLLECTION_NAME].insert({'timestamp': timestamp, 'mac_address': bytes.fromhex(mac.hex()), 'user' : ObjectId(user),
+		'command': command, 'params': params, 'result': result,
+		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
+	return get_control_action_by_id(str(id))
+
+def remove_control_action(id):
+	return remove(id, get_control_action_by_id, CONTROL_ACTIONS_COLLECTION_NAME)
+
+def update_control_actions(**kwargs):
+	id_fields = ['set_user', 'user']
+	return adjust_and_update(kwargs, CONTROL_ACTIONS_COLLECTION_NAME, None, id_fields)
+
+def select_control_actions(**kwargs):
+	return select(kwargs, CONTROL_ACTIONS_COLLECTION_NAME)
+
+# - positions ----------------------------------------------------------------------------------
+
+def get_all_positions():
+    return get_all_items(POSITIONS_COLLECTION_NAME)
+
+# -- by id
+
+def get_position_by_id(id):
+    return get_item_by_id(POSITIONS_COLLECTION_NAME, id)
+
+# -- manipulators
+
+def create_position(timestamp, x, y, z, speed, attack_angle, direction_angle):
+	id = db[POSITIONS_COLLECTION_NAME].insert({'timestamp': timestamp, 'attack_angle': attack_angle, 'direction_angle' : direction_angle,
+		'x': x, 'y': y, 'z': z, 'speed': speed,
+		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
+	return get_position_by_id(str(id))
+
+def remove_position(id):
+	return remove(id, get_position_by_id, POSITIONS_COLLECTION_NAME)
+
+def update_positions(**kwargs):
+	return adjust_and_update(kwargs, POSITIONS_COLLECTION_NAME, None, None)
+
+def select_positions(**kwargs):
+	return select(kwargs, POSITIONS_COLLECTION_NAME)
+
+# - sensor_data --------------------------------------------------------------------------------
+
+def get_all_sensor_data():
+    return get_all_items(SENSOR_DATA_COLLECTION_NAME)
+
+# -- by id
+
+def get_sensor_data_by_id(id):
+    return get_item_by_id(SENSOR_DATA_COLLECTION_NAME, id)
+
+# -- manipulators
+
+def create_sensor_data(timestamp, source, event, meaning, value, units):
+	id = db[SENSOR_DATA_COLLECTION_NAME].insert({'timestamp': timestamp, 'source': ObjectId(source), 'event': event,
+		'meaning': meaning, 'value': value, 'units': units, 
+		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
+	return get_sensor_data_by_id(str(id))
+
+def remove_sensor_data(id):
+	return remove(id, get_sensor_data_by_id, SENSOR_DATA_COLLECTION_NAME)
+
+def update_sensor_data(**kwargs):
+	return adjust_and_update(kwargs, SENSOR_DATA_COLLECTION_NAME, None, None)
+
+def select_sensor_data(**kwargs):
+	return select(kwargs, SENSOR_DATA_COLLECTION_NAME)
+
+# - shift_state --------------------------------------------------------------------------------
+
+def get_all_shift_states():
+    return get_all_items(SHIFT_STATES_COLLECTION_NAME)
+
+# -- by id
+
+def get_shift_state_by_id(id):
+    return get_item_by_id(SHIFT_STATES_COLLECTION_NAME, id)
+
+# -- manipulators
+
+def create_shift_state(timestamp, shift, warninglevel, cartridges, air, electricity, comment):
+	id = db[SHIFT_STATES_COLLECTION_NAME].insert({'timestamp': timestamp, 'shift': ObjectId(shift), 'warning_level': warninglevel,
+		'air': air, 'electricity': electricity, 'cartridges': cartridges, 'comment': comment, 
+		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
+	return get_shift_state_by_id(str(id))
+
+def remove_shift_state(id):
+	return remove(id, get_shift_state_by_id, SHIFT_STATES_COLLECTION_NAME)
+
+def update_shift_states(**kwargs):
+	return adjust_and_update(kwargs, SHIFT_STATES_COLLECTION_NAME, None, None)
+
+def select_shift_states(**kwargs):
+	return select(kwargs, SHIFT_STATES_COLLECTION_NAME)
+
+# - operation_state ----------------------------------------------------------------------------
+
+def get_all_operation_states():
+    return get_all_items(OPERATION_STATES_COLLECTION_NAME)
+
+# -- by id
+
+def get_operation_state_by_id(id):
+    return get_item_by_id(OPERATION_STATES_COLLECTION_NAME, id)
+
+# -- manipulators
+
+def create_operation_state(timestamp, boat, operation, status, distance, zenith, azimuth, hydrogenium, helium, lithium, beryllium, borum,\
+    carboneum, nitrogenium, oxygenium, fluorum, neon, natrium, magnesium, aluminium, silicium, phosphorus, sulfur, chlorum, argon, kalium, calcium,\
+    scandium, titanium, vanadium, chromium, manganum, ferrum, cobaltum, niccolum, cuprum, zincum, gallium, germanium, arsenicum, selenium, bromum,\
+    crypton, rubidium, strontium, yttrium, zirconium, niobium, molybdaenum, technetium, ruthenium, rhodium, palladium, argentum, cadmium, indium,\
+    stannum, stibium, tellurium, iodium, xenon, caesium, barium, lanthanum, cerium, praseodymium, neodymium, promethium, samarium, europium, gadolinium,\
+    terbium, dysprosium, holmium, erbium, thulium, ytterbium, lutetium, hafnium, tantalum, wolframium, rhenium, osmium, iridium, platinum, aurum,\
+    hydrargyrum, thallium, plumbum, bismuthum, polonium, astatum, radon, francium, radium, actinium, thorium, protactinium, uranium, neptunium,\
+    plutonium, americium, curium, berkelium, californium, einsteinium, fermium, mendelevium, nobelium, lawrencium, rutherfordium, dubnium,\
+    seaborgium, bohrium, hassium, meitnerium, darmstadtium, roentgenium, copernicium, nihonium, flerovium, moscovium, livermorium, tennessium,\
+    oganesson, comment):
+	id = db[OPERATION_STATES_COLLECTION_NAME].insert({'timestamp': timestamp, 'boat': ObjectId(boat), 'operation': ObjectId(operation),
+		'status': status, 'distance': distance, 'zenith': zenith, 'azimuth': azimuth,
+		'hydrogenium': hydrogenium, 'helium': helium, 'lithium': lithium, 'beryllium': beryllium, 'borum': borum, 
+		'carboneum': carboneum, 'nitrogenium': nitrogenium, 'oxygenium': oxygenium, 'fluorum': fluorum, 'neon': neon, 
+		'natrium': natrium, 'magnesium': magnesium, 'aluminium': aluminium, 'silicium': silicium, 'phosphorus': phosphorus, 'sulfur': sulfur,
+		'chlorum': chlorum, 'argon': argon, 'kalium': kalium, 'calcium': calcium, 'scandium': scandium, 'titanium': titanium, 'vanadium': vanadium, 
+		'chromium': chromium, 'manganum': manganum, 'ferrum': ferrum, 'cobaltum': cobaltum, 'niccolum': niccolum, 'cuprum': cuprum, 'zincum': zincum,
+		'gallium': gallium, 'germanium': germanium, 'arsenicum': arsenicum, 'selenium': selenium, 'bromum': bromum, 'crypton': crypton, 'rubidium': rubidium,
+		'strontium': strontium, 'yttrium': yttrium, 'zirconium': zirconium, 'niobium': niobium, 'molybdaenum': molybdaenum, 'technetium': technetium, 
+		'ruthenium': ruthenium, 'rhodium': rhodium, 'palladium': palladium, 'argentum': argentum, 'cadmium': cadmium, 'indium': indium, 
+		'stannum': stannum, 'stibium': stibium, 'tellurium': tellurium, 'iodium': iodium, 'xenon': xenon, 'caesium': caesium, 'barium': barium, 
+		'lanthanum': lanthanum, 'cerium': cerium, 'praseodymium': praseodymium, 'neodymium': neodymium, 'promethium': promethium, 
+		'samarium': samarium, 'europium': europium, 'gadolinium': gadolinium, 'terbium': terbium, 'dysprosium': dysprosium, 
+		'holmium': holmium, 'erbium': erbium, 'thulium': thulium, 'ytterbium': ytterbium, 'lutetium': lutetium, 'hafnium': hafnium, 
+		'tantalum': tantalum, 'wolframium': wolframium, 'rhenium': rhenium, 'osmium': osmium, 'iridium': iridium, 'platinum': platinum, 
+		'aurum': aurum, 'hydrargyrum': hydrargyrum, 'thallium': thallium, 'plumbum': plumbum, 'bismuthum': bismuthum, 'polonium': polonium, 
+		'astatum': astatum, 'radon': radon, 'francium': francium, 'radium': radium, 'actinium': actinium, 'thorium': thorium, 
+		'protactinium': protactinium, 'uranium': uranium, 'neptunium': neptunium, 'plutonium': plutonium, 'americium': americium, 'curium': curium, 
+		'berkelium': berkelium, 'californium': californium, 'einsteinium': einsteinium, 'fermium': fermium, 'mendelevium': mendelevium, 'nobelium': nobelium, 
+		'lawrencium': lawrencium, 'rutherfordium': rutherfordium, 'dubnium': dubnium, 'seaborgium': seaborgium, 'bohrium': bohrium, 'hassium': hassium, 
+		'meitnerium': meitnerium, 'darmstadtium': darmstadtium, 'roentgenium': roentgenium, 'copernicium': copernicium, 'nihonium': nihonium, 
+		'flerovium': flerovium, 'moscovium': moscovium, 'livermorium': livermorium, 'tennessium': tennessium, 'oganesson': oganesson,
+		'comment': comment, '__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
+	return get_operation_state_by_id(str(id))
+
+def remove_operation_state(id):
+	return remove(id, get_operation_state_by_id, OPERATION_STATES_COLLECTION_NAME)
+
+def update_operation_states(**kwargs):
+	return adjust_and_update(kwargs, OPERATION_STATES_COLLECTION_NAME, None, None)
+
+def select_operation_states(**kwargs):
+	return select(kwargs, OPERATION_STATES_COLLECTION_NAME)
 
 if __name__ == '__main__':
 	print(update_people(name = 'dima', set_name = 'dimas'))

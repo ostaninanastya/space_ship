@@ -1,7 +1,14 @@
-import sys, os, datetime
+import sys, os, datetime, math
 from bson.objectid import ObjectId
 import configparser
 import pickle
+
+def isfloat(value):
+    try: 
+        float(str(value))
+    except ValueError: 
+        return False
+    return True
 
 sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/relations/adapters/')
 from mongo_adapter import mongo_str_id_to_int, int_to_mongo_str_id
@@ -35,7 +42,7 @@ def stringify(value):
 def querify(item, mode = 'INSERT', keys = None):
 	querified = []
 	for key in item:
-		if item[key] and (not keys or key in keys):
+		if (item[key] or (item[key] == 0)) and (not keys or key in keys) and (not isfloat(item[key]) or not math.isnan(item[key])):
 			querified.append([key, stringify(item[key])])
 			continue
 
@@ -55,11 +62,12 @@ def repair(item, field_names):
 	repaired = {}
 	index = 0
 	for key in field_names:
-		if key == '__gaps__' :
+		if key == '__gaps__' or key == 'requirements' or key == 'workers' or key == 'executors' or key == 'content':
 			#
 			repaired[key] = pickle.loads(item[index])
-		elif key == '_id' or key in ['location', 'state', 'supervisor', 'type', 'department', 'specialization', 'director']:
-			print(item[index].hex())
+		elif key == '_id' or key in ['location', 'state', 'supervisor', 'type', 'department', 'specialization', 'director', 'chief', 'head',
+										'shift', 'operation', 'user', 'system', 'source', 'boat']:
+			#print(item[index].hex())
 			repaired[key] = ObjectId(item[index])
 		else:
 			repaired[key] = item[index]

@@ -2,6 +2,7 @@ import sys, os
 import configparser
 import datetime
 import graphene
+from bson.objectid import ObjectId
 
 sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/api/background/mappers')
 
@@ -9,16 +10,15 @@ from sensor_data_mapper import SensorDataMapper
 
 sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/logbook')
 
-import cassandra_mediator
-from data_adapters import string_to_bytes
+from data_adapters import string_to_bytes, parse_timestamp_parameter, parse_objectid_parameter, parse_bytes_parameter
 
-config = configparser.ConfigParser()
-config.read(os.environ['SPACE_SHIP_HOME'] + '/databases.config')
+sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/recital/')
 
-TIMESTAMP_PATTERN = os.environ.get('TIMESTAMP_PATTERN') or config['FORMATS']['timestamp']
+import mongo_mediator
 
 class CreateSensorData(graphene.Mutation):
     class Arguments:
+
         timestamp = graphene.String()
         source = graphene.String()
         event = graphene.String()
@@ -30,25 +30,27 @@ class CreateSensorData(graphene.Mutation):
     sensor_data = graphene.Field(lambda: SensorDataMapper)
 
     def mutate(self, info, timestamp, source, event, meaning, value, units):
-        sensor_data = SensorDataMapper.init_scalar(cassandra_mediator.create_sensor_data(datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN),\
-            source, event, meaning, value, units))
+        sensor_data = SensorDataMapper.init_scalar(mongo_mediator.create_sensor_data(parse_timestamp_parameter(timestamp),
+            parse_objectid_parameter(source), event, meaning, value, units))
         ok = True
         return CreateSensorData(sensor_data = sensor_data, ok = ok)
 
 class RemoveSensorData(graphene.Mutation):
     class Arguments:
-        timestamp = graphene.String()
+        id = graphene.String()
 
     ok = graphene.Boolean()
     sensor_data = graphene.Field(lambda: SensorDataMapper)
 
     def mutate(self, info, timestamp):
-        sensor_data = SensorDataMapper.init_scalar(cassandra_mediator.remove_sensor_data(datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN)))
+        sensor_data = SensorDataMapper.init_scalar(mongo_mediator.remove_sensor_data(id))
         ok = True
         return RemoveSensorData(sensor_data = sensor_data, ok = ok)
 
 class UpdateSensorData(graphene.Mutation):
     class Arguments:
+
+        id = graphene.String(default_value = '')
         timestamp = graphene.String(default_value = '')
         source = graphene.String(default_value = '')
         event = graphene.String(default_value = '')
@@ -61,18 +63,14 @@ class UpdateSensorData(graphene.Mutation):
         set_meaning = graphene.String(default_value = '')
         set_value = graphene.Float(default_value = float('nan'))
         set_units = graphene.String(default_value = '')
+        set_timestamp = graphene.String(default_value = '')
 
     ok = graphene.Boolean()
 
-    def mutate(self, info, timestamp, source, event, meaning, value, units, set_source, set_event, set_meaning, set_value, set_units):
-        parsed_timestamp = None if not timestamp else datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN)
-        cassandra_mediator.update_sensor_data(date = None if not parsed_timestamp else parsed_timestamp.date(),\
-            time = None if not parsed_timestamp else parsed_timestamp.time(),
-            source_id = source, event = event, meaning = meaning, value = value, units = units,
-            set_source_id = None if not set_source else SensorData.validate_source_id(string_to_bytes(set_source)),
-            set_event = None if not set_event else SensorData.validate_event(set_event), 
-            set_value_name = None if not set_meaning else SensorData.validate_value_name(set_value_name),
-            set_value = set_value, 
-            set_units = None if not set_units else SensorData.validate_units(set_units))
+    def mutate(self, info, id, timestamp, source, event, meaning, value, units, set_source, set_event, set_meaning, set_value, set_units, set_timestamp):
+        cassandra_mediator.update_sensor_data(id = parse_objectid_parameter(id), timestamp = parse_timestamp_parameter(timestamp),
+            source = parse_objectid_parameter(source), event = event, meaning = meaning, value = value, units = units,
+            set_source = parse_objectid_parameter(set_source), set_event = set_event, 
+            set_meaning = set_meaning, set_value = set_value, set_units = set_units, set_timestamp = parse_timestamp_parameter(set_timestamp))
         ok = True
         return UpdateSensorData(ok = ok)

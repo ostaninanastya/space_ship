@@ -7,30 +7,21 @@ from boat_mapper import BoatMapper
 
 sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/logbook')
 
-import cassandra_mediator
-from data_adapters import parse_bytes_parameter, parse_date_parameter, parse_time_parameter
-
-sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/api/background/')
-
-from converters import time_to_str, date_to_str
+from data_adapters import parse_bytes_parameter, parse_timestamp_parameter, stringify_timestamp_parameter, parse_objectid_parameter
 
 sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/recital/')
 
 import mongo_mediator
 
-sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/relations/')
-
-import neo4j_mediator
-
 class OperationStateMapper(graphene.ObjectType):
     
-    date = graphene.String()
-    time = graphene.String()
+    id = graphene.String()
+    timestamp = graphene.String()
     
     boat = graphene.Field(lambda: BoatMapper)
     operation = graphene.Field(lambda: OperationMapper)
-    operationstatus = graphene.String()
-    distancetotheship = graphene.Float()
+    status = graphene.String()
+    distance = graphene.Float()
     zenith = graphene.Float()
     azimuth = graphene.Float()
     hydrogenium = graphene.Float()
@@ -154,13 +145,13 @@ class OperationStateMapper(graphene.ObjectType):
     comment = graphene.String()
 
     def resolve_operation(self, info):
-    	return OperationMapper.init_scalar(neo4j_mediator.get_operation_by_id(self.operation))
+    	return OperationMapper.init_scalar(mongo_mediator.get_operation_by_id(self.operation))
 
     def resolve_boat(self, info):
       return BoatMapper.init_scalar(mongo_mediator.get_boat_by_id(self.boat))
 
     @staticmethod
-    def eject(date, time, boat, operation, status, distancetotheship, zenith, azimuth, hydrogenium,
+    def eject(id, timestamp, boat, operation, status, distance, zenith, azimuth, hydrogenium,
         helium, lithium, beryllium, borum,
         carboneum, nitrogenium, oxygenium, fluorum, neon, natrium, magnesium, aluminium, silicium, phosphorus, sulfur, chlorum, argon, kalium, calcium,
         scandium, titanium, vanadium, chromium, manganum, ferrum, cobaltum, niccolum, cuprum, zincum, gallium, germanium, arsenicum, selenium, bromum,
@@ -171,12 +162,11 @@ class OperationStateMapper(graphene.ObjectType):
         plutonium, americium, curium, berkelium, californium, einsteinium, fermium, mendelevium, nobelium, lawrencium, rutherfordium, dubnium,
         seaborgium, bohrium, hassium, meitnerium, darmstadtium, roentgenium, copernicium, nihonium, flerovium, moscovium, livermorium, tennessium,
         oganesson, comment):
-        return [OperationStateMapper.init_scalar(item) for item in cassandra_mediator.select_operation_states(
-            date = parse_date_parameter(date),
-            time = parse_time_parameter(time),
-            boat_id = parse_bytes_parameter(boat),
-            operation_id = parse_bytes_parameter(operation),
-            status = status, distance_to_the_ship = distancetotheship, zenith = zenith, azimuth = azimuth, 
+        return [OperationStateMapper.init_scalar(item) for item in mongo_mediator.select_operation_states(
+            timestamp = parse_timestamp_parameter(timestamp),
+            boat = parse_objectid_parameter(boat),
+            operation = parse_objectid_parameter(operation),
+            status = status, distance = distance, zenith = zenith, azimuth = azimuth, 
             hydrogenium = hydrogenium, helium = helium, lithium = lithium, beryllium = beryllium, borum = borum, carboneum = carboneum, 
             nitrogenium = nitrogenium, oxygenium = oxygenium, fluorum = fluorum, neon = neon, natrium = natrium, magnesium = magnesium, 
             aluminium = aluminium, silicium = silicium, phosphorus = phosphorus, sulfur = sulfur, chlorum = chlorum, argon = argon, kalium = kalium, 
@@ -195,16 +185,16 @@ class OperationStateMapper(graphene.ObjectType):
             einsteinium = einsteinium, fermium = fermium, mendelevium = mendelevium, nobelium = nobelium, lawrencium = lawrencium, 
             rutherfordium = rutherfordium, dubnium = dubnium, seaborgium = seaborgium, bohrium = bohrium, hassium = hassium, meitnerium = meitnerium, 
             darmstadtium = darmstadtium, roentgenium = roentgenium, copernicium = copernicium, nihonium = nihonium, flerovium = flerovium, 
-            moscovium = moscovium, livermorium = livermorium, tennessium = tennessium, oganesson = oganesson, comment = comment)]
+            moscovium = moscovium, livermorium = livermorium, tennessium = tennessium, oganesson = oganesson, comment = comment, ids = {'_id': id})]
 
     @staticmethod
     def init_scalar(item):
-        return OperationStateMapper(date = date_to_str(item['date']),
-                               time = time_to_str(item['time']),
-                               boat = item['boat_id'].hex(),
-                               operation = item['operation_id'].hex(),
-                               operationstatus = item['operation_status'],
-                               distancetotheship = item['distance_to_the_ship'],
+        return OperationStateMapper(id = str(item['_id']),
+                               timestamp = stringify_timestamp_parameter(item['timestamp']),
+                               boat = str(item['boat']),
+                               operation = str(item['operation']),
+                               status = item['status'],
+                               distance = item['distance'],
                                zenith = item['zenith'],
                                azimuth = item['azimuth'],
                                comment = item['comment'],

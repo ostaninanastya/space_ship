@@ -3,6 +3,7 @@ import sys, os
 import datetime, math
 import re
 import configparser
+from bson.objectid import ObjectId
 
 config = configparser.ConfigParser()
 config.read(os.environ['SPACE_SHIP_HOME'] + '/databases.config')
@@ -21,8 +22,14 @@ def parse_time_parameter(time):
 def parse_timestamp_parameter(timestamp):
     return None if not timestamp else datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN)
 
+def stringify_timestamp_parameter(timestamp):
+    return None if not timestamp else timestamp.strftime(TIMESTAMP_PATTERN)
+
 def parse_bytes_parameter(value):
     return None if not value else string_to_bytes(value)
+
+def parse_objectid_parameter(value):
+    return None if not value else ObjectId(value)
 
 def parse_float_parameter(value):
     return value if not math.isnan(value) else None

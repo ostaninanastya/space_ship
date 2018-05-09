@@ -101,8 +101,8 @@ class EntityQuery(graphene.ObjectType):
 	# logbook (field lists)
 
     position = graphene.List(PositionMapper, 
-    	date = graphene.String(default_value = ''),
-        time = graphene.String(default_value = ''),
+    	id = graphene.String(default_value = ''),
+        timestamp = graphene.String(default_value = ''),
         x = graphene.Float(default_value = float('nan')),
         y = graphene.Float(default_value = float('nan')),
         z = graphene.Float(default_value = float('nan')),
@@ -110,9 +110,9 @@ class EntityQuery(graphene.ObjectType):
         direction_angle = graphene.Float(default_value = float('nan')),
         speed = graphene.Float(default_value = float('nan')))
 
-    control_action = graphene.List(ControlActionMapper, 
-    	date = graphene.String(default_value = ''),
-        time = graphene.String(default_value = ''),
+    control_action = graphene.List(ControlActionMapper,
+        id = graphene.String(default_value = ''),
+    	timestamp = graphene.String(default_value = ''),
         mac = graphene.String(default_value = ''),
         user = graphene.String(default_value = ''),
         command = graphene.String(default_value = ''),
@@ -120,18 +120,18 @@ class EntityQuery(graphene.ObjectType):
         result = graphene.String(default_value = ''))
 
     system_test = graphene.List(SystemTestMapper, 
-    	date = graphene.String(default_value = ''),
-        time = graphene.String(default_value = ''),
+    	id = graphene.String(default_value = ''),
+        timestamp = graphene.String(default_value = ''),
         system = graphene.String(default_value = ''),
         result = graphene.Int(default_value = -1))
 
     operation_state = graphene.List(OperationStateMapper,
-    	date = graphene.String(default_value = ''),
-        time = graphene.String(default_value = ''),
+    	id = graphene.String(default_value = ''),
+        timestamp = graphene.String(default_value = ''),
         boat = graphene.String(default_value = ''),
         operation = graphene.String(default_value = ''),
         status = graphene.String(default_value = ''),
-        distancetotheship = graphene.Float(default_value = float('nan')),
+        distance = graphene.Float(default_value = float('nan')),
         zenith = graphene.Float(default_value = float('nan')),
         azimuth = graphene.Float(default_value = float('nan')),
         hydrogenium = graphene.Float(default_value = float('nan')),
@@ -255,21 +255,21 @@ class EntityQuery(graphene.ObjectType):
         comment = graphene.String(default_value = ''))
 
     shift_state = graphene.List(ShiftStateMapper, 
-    	date = graphene.String(default_value = ''),
-        time = graphene.String(default_value = ''),
+    	id = graphene.String(default_value = ''),
+        timestamp = graphene.String(default_value = ''),
         shift = graphene.String(default_value = ''),
         warninglevel = graphene.String(default_value = ''),
-        remainingcartridges = graphene.Int(default_value = -1),
-        remainingair = graphene.Int(default_value = -1),
-        remainingelectricity = graphene.Int(default_value = -1),
+        cartridges = graphene.Int(default_value = -1),
+        air = graphene.Int(default_value = -1),
+        electricity = graphene.Int(default_value = -1),
         comment = graphene.String(default_value = ''))
 
     sensor_data = graphene.List(SensorDataMapper, 
-    	date = graphene.String(default_value = ''),
-        time = graphene.String(default_value = ''),
+    	id = graphene.String(default_value = ''),
+        timestamp = graphene.String(default_value = ''),
         sensor = graphene.String(default_value = ''),
         event = graphene.String(default_value = ''),
-        valuename = graphene.String(default_value = ''),
+        meaning = graphene.String(default_value = ''),
         value = graphene.Float(default_value = float('nan')),
         units = graphene.String(default_value = ''))
 
@@ -319,16 +319,16 @@ class EntityQuery(graphene.ObjectType):
 
     #logbook (resolvers)
 
-    def resolve_system_test(self, info, date, time, system, result):
-        return SystemTestMapper.eject(date, time, system, result)
+    def resolve_system_test(self, info, id, timestamp, system, result):
+        return SystemTestMapper.eject(id, timestamp, system, result)
 
-    def resolve_control_action(self, info, date, time, mac, user, command, params, result):
-        return ControlActionMapper.eject(date, time, mac, user, command, params, result)
+    def resolve_control_action(self, info, id, timestamp, mac, user, command, params, result):
+        return ControlActionMapper.eject(id, timestamp, mac, user, command, params, result)
 
-    def resolve_position(self, info, date, time, x, y, z, speed, attack_angle, direction_angle):
-        return PositionMapper.eject(date, time, x, y, z, speed, attack_angle, direction_angle)
+    def resolve_position(self, info, id, timestamp, x, y, z, speed, attack_angle, direction_angle):
+        return PositionMapper.eject(id, timestamp, x, y, z, speed, attack_angle, direction_angle)
 
-    def resolve_operation_state(self, info, date, time, boat, operation, status, distancetotheship, zenith, azimuth, hydrogenium,
+    def resolve_operation_state(self, info, id, timestamp, boat, operation, status, distance, zenith, azimuth, hydrogenium,
         helium, lithium, beryllium, borum,
         carboneum, nitrogenium, oxygenium, fluorum, neon, natrium, magnesium, aluminium, silicium, phosphorus, sulfur, chlorum, argon, kalium, calcium,
         scandium, titanium, vanadium, chromium, manganum, ferrum, cobaltum, niccolum, cuprum, zincum, gallium, germanium, arsenicum, selenium, bromum,
@@ -339,7 +339,7 @@ class EntityQuery(graphene.ObjectType):
         plutonium, americium, curium, berkelium, californium, einsteinium, fermium, mendelevium, nobelium, lawrencium, rutherfordium, dubnium,
         seaborgium, bohrium, hassium, meitnerium, darmstadtium, roentgenium, copernicium, nihonium, flerovium, moscovium, livermorium, tennessium,
         oganesson, comment):
-    	return OperationStateMapper.eject(date, time, boat, operation, status, distancetotheship, zenith, azimuth, hydrogenium,
+    	return OperationStateMapper.eject(id, timestamp, boat, operation, status, distance, zenith, azimuth, hydrogenium,
 	        helium, lithium, beryllium, borum,
 	        carboneum, nitrogenium, oxygenium, fluorum, neon, natrium, magnesium, aluminium, silicium, phosphorus, sulfur, chlorum, argon, kalium, calcium,
 	        scandium, titanium, vanadium, chromium, manganum, ferrum, cobaltum, niccolum, cuprum, zincum, gallium, germanium, arsenicum, selenium, bromum,
@@ -351,11 +351,11 @@ class EntityQuery(graphene.ObjectType):
 	        seaborgium, bohrium, hassium, meitnerium, darmstadtium, roentgenium, copernicium, nihonium, flerovium, moscovium, livermorium, tennessium,
 	        oganesson, comment)
         
-    def resolve_shift_state(self, info, date, time, shift, warninglevel, remainingcartridges, remainingair, remainingelectricity, comment):
-    	return ShiftStateMapper.eject(date, time, shift, warninglevel, remainingcartridges, remainingair, remainingelectricity, comment)
+    def resolve_shift_state(self, info, id, timestamp, shift, warninglevel, cartridges, air, electricity, comment):
+    	return ShiftStateMapper.eject(id, timestamp, shift, warninglevel, cartridges, air, electricity, comment)
 
-    def resolve_sensor_data(self, info, date, time, sensor, event, valuename, value, units):
-        return SensorDataMapper.eject(date, time, sensor, event, valuename, value, units)
+    def resolve_sensor_data(self, info, id, timestamp, sensor, event, meaning, value, units):
+        return SensorDataMapper.eject(id, timestamp, sensor, event, meaning, value, units)
 
     #relations (resolvers)
 

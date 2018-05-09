@@ -2,6 +2,7 @@ import sys, os
 import configparser
 import datetime
 import graphene
+from bson.objectid import ObjectId
 
 sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/api/background/mappers')
 
@@ -9,53 +10,50 @@ from shift_state_mapper import ShiftStateMapper
 
 sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/logbook')
 
-sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/logbook/entities')
+from data_adapters import string_to_bytes, parse_timestamp_parameter, parse_objectid_parameter, parse_bytes_parameter
 
-from shift_state import ShiftState
+sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/recital/')
 
-import cassandra_mediator
-from data_adapters import string_to_bytes
-
-config = configparser.ConfigParser()
-config.read(os.environ['SPACE_SHIP_HOME'] + '/databases.config')
-
-TIMESTAMP_PATTERN = os.environ.get('TIMESTAMP_PATTERN') or config['FORMATS']['timestamp']
+import mongo_mediator
 
 class CreateShiftState(graphene.Mutation):
     class Arguments:
+        
         timestamp = graphene.String()
         shift = graphene.String()
         warninglevel = graphene.String()
-    
-        remainingcartridges = graphene.Int()
-        remainingair = graphene.Int()
-        remainingelectricity = graphene.Int()
+
+        cartridges = graphene.Int()
+        air = graphene.Int()
+        electricity = graphene.Int()
 
         comment = graphene.String()
 
     ok = graphene.Boolean()
     shift_state = graphene.Field(lambda: ShiftStateMapper)
 
-    def mutate(self, info, timestamp, shift, warninglevel, remainingcartridges, remainingair, remainingelectricity, comment):
-        shift_state = ShiftStateMapper.init_scalar(cassandra_mediator.create_shift_state(datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN),\
-            shift, warninglevel, remainingcartridges, remainingair, remainingelectricity, comment))
+    def mutate(self, info, timestamp, shift, warninglevel, cartridges, air, electricity, comment):
+        shift_state = ShiftStateMapper.init_scalar(mongo_mediator.create_shift_state(parse_timestamp_parameter(timestamp),
+            parse_objectid_parameter(shift), warninglevel, cartridges, air, electricity, comment))
         ok = True
         return CreateShiftState(shift_state = shift_state, ok = ok)
 
 class RemoveShiftState(graphene.Mutation):
     class Arguments:
-        timestamp = graphene.String()
+        id = graphene.String()
 
     ok = graphene.Boolean()
     shift_state = graphene.Field(lambda: ShiftStateMapper)
 
     def mutate(self, info, timestamp):
-        shift_state = ShiftStateMapper.init_scalar(cassandra_mediator.remove_shift_state(datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN)))
+        shift_state = ShiftStateMapper.init_scalar(mongo_mediator.remove_shift_state(id))
         ok = True
         return RemoveShiftState(shift_state = shift_state, ok = ok)
 
 class UpdateShiftStates(graphene.Mutation):
     class Arguments:
+
+        id = graphene.String(default_value = '')
         timestamp = graphene.String(default_value = '')
         shift = graphene.String(default_value = '')
         warninglevel = graphene.String(default_value = '')   
@@ -70,21 +68,23 @@ class UpdateShiftStates(graphene.Mutation):
         set_remainingair = graphene.Int(default_value = -1)
         set_remainingelectricity = graphene.Int(default_value = -1)
         set_comment = graphene.String(default_value = '')
+        set_timestamp = graphene.String(default_value = '')
 
     ok = graphene.Boolean()
 
-    def mutate(self, info, timestamp, shift, warninglevel, remainingcartridges, remainingair, remainingelectricity, comment,
-        set_shift, set_warninglevel, set_remainingcartridges, set_remainingair, set_remainingelectricity, set_comment):
-        parsed_timestamp = None if not timestamp else datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN)
-        cassandra_mediator.update_shift_state(date = None if not parsed_timestamp else parsed_timestamp.date(),\
-            time = None if not parsed_timestamp else parsed_timestamp.time(),
-            shift_id = shift, warning_level = warninglevel, remaining_cartridges = remainingcartridges, remaining_air = remainingair,
-            remaining_electricity = remainingelectricity, comment = comment,
-            set_shift_id = None if not set_shift else ShiftState.validate_shift_id(set_shift), 
-            set_warning_level = None if not set_shift else ShiftState.validate_warning_level(set_warninglevel), 
-            set_remaining_cartridges = None if set_remainingcartridges < 0 else ShiftState.validate_remaining_quantity(set_remainingcartridges, 'cart'),
-            set_remaining_air = None if set_remainingair < 0 else ShiftState.validate_remaining_quantity(set_remainingair, 'air'),
-            set_remaining_electricity = None if set_remainingelectricity < 0 else ShiftState.validate_remaining_quantity(set_remainingelectricity, 'e'),
-            set_comment = set_comment)
+    def mutate(self, info, id, timestamp, shift, warninglevel, cartridges, air, electricity, comment,
+        set_shift, set_warninglevel, set_cartridges, set_air, set_electricity, set_comment):
+        cassandra_mediator.update_shift_state(id = parse_objectid_parameter(id), timestamp = parse_timestamp_parameter(timestamp),
+            shift = shift, warning_level = warninglevel, 
+            cartridges = None if cartridges < 0 else cartridges, 
+            air = None if air < 0 else air, 
+            electricity = None if electricity < 0 else electricity, 
+            comment = comment,
+            set_shift = parse_objectid_parameter(set_shift), 
+            set_warning_level = set_warninglevel, 
+            set_cartridges = None if set_cartridges < 0 else set_cartridges,
+            set_remaining_air = None if set_air < 0 else set_air,
+            set_remaining_electricity = None if set_electricity < 0 else set_electricity,
+            set_comment = set_comment, set_timestamp = parse_timestamp_parameter(set_timestamp))
         ok = True
         return UpdateShiftStates(ok = ok)

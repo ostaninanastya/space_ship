@@ -10,27 +10,22 @@ from operation_state_mapper import OperationStateMapper
 
 sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/logbook')
 
-import cassandra_mediator
-from data_adapters import string_to_bytes
+from data_adapters import parse_bytes_parameter, parse_timestamp_parameter, stringify_timestamp_parameter, parse_objectid_parameter
 
-sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/logbook/entities')
+sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/recital/')
 
-from operation_state import OperationState
-
-config = configparser.ConfigParser()
-config.read(os.environ['SPACE_SHIP_HOME'] + '/databases.config')
-
-TIMESTAMP_PATTERN = os.environ.get('TIMESTAMP_PATTERN') or config['FORMATS']['timestamp']
+import mongo_mediator
 
 class CreateOperationState(graphene.Mutation):
     class Arguments:
+
         timestamp = graphene.String()
         boat = graphene.String(default_value = '')
         operation = graphene.String()
     
         status = graphene.String()
     
-        distancetotheship = graphene.Float()
+        distance = graphene.Float()
         zenith = graphene.Float()
         azimuth = graphene.Float()
 
@@ -158,7 +153,7 @@ class CreateOperationState(graphene.Mutation):
     ok = graphene.Boolean()
     operation_state = graphene.Field(lambda: OperationStateMapper)
 
-    def mutate(self, info, timestamp, boat, operation, status, distancetotheship, zenith, azimuth, hydrogenium, helium, lithium, beryllium, borum,\
+    def mutate(self, info, timestamp, boat, operation, status, distance, zenith, azimuth, hydrogenium, helium, lithium, beryllium, borum,\
     carboneum, nitrogenium, oxygenium, fluorum, neon, natrium, magnesium, aluminium, silicium, phosphorus, sulfur, chlorum, argon, kalium, calcium,\
     scandium, titanium, vanadium, chromium, manganum, ferrum, cobaltum, niccolum, cuprum, zincum, gallium, germanium, arsenicum, selenium, bromum,\
     crypton, rubidium, strontium, yttrium, zirconium, niobium, molybdaenum, technetium, ruthenium, rhodium, palladium, argentum, cadmium, indium,\
@@ -169,8 +164,9 @@ class CreateOperationState(graphene.Mutation):
     seaborgium, bohrium, hassium, meitnerium, darmstadtium, roentgenium, copernicium, nihonium, flerovium, moscovium, livermorium, tennessium,\
     oganesson, comment):
 
-        operation_state = OperationStateMapper.init_scalar(cassandra_mediator.create_operation_state(datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN),\
-            boat, operation, status, distancetotheship, zenith, azimuth, hydrogenium, helium, lithium, beryllium, borum,\
+        operation_state = OperationStateMapper.init_scalar(mongo_mediator.create_operation_state(parse_timestamp_parameter(timestamp),\
+            parse_objectid_parameter(boat), parse_objectid_parameter(operation), status, distance, zenith, azimuth, hydrogenium, helium, 
+            lithium, beryllium, borum,
             carboneum, nitrogenium, oxygenium, fluorum, neon, natrium, magnesium, aluminium, silicium, phosphorus, sulfur, chlorum, argon, kalium, calcium,\
             scandium, titanium, vanadium, chromium, manganum, ferrum, cobaltum, niccolum, cuprum, zincum, gallium, germanium, arsenicum, selenium, bromum,\
             crypton, rubidium, strontium, yttrium, zirconium, niobium, molybdaenum, technetium, ruthenium, rhodium, palladium, argentum, cadmium, indium,\
@@ -185,24 +181,25 @@ class CreateOperationState(graphene.Mutation):
 
 class RemoveOperationState(graphene.Mutation):
     class Arguments:
-        timestamp = graphene.String()
+        id = graphene.String()
 
     ok = graphene.Boolean()
     operation_state = graphene.Field(lambda: OperationStateMapper)
 
     def mutate(self, info, timestamp):
-        operation_state = OperationStateMapper.init_scalar(cassandra_mediator.remove_operation_state(datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN)))
+        operation_state = OperationStateMapper.init_scalar(mongo_mediator.remove_operation_state(id))
         ok = True
         return RemoveOperationState(operation_state = operation_state, ok = ok)
 
-
 class UpdateOperationStates(graphene.Mutation):
     class Arguments:
+
+        id = graphene.String(default_value = '')
         timestamp = graphene.String(default_value = '')
         boat = graphene.String(default_value = '')
         operation = graphene.String(default_value = '')
         status = graphene.String(default_value = '')
-        distancetotheship = graphene.Float(default_value = float('nan'))
+        distance = graphene.Float(default_value = float('nan'))
         zenith = graphene.Float(default_value = float('nan'))
         azimuth = graphene.Float(default_value = float('nan'))
         hydrogenium = graphene.Float(default_value = float('nan'))
@@ -328,7 +325,7 @@ class UpdateOperationStates(graphene.Mutation):
         set_boat = graphene.String(default_value = '')
         set_operation = graphene.String(default_value = '')
         set_status = graphene.String(default_value = '')
-        set_distancetotheship = graphene.Float(default_value = float('nan'))
+        set_distance = graphene.Float(default_value = float('nan'))
         set_zenith = graphene.Float(default_value = float('nan'))
         set_azimuth = graphene.Float(default_value = float('nan'))
         set_hydrogenium = graphene.Float(default_value = float('nan'))
@@ -450,10 +447,11 @@ class UpdateOperationStates(graphene.Mutation):
         set_tennessium = graphene.Float(default_value = float('nan'))
         set_oganesson = graphene.Float(default_value = float('nan'))
         set_comment = graphene.String(default_value = '')
+        set_timestamp = graphene.String(default_value = '')
 
     ok = graphene.Boolean()
 
-    def mutate(self, info, timestamp, boat, operation, status, distancetotheship, zenith, azimuth, hydrogenium, helium, lithium, beryllium, borum,\
+    def mutate(self, info, id, timestamp, boat, operation, status, distance, zenith, azimuth, hydrogenium, helium, lithium, beryllium, borum,\
     carboneum, nitrogenium, oxygenium, fluorum, neon, natrium, magnesium, aluminium, silicium, phosphorus, sulfur, chlorum, argon, kalium, calcium,\
     scandium, titanium, vanadium, chromium, manganum, ferrum, cobaltum, niccolum, cuprum, zincum, gallium, germanium, arsenicum, selenium, bromum,\
     crypton, rubidium, strontium, yttrium, zirconium, niobium, molybdaenum, technetium, ruthenium, rhodium, palladium, argentum, cadmium, indium,\
@@ -462,7 +460,7 @@ class UpdateOperationStates(graphene.Mutation):
     hydrargyrum, thallium, plumbum, bismuthum, polonium, astatum, radon, francium, radium, actinium, thorium, protactinium, uranium, neptunium,\
     plutonium, americium, curium, berkelium, californium, einsteinium, fermium, mendelevium, nobelium, lawrencium, rutherfordium, dubnium,\
     seaborgium, bohrium, hassium, meitnerium, darmstadtium, roentgenium, copernicium, nihonium, flerovium, moscovium, livermorium, tennessium,\
-    oganesson, comment, set_boat, set_operation, set_status, set_distancetotheship, set_zenith, set_azimuth, set_hydrogenium, set_helium,
+    oganesson, comment, set_boat, set_operation, set_status, set_distance, set_zenith, set_azimuth, set_hydrogenium, set_helium,
     set_lithium, set_beryllium, set_borum, set_carboneum, set_nitrogenium, set_oxygenium, set_fluorum, set_neon, set_natrium, set_magnesium,
     set_aluminium, set_silicium, set_phosphorus, set_sulfur, set_chlorum, set_argon, set_kalium, set_calcium, set_scandium, set_titanium,
     set_vanadium, set_chromium, set_manganum, set_ferrum, set_cobaltum, set_niccolum, set_cuprum, set_zincum, set_gallium, set_germanium,
@@ -474,20 +472,14 @@ class UpdateOperationStates(graphene.Mutation):
     set_bismuthum, set_polonium, set_astatum, set_radon, set_francium, set_radium, set_actinium, set_thorium, set_protactinium, set_uranium,
     set_neptunium, set_plutonium, set_americium, set_curium, set_berkelium, set_californium, set_einsteinium, set_fermium, set_mendelevium,
     set_nobelium, set_lawrencium, set_rutherfordium, set_dubnium, set_seaborgium, set_bohrium, set_hassium, set_meitnerium, set_darmstadtium, 
-    set_roentgenium, set_copernicium, set_nihonium, set_flerovium, set_moscovium, set_livermorium, set_tennessium, set_oganesson,set_comment):
-        parsed_timestamp = None if not timestamp else datetime.datetime.strptime(timestamp, TIMESTAMP_PATTERN)
-        operation_state = cassandra_mediator.update_operation_states(date = None if not parsed_timestamp else parsed_timestamp.date(),\
-            time = None if not parsed_timestamp else parsed_timestamp.time(),
-            boat_id = None if not boat else string_to_bytes(boat), 
-            operation_id = None if not operation else string_to_bytes(operation), 
-            operation_status = status, zenith = zenith, azimuth = azimuth, comment = comment, distancetotheship = distancetotheship,
-            set_boat_id = None if not set_boat else OperationState.validate_boat_id(string_to_bytes(set_boat)), 
-            set_operation_id = None if not set_operation else OperationState.validate_boat_id(string_to_bytes(set_operation)), 
-            set_operation_status = None if not set_status else OperationState.validate_operation_status(set_status), 
-            set_distancetotheship = set_distancetotheship,
-            set_zenith = None if not set_zenith == float('nan') else OperationState.validate_angle(set_zenith), 
-            set_azimuth = None if not set_azimuth == float('nan') else OperationState.validate_angle(set_azimuth),
-            set_comment = set_comment,
+    set_roentgenium, set_copernicium, set_nihonium, set_flerovium, set_moscovium, set_livermorium, set_tennessium, set_oganesson,set_comment, set_timestamp):
+        operation_state = mongo_mediator.update_operation_states(id = parse_objectid_parameter(id), timestamp = parse_timestamp_parameter(timestamp),
+            boat = parse_objectid_parameter(boat), operation = parse_objectid_parameter(boat), 
+            status = status, zenith = zenith, azimuth = azimuth, comment = comment, distance = distance,
+            set_boat = parse_objectid_parameter(set_boat), 
+            set_operation = parse_objectid_parameter(set_operation), 
+            set_status = set_status, set_distance = set_distance, set_zenith = set_zenith, set_azimuth = set_azimuth, set_comment = set_comment,
+            set_timestamp = parse_timestamp_parameter(set_timestamp),
             set_hydrogenium = set_hydrogenium, hydrogenium = hydrogenium, set_helium = set_helium, helium = helium, 
             set_lithium = set_lithium, lithium = lithium, set_beryllium = set_beryllium, beryllium = beryllium, 
             set_borum = set_borum, borum = borum, set_carboneum = set_carboneum, carboneum = carboneum, set_nitrogenium = set_nitrogenium, 

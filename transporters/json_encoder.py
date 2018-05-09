@@ -13,4 +13,6 @@ class JSONEncoder(json.JSONEncoder):
             return str(o)
         elif isinstance(o, datetime.datetime):
         	return o.strftime(TIMESTAMP_PATTERN)
+        elif isinstance(o, bytes):
+        	return '0x' + o.hex()
         return json.JSONEncoder.default(self, o)

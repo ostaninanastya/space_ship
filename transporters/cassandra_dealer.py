@@ -1,6 +1,13 @@
-import sys, os, datetime
+import sys, os, datetime, math
 from bson.objectid import ObjectId
 import configparser
+
+def isfloat(value):
+    try: 
+        float(str(value))
+    except ValueError: 
+        return False
+    return True
 
 config = configparser.ConfigParser()
 config.read(os.environ.get('SPACE_SHIP_HOME') + '/databases.config')
@@ -9,10 +16,22 @@ TIMESTAMP_PATTERN = os.environ.get('TIMESTAMP_PATTERN') or config['FORMATS']['ti
 TIME_PATTERN = os.environ.get('TIME_PATTERN') or config['FORMATS']['time']
 DATE_PATTERN = os.environ.get('DATE_PATTERN') or config['FORMATS']['date']
 
+def string_to_requirement_entry(strset):
+	fields = [item.lstrip().rstrip() for item in strset.replace('{','').replace('}','').replace('"','').split(',')]
+	specialization = ObjectId(fields[0].split(':')[1].lstrip().rstrip().replace('0x',''))
+	quantity = int(fields[1].split(':')[1].lstrip().rstrip())
+	return {'specialization': specialization, 'quantity': quantity}
 
 ## Convert stringified list back to list 
 def string_to_list(strlist):
-	return [float(item.lstrip().rstrip()) for item in strlist.replace('[','').replace(']','').split(',')]
+	#print(strlist)
+	try:
+		return [float(item.lstrip().rstrip()) for item in strlist.replace('[','').replace(']','').split(',')]
+	except:
+		try:
+			return [ObjectId(item.lstrip().rstrip().replace('0x','')) for item in strlist.replace('[','').replace(']','').split(',')]
+		except:
+			return [string_to_requirement_entry(item.lstrip().rstrip()) for item in strlist.replace('[','').replace(']','').split('",')]
 
 
 ## Convert item's property from mongo format to cassandra query format
@@ -20,7 +39,9 @@ def stringify(value):
 	if isinstance(value, datetime.datetime):
 		return '\'' + value.strftime(TIMESTAMP_PATTERN) + '\''
 	elif isinstance(value, list):
-		return '\'' + str(value) + '\''
+		return '\'' + str([stringify(item) for item in value]).replace('\'','') + '\''
+	elif isinstance(value, dict):
+		return ('\"{' + ', '.join([key + ': ' + stringify(value[key]) for key in value]) + '}\"')
 	elif isinstance(value, int) or isinstance(value, float):
 		return str(value)
 	elif isinstance(value, ObjectId):
@@ -34,7 +55,7 @@ def stringify(value):
 def querify(item, mode = 'INSERT', keys = None):
 	querified = []
 	for key in item:
-		if item[key] and (not keys or key in keys):
+		if (item[key] or (isfloat(item[key]) and item[key] == 0)) and (not isfloat(item[key]) or not math.isnan(item[key])) and (not keys or key in keys):
 			try:
 				if key.index('__') == 0:
 					querified.append([key[2:], stringify(item[key])])
@@ -68,6 +89,8 @@ def repair(item):
 			continue
 		elif key == 'gaps__':
 			repaired['__' + key] = string_to_list(item[key])
+		elif key == 'workers' or key == 'requirements' or key == 'executors' or key == 'content':
+			repaired[key] = string_to_list(item[key])
 		else:
 			try:
 				if key.index('__') == len(key) - 2:
@@ -77,11 +100,14 @@ def repair(item):
 					repaired['_' + key] = ObjectId(item[key])
 				else:
 					#print(',,,,,,,,,,,,,,,,,,,,,,,,,,,,',key)
-					if key in ['location', 'state', 'supervisor', 'type', 'department', 'specialization', 'director']:
+					if key in ['location', 'state', 'supervisor', 'type', 'department', 'specialization', 'director', 'chief', 'head', 
+								'shift', 'operation', 'user', 'system', 'source', 'boat']:
 						repaired[key] = ObjectId(item[key])
 					else:
 						repaired[key] = item[key]
 
 	#print('lllllllllllllllllllllllllllllllllllllll',repaired)
+
+	repaired['__accessed__'] += datetime.timedelta(hours=3)
 
 	return repaired

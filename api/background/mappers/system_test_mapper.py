@@ -1,14 +1,10 @@
 import sys, os, datetime
 import graphene
+from bson.objectid import ObjectId
 
 sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/logbook')
 
-import cassandra_mediator
-from data_adapters import parse_bytes_parameter, parse_date_parameter, parse_time_parameter
-
-sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/api/background/')
-
-from converters import time_to_str, date_to_str
+from data_adapters import parse_bytes_parameter, parse_timestamp_parameter, stringify_timestamp_parameter, parse_objectid_parameter
 
 from system_mapper import SystemMapper
 
@@ -18,28 +14,25 @@ import mongo_mediator
 
 class SystemTestMapper(graphene.ObjectType):
     
-    date = graphene.String()
-    time = graphene.String()
-    
+    id = graphene.String()
+    timestamp = graphene.String()
     system = graphene.Field(lambda: SystemMapper)
-    systemid = graphene.String()
     result = graphene.Int()
 
     def resolve_system(self, info):
         return SystemMapper.init_scalar(mongo_mediator.get_system_by_id(self.system))
 
     @staticmethod
-    def eject(date, time, system, result):
-        return [SystemTestMapper.init_scalar(item) for item in cassandra_mediator.select_system_tests(
-            date = parse_date_parameter(date),
-            time = parse_time_parameter(time),
-            system_id = parse_bytes_parameter(system),
-            result = result)]
+    def eject(id, timestamp, system, result):
+        return [SystemTestMapper.init_scalar(item) for item in mongo_mediator.select_system_tests(
+            timestamp = parse_timestamp_parameter(timestamp),
+            system = parse_objectid_parameter(system),
+            result = result if result != -1 else None, ids = {'_id': id})]
 
     @staticmethod
     def init_scalar(item):
-        return SystemTestMapper(date = date_to_str(item['date']),
-                                time = time_to_str(item['time']),
-                                system = item['system_id'].hex(),
-                                result = item['result'],
-                                systemid = item['system_id'].hex())
+        print(item)
+        return SystemTestMapper(id = str(item['_id']),
+                                timestamp = stringify_timestamp_parameter(item['timestamp']),
+                                system = str(item['system']),
+                                result = item['result'])

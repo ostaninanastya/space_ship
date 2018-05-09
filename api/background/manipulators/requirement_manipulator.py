@@ -7,9 +7,9 @@ sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/api/background/mappers')
 
 from requirement_mapper import RequirementMapper
 
-sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/relations')
+sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/recital')
 
-import neo4j_mediator
+import mongo_mediator
 
 config = configparser.ConfigParser()
 config.read(os.environ['SPACE_SHIP_HOME'] + '/databases.config')
@@ -25,7 +25,7 @@ class CreateRequirement(graphene.Mutation):
     requirement = graphene.Field(lambda: RequirementMapper)
 
     def mutate(self, info, name, content):
-        requirement = RequirementMapper.init_scalar(neo4j_mediator.create_requirement(name, content))
+        requirement = RequirementMapper.init_scalar(mongo_mediator.create_requirement(name, content))
         ok = True
         return CreateRequirement(requirement = requirement, ok = ok)
 
@@ -37,22 +37,20 @@ class RemoveRequirement(graphene.Mutation):
     requirement = graphene.Field(lambda: RequirementMapper)
 
     def mutate(self, info, id):
-        requirement = RequirementMapper.init_scalar(neo4j_mediator.remove_requirement(id))
+        requirement = RequirementMapper.init_scalar(mongo_mediator.remove_requirement(id))
         ok = True
         return RemoveRequirement(requirement = requirement, ok = ok)
 
 class UpdateRequirements(graphene.Mutation):
     class Arguments:
         name = graphene.String(default_value = '')
-        specializations = graphene.String(default_value = '')
 
         set_name = graphene.String(default_value = '')
-        set_excesses = graphene.String(default_value = '')
-        set_expansions = graphene.String(default_value = '')
+        set_content = graphene.String(default_value = '')
 
     ok = graphene.Boolean()
 
-    def mutate(self, info, name, specializations, set_name, set_excesses, set_expansions):
-        neo4j_mediator.update_requirements(name = name, specializations = specializations, set_name = set_name, expansions = set_expansions, excesses = set_excesses)
+    def mutate(self, info, name, set_name, set_content):
+        mongo_mediator.update_requirements(name = name, set_name = set_name, set_content = set_content)
         ok = True
         return UpdateRequirements(ok = ok)

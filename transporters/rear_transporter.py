@@ -31,6 +31,7 @@ MIN_FREQUENCY = float(os.environ.get('MIN_FREQUENCY') or config['REAR_TRANSPORTE
 CHECK_INTERVAL = float(os.environ.get('CHECK_INTERVAL') or config['REAR_TRANSPORTER']['check_interval'])
 CHECK_PERIOD = float(os.environ.get('CHECK_PERIOD') or config['REAR_TRANSPORTER']['check_period'])
 
+# recital
 BOATS_COLLECTION_NAME = os.environ.get('BOATS_COLLECTION_NAME') or config['MONGO']['boats_collection_name']
 DEPARTMENTS_COLLECTION_NAME = os.environ.get('DEPARTMENTS_COLLECTION_NAME') or config['MONGO']['departments_collection_name']
 LOCATIONS_COLLECTION_NAME = os.environ.get('LOCATIONS_COLLECTION_NAME') or config['MONGO']['locations_collection_name']
@@ -42,6 +43,17 @@ SPECIALIZATIONS_COLLECTION_NAME = os.environ.get('SPECIALIZATIONS_COLLECTION_NAM
 SYSTEM_STATES_COLLECTION_NAME = os.environ.get('SYSTEM_STATES_COLLECTION_NAME') or config['MONGO']['system_states_collection_name']
 SYSTEM_TYPES_COLLECTION_NAME = os.environ.get('SYSTEM_TYPES_COLLECTION_NAME') or config['MONGO']['system_types_collection_name']
 SYSTEMS_COLLECTION_NAME = os.environ.get('SYSTEMS_COLLECTION_NAME') or config['MONGO']['systems_collection_name']
+# relations
+SHIFTS_COLLECTION_NAME = os.environ.get('SHIFTS_COLLECTION_NAME') or config['MONGO']['shifts_collection_name']
+OPERATIONS_COLLECTION_NAME = os.environ.get('OPERATIONS_COLLECTION_NAME') or config['MONGO']['operations_collection_name']
+REQUIREMENTS_COLLECTION_NAME = os.environ.get('REQUIREMENTS_COLLECTION_NAME') or config['MONGO']['requirements_collection_name']
+# logbook
+SYSTEM_TESTS_COLLECTION_NAME = os.environ.get('SYSTEM_TESTS_COLLECTION_NAME') or config['MONGO']['system_tests_collection_name']
+CONTROL_ACTIONS_COLLECTION_NAME = os.environ.get('CONTROL_ACTIONS_COLLECTION_NAME') or config['MONGO']['control_actions_collection_name']
+POSITIONS_COLLECTION_NAME = os.environ.get('POSITIONS_COLLECTION_NAME') or config['MONGO']['positions_collection_name']
+SENSOR_DATA_COLLECTION_NAME = os.environ.get('SENSOR_DATA_COLLECTION_NAME') or config['MONGO']['sensor_data_collection_name']
+SHIFT_STATES_COLLECTION_NAME = os.environ.get('SHIFT_STATES_COLLECTION_NAME') or config['MONGO']['shift_states_collection_name']
+OPERATION_STATES_COLLECTION_NAME = os.environ.get('OPERATION_STATES_COLLECTION_NAME') or config['MONGO']['operation_states_collection_name']
 
 TIMESTAMP_PATTERN = os.environ.get('TIMESTAMP_PATTERN') or config['FORMATS']['timestamp']
 TIME_PATTERN = os.environ.get('TIME_PATTERN') or config['FORMATS']['time']
@@ -52,6 +64,7 @@ MYSQL_DB_NAME = os.environ.get('MYSQL_DB_NAME') if os.environ.get('MYSQL_DB_NAME
 FIELD_DELIMITER = config['FIELDS']['field_delimiter']
 
 fields = {
+	# recital
 	'common': [item.lstrip().rstrip() for item in config['FIELDS']['common'].split(FIELD_DELIMITER)],
 	'boats': [item.lstrip().rstrip() for item in config['FIELDS']['boats'].split(FIELD_DELIMITER)],
 	'property_types': [item.lstrip().rstrip() for item in config['FIELDS']['property_types'].split(FIELD_DELIMITER)],
@@ -63,23 +76,47 @@ fields = {
 	'systems': [item.lstrip().rstrip() for item in config['FIELDS']['systems'].split(FIELD_DELIMITER)],
 	'people': [item.lstrip().rstrip() for item in config['FIELDS']['people'].split(FIELD_DELIMITER)],
 	'departments': [item.lstrip().rstrip() for item in config['FIELDS']['departments'].split(FIELD_DELIMITER)],
-	'properties': [item.lstrip().rstrip() for item in config['FIELDS']['properties'].split(FIELD_DELIMITER)]
+	'properties': [item.lstrip().rstrip() for item in config['FIELDS']['properties'].split(FIELD_DELIMITER)],
+	# relations
+	'shifts': [item.lstrip().rstrip() for item in config['FIELDS']['shifts'].split(FIELD_DELIMITER)],
+	'operations': [item.lstrip().rstrip() for item in config['FIELDS']['operations'].split(FIELD_DELIMITER)],
+	'requirements': [item.lstrip().rstrip() for item in config['FIELDS']['requirements'].split(FIELD_DELIMITER)],
+	# logbook
+	'system_tests': [item.lstrip().rstrip() for item in config['FIELDS']['system_tests'].split(FIELD_DELIMITER)],
+	'control_actions': [item.lstrip().rstrip() for item in config['FIELDS']['control_actions'].split(FIELD_DELIMITER)],
+	'positions': [item.lstrip().rstrip() for item in config['FIELDS']['positions'].split(FIELD_DELIMITER)],
+	'sensor_data': [item.lstrip().rstrip() for item in config['FIELDS']['sensor_data'].split(FIELD_DELIMITER)],
+	'shift_states': [item.lstrip().rstrip() for item in config['FIELDS']['shift_states'].split(FIELD_DELIMITER)],
+	'operation_states': [item.lstrip().rstrip() for item in config['FIELDS']['operation_states'].split(FIELD_DELIMITER)]
 }
+
 
 MYSQL_FIELD_DELIMITER = config['MYSQL_FIELDS']['field_delimiter']
 
 mysql_fields = {
-	'boats': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['boats'].split(MYSQL_FIELD_DELIMITER)],
-	'property_types': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['property_types'].split(MYSQL_FIELD_DELIMITER)],
-	'system_states': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['system_states'].split(MYSQL_FIELD_DELIMITER)],
-	'system_types': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['system_states'].split(MYSQL_FIELD_DELIMITER)],
-	'specializations': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['specializations'].split(MYSQL_FIELD_DELIMITER)],
-	'locations': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['locations'].split(MYSQL_FIELD_DELIMITER)],
-	'sensors': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['sensors'].split(MYSQL_FIELD_DELIMITER)],
-	'systems': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['systems'].split(MYSQL_FIELD_DELIMITER)],
-	'people': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['people'].split(MYSQL_FIELD_DELIMITER)],
-	'departments': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['departments'].split(MYSQL_FIELD_DELIMITER)],
-	'properties': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['properties'].split(MYSQL_FIELD_DELIMITER)]
+	# recital
+	'boats': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['boats'].split(FIELD_DELIMITER)],
+	'property_types': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['property_types'].split(FIELD_DELIMITER)],
+	'system_states': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['system_states'].split(FIELD_DELIMITER)],
+	'system_types': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['system_types'].split(FIELD_DELIMITER)],
+	'specializations': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['specializations'].split(FIELD_DELIMITER)],
+	'locations': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['locations'].split(FIELD_DELIMITER)],
+	'sensors': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['sensors'].split(FIELD_DELIMITER)],
+	'systems': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['systems'].split(FIELD_DELIMITER)],
+	'people': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['people'].split(FIELD_DELIMITER)],
+	'departments': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['departments'].split(FIELD_DELIMITER)],
+	'properties': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['properties'].split(FIELD_DELIMITER)],
+	# relations
+	'shifts': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['shifts'].split(FIELD_DELIMITER)],
+	'operations': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['operations'].split(FIELD_DELIMITER)],
+	'requirements': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['requirements'].split(FIELD_DELIMITER)],
+	# logbook
+	'system_tests': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['system_tests'].split(FIELD_DELIMITER)],
+	'control_actions': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['control_actions'].split(FIELD_DELIMITER)],
+	'positions': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['positions'].split(FIELD_DELIMITER)],
+	'sensor_data': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['sensor_data'].split(FIELD_DELIMITER)],
+	'shift_states': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['shift_states'].split(FIELD_DELIMITER)],
+	'operation_states': [item.lstrip().rstrip() for item in config['MYSQL_FIELDS']['operation_states'].split(FIELD_DELIMITER)]
 }
 
 
@@ -200,7 +237,18 @@ def inspect(collection, verbose = False):
 
 ## Get content of the lower level in json format
 def get_content_on_lower():
-	return JSONEncoder().encode({'boats' : extract({}, 'boats')})
+	collections = [BOATS_COLLECTION_NAME, PROPERTY_TYPES_COLLECTION_NAME, SYSTEM_STATES_COLLECTION_NAME, SYSTEM_TYPES_COLLECTION_NAME,
+	SPECIALIZATIONS_COLLECTION_NAME, LOCATIONS_COLLECTION_NAME, SENSORS_COLLECTION_NAME, SYSTEMS_COLLECTION_NAME, PEOPLE_COLLECTION_NAME,
+	DEPARTMENTS_COLLECTION_NAME, PROPERTIES_COLLECTION_NAME, SHIFTS_COLLECTION_NAME, OPERATIONS_COLLECTION_NAME, REQUIREMENTS_COLLECTION_NAME,
+	SYSTEM_TESTS_COLLECTION_NAME, CONTROL_ACTIONS_COLLECTION_NAME, POSITIONS_COLLECTION_NAME, SENSOR_DATA_COLLECTION_NAME,
+	SHIFT_STATES_COLLECTION_NAME, OPERATION_STATES_COLLECTION_NAME]
+
+	result = {}
+
+	for collection in collections:
+		result[collection] = extract({}, collection)
+
+	return result
 
 
 ## Start main loop
@@ -209,6 +257,7 @@ def main():
 	verbose = '-v' in sys.argv
 	once = '-o' in sys.argv
 	while True:
+		# recital
 		inspect(BOATS_COLLECTION_NAME, verbose = verbose)
 		inspect(PROPERTY_TYPES_COLLECTION_NAME, verbose = verbose)
 		inspect(SYSTEM_STATES_COLLECTION_NAME, verbose = verbose)
@@ -220,12 +269,25 @@ def main():
 		inspect(PEOPLE_COLLECTION_NAME, verbose = verbose)
 		inspect(DEPARTMENTS_COLLECTION_NAME, verbose = verbose)
 		inspect(PROPERTIES_COLLECTION_NAME, verbose = verbose)
+		# relations
+		inspect(SHIFTS_COLLECTION_NAME, verbose = verbose)
+		inspect(OPERATIONS_COLLECTION_NAME, verbose = verbose)
+		inspect(REQUIREMENTS_COLLECTION_NAME, verbose = verbose)
+		# logbook
+		inspect(SYSTEM_TESTS_COLLECTION_NAME, verbose = verbose)
+		inspect(CONTROL_ACTIONS_COLLECTION_NAME, verbose = verbose)
+		inspect(POSITIONS_COLLECTION_NAME, verbose = verbose)
+		inspect(SENSOR_DATA_COLLECTION_NAME, verbose = verbose)
+		inspect(SHIFT_STATES_COLLECTION_NAME, verbose = verbose)
+		inspect(OPERATION_STATES_COLLECTION_NAME, verbose = verbose)
 		if once:
 			return
 		time.sleep(CHECK_PERIOD)
 
 
 if __name__ == '__main__':
-	main()
+	#main()
+	print(get_content_on_lower())
+	#print(extract([], 'requirements'))
 	#print(extract({}, 'boats'))
 	#print(get_content_on_lower())
