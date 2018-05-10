@@ -21,8 +21,12 @@ class CreateSensor(graphene.Mutation):
     sensor = graphene.Field(lambda: SensorMapper)
 
     def mutate(self, info, name, location):
-        sensor = SensorMapper.init_scalar(mongo_mediator.create_sensor(name, location))
-        ok = True
+        sensor = None
+        try:
+        	sensor = SensorMapper.init_scalar(mongo_mediator.create_sensor(name, location))
+        	ok = True
+        except IndexError:
+        	ok = False
         return CreateSensor(sensor = sensor, ok = ok)
 
 class RemoveSensor(graphene.Mutation):
@@ -50,8 +54,12 @@ class UpdateSensors(graphene.Mutation):
     sensors = graphene.List(lambda: SensorMapper)
 
     def mutate(self, info, name, location, set_name, set_location, id):
-        sensors = [SensorMapper.init_scalar(item) for item in \
-        mongo_mediator.update_sensor(_id = ObjectId(id) if id else None, name = name, location = ObjectId(location) if location else None, 
-            set_name = set_name, set_location = ObjectId(set_location) if set_location else None)]
-        ok = True
+        sensors = None
+        try:
+            sensors = [SensorMapper.init_scalar(item) for item in \
+            mongo_mediator.update_sensor(_id = ObjectId(id) if id else None, name = name, location = ObjectId(location) if location else None, 
+                set_name = set_name, set_location = ObjectId(set_location) if set_location else None)]
+            ok = True
+        except IndexError:
+            ok = False
         return UpdateSensors(sensors = sensors, ok = ok)

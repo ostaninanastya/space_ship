@@ -22,9 +22,13 @@ class CreateDepartment(graphene.Mutation):
 
     def mutate(self, info, name, vk, director):
         #print('omg')
-        new_department = mongo_mediator.create_department(name, vk, director)
-        department = DepartmentMapper.init_scalar(new_department)
-        ok = True
+        department = None
+        try:
+            new_department = mongo_mediator.create_department(name, vk, director)
+            department = DepartmentMapper.init_scalar(new_department)
+            ok = True
+        except IndexError:
+            ok = False
         return CreateDepartment(department = department, ok = ok)
 
 class RemoveDepartment(graphene.Mutation):
@@ -68,9 +72,13 @@ class UpdateDepartments(graphene.Mutation):
 
     def mutate(self, info, id, director, name, vk, set_name, set_vk, set_director):
         #print('omg')
-        new_departments = mongo_mediator.update_departments(_id = ObjectId(id) if id else None, name = name, vk = vk, 
-            director = ObjectId(director) if director else None,
-            set_name = set_name, set_vk = set_vk, set_director = ObjectId(set_director) if set_director else None)
-        departments = [DepartmentMapper.init_scalar(item) for item in new_departments]
-        ok = True
+        departments = None
+        try:
+            new_departments = mongo_mediator.update_departments(_id = ObjectId(id) if id else None, name = name, vk = vk, 
+                director = ObjectId(director) if director else None,
+                set_name = set_name, set_vk = set_vk, set_director = ObjectId(set_director) if set_director else None)
+            departments = [DepartmentMapper.init_scalar(item) for item in new_departments]
+            ok = True
+        except IndexError:
+            ok = False
         return UpdateDepartments(departments = departments, ok = ok)

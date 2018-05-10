@@ -7,6 +7,10 @@ sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/api/background/mappers')
 
 from requirement_mapper import RequirementMapper
 
+sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/logbook')
+
+from data_adapters import string_to_bytes, parse_timestamp_parameter, parse_objectid_parameter, parse_bytes_parameter
+
 sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/recital')
 
 import mongo_mediator
@@ -25,8 +29,12 @@ class CreateRequirement(graphene.Mutation):
     requirement = graphene.Field(lambda: RequirementMapper)
 
     def mutate(self, info, name, content):
-        requirement = RequirementMapper.init_scalar(mongo_mediator.create_requirement(name, content))
-        ok = True
+        requirement = None
+        try:
+            requirement = RequirementMapper.init_scalar(mongo_mediator.create_requirement(name, content))
+            ok = True
+        except IndexError:
+            ok = False
         return CreateRequirement(requirement = requirement, ok = ok)
 
 class RemoveRequirement(graphene.Mutation):
@@ -43,6 +51,8 @@ class RemoveRequirement(graphene.Mutation):
 
 class UpdateRequirements(graphene.Mutation):
     class Arguments:
+
+        id = graphene.String(default_value = '')
         name = graphene.String(default_value = '')
 
         set_name = graphene.String(default_value = '')
@@ -50,7 +60,10 @@ class UpdateRequirements(graphene.Mutation):
 
     ok = graphene.Boolean()
 
-    def mutate(self, info, name, set_name, set_content):
-        mongo_mediator.update_requirements(name = name, set_name = set_name, set_content = set_content)
-        ok = True
+    def mutate(self, info, id, name, set_name, set_content):
+        try:
+            mongo_mediator.update_requirements(_id = parse_objectid_parameter(id), name = name, set_name = set_name, set_content = set_content)
+            ok = True
+        except IndexError:
+            ok = False
         return UpdateRequirements(ok = ok)

@@ -31,10 +31,14 @@ class CreateSystem(graphene.Mutation):
     system = graphene.Field(lambda: SystemMapper)
 
     def mutate(self, info, name, serialnumber, launched, checked, state, supervisor, type):
-        system = SystemMapper.init_scalar(mongo_mediator.create_system(\
-            name, serialnumber, datetime.datetime.strptime(launched, TIMESTAMP_PATTERN), datetime.datetime.strptime(checked, TIMESTAMP_PATTERN), state, supervisor, type\
-        ))
-        ok = True
+        system = None
+        try:
+            system = SystemMapper.init_scalar(mongo_mediator.create_system(\
+                name, serialnumber, datetime.datetime.strptime(launched, TIMESTAMP_PATTERN), datetime.datetime.strptime(checked, TIMESTAMP_PATTERN), state, supervisor, type\
+            ))
+            ok = True
+        except IndexError:
+            ok = False
         return CreateSystem(system = system, ok = ok)
 
 class RemoveSystem(graphene.Mutation):
@@ -73,19 +77,23 @@ class UpdateSystems(graphene.Mutation):
 
     def mutate(self, info, id, name, serialnumber, launched, checked, state, supervisor, type, 
         set_name, set_serialnumber, set_launched, set_checked, set_state, set_supervisor, set_type):
-        systems = [SystemMapper.init_scalar(item) for item in mongo_mediator.update_systems(\
-            _id = ObjectId(id) if id else None, name = name, 
-            serialnumber = serialnumber if not math.isnan(serialnumber) else None, 
-            launched = datetime.datetime.strptime(launched, TIMESTAMP_PATTERN) if launched else None, 
-            checked = datetime.datetime.strptime(checked, TIMESTAMP_PATTERN) if checked else None, 
-            state = ObjectId(state) if state else None, supervisor = ObjectId(supervisor) if supervisor else None, 
-            type = ObjectId(type) if type else None,
-            set_name = set_name, 
-            set_serialnumber = set_serialnumber if set_serialnumber != float('nan') else None, 
-            set_launched = datetime.datetime.strptime(set_launched, TIMESTAMP_PATTERN) if set_launched else None, 
-            set_checked = datetime.datetime.strptime(set_checked, TIMESTAMP_PATTERN) if set_checked else None, 
-            set_state = ObjectId(set_state) if set_state else None, set_supervisor = ObjectId(set_supervisor) if set_supervisor else None, 
-            set_type = ObjectId(set_type) if set_type else None
-        )]
-        ok = True
+        systems = None
+        try:
+            systems = [SystemMapper.init_scalar(item) for item in mongo_mediator.update_systems(\
+                _id = ObjectId(id) if id else None, name = name, 
+                serialnumber = serialnumber if not math.isnan(serialnumber) else None, 
+                launched = datetime.datetime.strptime(launched, TIMESTAMP_PATTERN) if launched else None, 
+                checked = datetime.datetime.strptime(checked, TIMESTAMP_PATTERN) if checked else None, 
+                state = ObjectId(state) if state else None, supervisor = ObjectId(supervisor) if supervisor else None, 
+                type = ObjectId(type) if type else None,
+                set_name = set_name, 
+                set_serialnumber = set_serialnumber if set_serialnumber != float('nan') else None, 
+                set_launched = datetime.datetime.strptime(set_launched, TIMESTAMP_PATTERN) if set_launched else None, 
+                set_checked = datetime.datetime.strptime(set_checked, TIMESTAMP_PATTERN) if set_checked else None, 
+                set_state = ObjectId(set_state) if set_state else None, set_supervisor = ObjectId(set_supervisor) if set_supervisor else None, 
+                set_type = ObjectId(set_type) if set_type else None
+            )]
+            ok = True
+        except IndexError:
+            ok = False
         return UpdateSystems(systems = systems, ok = ok)

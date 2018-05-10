@@ -26,6 +26,7 @@ sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/transporters')
 import frontal_transporter
 
 
+
 # set global constants
 
 
@@ -69,12 +70,20 @@ REQ_COMPONENT_DELIMITER = ':'
 # general methods
 #------------------------------------------------------------------------------------------------
 
+def isfloat(value):
+    try: 
+        float(str(value))
+    except ValueError: 
+        return False
+    return True
+
 def parse_objids_list(source):
 
 	parsed = []
 
 	for id in source.split(ID_DELIMITER):
-		parsed.append(ObjectId(id))
+		if id:
+			parsed.append(ObjectId(id))
 
 	return parsed
 
@@ -82,10 +91,12 @@ def parse_objids_list(source):
 
 def get_items_with_foreign_id(collection_name, property_name, id):
 	object_id = ObjectId(id)
+	frontal_transporter.extract({property_name: object_id}, collection_name)
 	return [item for item in db[collection_name].find({property_name : object_id})]
 
 def get_item_ids_with_foreign_id(collection_name, property_name, id):
 	object_id = ObjectId(id)
+	frontal_transporter.extract({property_name: object_id}, collection_name)
 	return [str(item['_id']) for item in db[collection_name].find({property_name: object_id}, {'_id' : 1})]
 
 def get_all_items(collection_name):
@@ -95,9 +106,21 @@ def get_all_items_ids(collection_name):
 	return [str(item['_id']) for item in db[collection_name].find({}, {'_id' : 1})]
 
 def get_item_by_id(collection_name, id):
+	frontal_transporter.extract({'_id': ObjectId(id)}, collection_name)
 	return db[collection_name].find({'_id' : ObjectId(str(id).zfill(24))})[0]
 
 # update
+
+def check_new_foreign_key(kwargs, property_name, get_entity):
+	real_property_name = 'set_' + property_name
+	if real_property_name in kwargs and kwargs[real_property_name]:
+		get_entity(kwargs[real_property_name])
+
+def check_foreign_keys(kwargs, property_name, get_entity):
+	real_property_name = property_name
+	if real_property_name in kwargs and kwargs[real_property_name]:
+		for item in kwargs[real_property_name]:
+			get_entity(item)
 
 def parse_params_for_update(params, ids_fields):
 
@@ -107,7 +130,7 @@ def parse_params_for_update(params, ids_fields):
 	select_where = {}
 
 	for key in params:
-		if params[key] and not math.isnan(params[key]):
+		if params[key] and (not isfloat(params[key]) or not math.isnan(params[key])):
 			if 'set_' in key:
 				update[key.replace('set_','')] = params[key]
 				continue
@@ -124,13 +147,15 @@ def parse_params_for_update(params, ids_fields):
 
 def adjust_and_update(params, collection, lists_fields, id_fields):
 
-	for field in lists_fields:
-		if field in kwargs:
-			params[field] = parse_objids_list(params[field]) if params[field] else None
+	if lists_fields:
+		for field in lists_fields:
+			if field in params:
+				params[field] = parse_objids_list(params[field]) if params[field] else None
 
-	for field in id_fields:
-		if field in kwargs:
-			params[field] = ObjectId(params[field]) if params[field] else None
+	if id_fields:
+		for field in id_fields:
+			if field in params:
+				params[field] = ObjectId(params[field]) if params[field] else None
 
 	return update(params, collection)
 
@@ -144,7 +169,11 @@ def update(params, collection):
 
 	select(select_where, collection)
 
+	print('where:',where)
+	print('update:',update)
+
 	db[collection].update_many(where,{'$set': update})
+	print([item for item in db[collection].find(update)])
 	return [item for item in db[collection].find(update)]
 
 def remove(id, get_item, collection):
@@ -152,6 +181,8 @@ def remove(id, get_item, collection):
 	select({'ids': {'_id': id}}, collection)
 
 	deleted = get_item(str(id))
+
+	db[collection].delete_one({'_id' : ObjectId(id)})
 
 	id = deleted['_id']
 
@@ -168,7 +199,7 @@ def parse_params_for_select(params):
 	where = {}
 
 	for key in params:
-		if params[key] and not math.isnan(params[key]):
+		if params[key] and (not isfloat(params[key]) or not math.isnan(params[key])):
 			if isinstance(params[key], str):
 				where[key] = {'$regex' : params[key], '$options' : 'i'}
 			else:
@@ -292,6 +323,7 @@ def get_department_by_id(id):
 # -- manipulators
 
 def create_department(name, vk, director):
+	get_person_by_id(director)
 	id = db[DEPARTMENTS_COLLECTION_NAME].insert({'name' : name, 'vk' : vk, 'director': ObjectId(director),
 		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
 	return get_department_by_id(str(id))
@@ -314,6 +346,7 @@ def eradicate_department(id):
 	return remove_department(id)
 
 def update_departments(**kwargs):
+	check_new_foreign_key(kwargs, 'director', get_person_by_id)
 	return update(kwargs, DEPARTMENTS_COLLECTION_NAME)
 
 def select_departments(**kwargs):
@@ -337,7 +370,7 @@ def create_location(name):
 	return get_location_by_id(str(id))
 
 def remove_location(id):
-	return remove(id, get_specialization_by_id, SPECIALIZATIONS_COLLECTION_NAME)
+	return remove(id, get_location_by_id, LOCATIONS_COLLECTION_NAME)
 	#deleted = get_location_by_id(str(id))
 	#id = db[LOCATIONS_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
 	#return deleted
@@ -378,6 +411,8 @@ def select_people(**kwargs):
 # -- manipulators
 
 def create_person(name, surname, patronymic, phone, department, specialization):
+	get_department_by_id(department)
+	get_specialization_by_id(specialization)
 	id = db[PEOPLE_COLLECTION_NAME].insert({'name' : name, 'surname' : surname, 'patronymic' : patronymic, 
 		'phone' : phone, 'department' : ObjectId(department), 'specialization' : ObjectId(specialization),
 		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
@@ -404,6 +439,8 @@ def eradicate_person(id):
 	return remove_person(id)
 
 def update_people(**kwargs):
+	check_new_foreign_key(kwargs, 'department', get_department_by_id)
+	check_new_foreign_key(kwargs, 'specialization', get_specialization_by_id)
 	return update(kwargs, PEOPLE_COLLECTION_NAME)
 
 # - properties ------------------------------------------------------------------------------
@@ -437,6 +474,8 @@ def get_people_ids_with_spec(specialization_id):
 # -- manipulators
 
 def create_property(name, type, admission, comissioning, department):
+	get_property_type_by_id(type)
+	get_department_by_id(department)
 	id = db[PROPERTIES_COLLECTION_NAME].insert({'name': name, 'type': ObjectId(type), 'admission': admission,\
 		'comissioning': comissioning, 'department': ObjectId(department),
 		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
@@ -449,6 +488,8 @@ def remove_property(id):
 	#return deleted
 
 def update_properties(**kwargs):
+	check_new_foreign_key(kwargs, 'department', get_department_by_id)
+	check_new_foreign_key(kwargs, 'type', get_property_type_by_id)
 	return update(kwargs, PROPERTIES_COLLECTION_NAME)
 
 def select_properties(**kwargs):
@@ -509,6 +550,7 @@ def get_sensors_ids_by_location_id(location_id):
 # -- manipulators
 
 def create_sensor(name, location):
+	get_location_by_id(location)
 	id = db[SENSORS_COLLECTION_NAME].insert({'name': name, 'location': ObjectId(location),
 		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
 	return get_sensor_by_id(str(id))
@@ -520,6 +562,7 @@ def remove_sensor(id):
 	#return deleted
 
 def update_sensor(**kwargs):
+	check_new_foreign_key(kwargs, 'location', get_location_by_id)
 	return update(kwargs, SENSORS_COLLECTION_NAME)
 
 def select_sensors(**kwargs):
@@ -591,18 +634,24 @@ def get_systems_by_supervisor_id(supervisor_id):
 # -- manipulators
 
 def create_system(name, serial_number, launched, checked, state, supervisor, type):
+	get_system_state_by_id(state)
+	get_person_by_id(supervisor)
+	get_system_type_by_id(type)
 	id = db[SYSTEMS_COLLECTION_NAME].insert({'name': name, 'serial_number': serial_number, 'launched': launched,\
 		'checked': checked, 'state': ObjectId(state), 'supervisor': ObjectId(supervisor), 'type': ObjectId(type),
 		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
 	return get_system_by_id(str(id))
 
 def remove_system(id):
-	return remove(id, get_system_state_by_id, SYSTEM_STATES_COLLECTION_NAME)
+	return remove(id, get_system_by_id, SYSTEMS_COLLECTION_NAME)
 	#deleted = get_system_by_id(str(id))
 	#id = db[SYSTEMS_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
 	#return deleted
 
 def update_systems(**kwargs):
+	check_new_foreign_key(kwargs, 'state', get_system_state_by_id)
+	check_new_foreign_key(kwargs, 'type', get_system_type_by_id)
+	check_new_foreign_key(kwargs, 'supervisor', get_person_by_id)
 	return update(kwargs, SYSTEMS_COLLECTION_NAME)
 
 def select_systems(**kwargs):
@@ -691,6 +740,10 @@ def get_shift_by_id(id):
 # -- manipulators
 
 def create_shift(chief, department, start, end, workers, requirements):
+	get_department_by_id(department)
+	get_person_by_id(chief)
+	check_foreign_keys({'workers': parse_objids_list(workers)}, 'workers', get_person_by_id)
+	check_foreign_keys({'requirements': parse_objids_list(requirements)}, 'requirements', get_requirement_by_id)
 	id = db[SHIFTS_COLLECTION_NAME].insert({'start' : start, 'end' : end, 'department': ObjectId(department),
 		'chief': ObjectId(chief), 'workers': parse_objids_list(workers), 'requirements': parse_objids_list(requirements),
 		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
@@ -703,6 +756,10 @@ def remove_shift(id):
 	#return deleted
 
 def update_shifts(**kwargs):
+	check_foreign_keys({'set_workers': parse_objids_list(kwargs['set_workers'])}, 'set_workers', get_person_by_id)
+	check_foreign_keys({'set_requirements': parse_objids_list(kwargs['set_requirements'])}, 'set_requirements', get_requirement_by_id)
+	check_new_foreign_key(kwargs, 'department', get_department_by_id)
+	check_new_foreign_key(kwargs, 'chief', get_person_by_id)
 	lists_fields = ['set_workers', 'workers', 'set_requirements', 'requirements']
 	id_fields = ['set_chief', 'chief', 'set_department', 'department']
 	return adjust_and_update(kwargs, SHIFTS_COLLECTION_NAME, lists_fields, id_fields)
@@ -723,6 +780,9 @@ def get_operation_by_id(id):
 # -- manipulators
 
 def create_operation(name, head, start, end, executors, requirements):
+	get_person_by_id(head)
+	check_foreign_keys({'executors': parse_objids_list(executors)}, 'executors', get_person_by_id)
+	check_foreign_keys({'requirements': parse_objids_list(requirements)}, 'requirements', get_requirement_by_id)
 	id = db[OPERATIONS_COLLECTION_NAME].insert({'name': name, 'start' : start, 'end' : end,
 		'head': ObjectId(head), 'executors': parse_objids_list(executors), 'requirements': parse_objids_list(requirements),
 		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
@@ -735,6 +795,9 @@ def remove_operation(id):
 	#return deleted
 
 def update_operations(**kwargs):
+	check_foreign_keys({'set_executors': parse_objids_list(kwargs['set_executors'])}, 'set_executors', get_person_by_id)
+	check_foreign_keys({'set_requirements': parse_objids_list(kwargs['set_requirements'])}, 'set_requirements', get_requirement_by_id)
+	check_new_foreign_key(kwargs, 'head', get_person_by_id)
 	lists_fields = ['set_executors', 'executors', 'set_requirements', 'requirements']
 	id_fields = ['set_head', 'head']
 	return adjust_and_update(kwargs, OPERATIONS_COLLECTION_NAME, lists_fields, id_fields)
@@ -760,6 +823,7 @@ def create_requirement(name, content):
 	
 	for requirement_str_part in content.split(ID_DELIMITER):
 		specialization, quantity = requirement_str_part.split(REQ_COMPONENT_DELIMITER)
+		get_specialization_by_id(specialization)
 		requirement_parts.append({'specialization' : ObjectId(specialization), 'quantity' : int(quantity)})
 
 	id = db[REQUIREMENTS_COLLECTION_NAME].insert({'name': name, 'content': requirement_parts,
@@ -771,12 +835,24 @@ def remove_requirement(id):
 	#deleted = get_system_type_by_id(str(id))
 	#id = db[SYSTEM_TYPES_COLLECTION_NAME].delete_one({'_id' : ObjectId(id)})
 	#return deleted
-'''
+
 def update_requirements(**kwargs):
-	lists_fields = ['set_', 'executors', 'set_requirements', 'requirements']
-	id_fields = ['set_head', 'head']
-	return adjust_and_update(kwargs, OPERATIONS_COLLECTION_NAME, lists_fields, id_fields)
-'''
+	if 'set_content' in kwargs and kwargs['set_content']:
+		requirement_parts = []
+
+
+	
+		for requirement_str_part in kwargs['set_content'].split(ID_DELIMITER):#.replace('set','')
+			specialization, quantity = requirement_str_part.split(REQ_COMPONENT_DELIMITER)
+			print(specialization)
+			print(quantity)
+			get_specialization_by_id(specialization)
+			requirement_parts.append({'specialization' : ObjectId(specialization), 'quantity' : int(quantity)})
+		
+		kwargs['set_content'] = requirement_parts
+
+	return adjust_and_update(kwargs, REQUIREMENTS_COLLECTION_NAME, None, None)
+
 def select_requirements(**kwargs):
 	return select(kwargs, REQUIREMENTS_COLLECTION_NAME)
 
@@ -797,6 +873,7 @@ def get_system_test_by_id(id):
 # -- manipulators
 
 def create_system_test(timestamp, system, result):
+	get_system_by_id(system)
 	id = db[SYSTEM_TESTS_COLLECTION_NAME].insert({'timestamp': timestamp, 'system' : ObjectId(system), 'result' : result,
 		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
 	return get_system_test_by_id(str(id))
@@ -805,6 +882,7 @@ def remove_system_test(id):
 	return remove(id, get_system_test_by_id, SYSTEM_TESTS_COLLECTION_NAME)
 
 def update_system_tests(**kwargs):
+	check_new_foreign_key(kwargs, 'system', get_system_by_id)
 	id_fields = ['set_system', 'system']
 	return adjust_and_update(kwargs, SYSTEM_TESTS_COLLECTION_NAME, None, id_fields)
 
@@ -824,6 +902,7 @@ def get_control_action_by_id(id):
 # -- manipulators
 
 def create_control_action(timestamp, mac, user, command, params, result):
+	get_person_by_id(user)
 	id = db[CONTROL_ACTIONS_COLLECTION_NAME].insert({'timestamp': timestamp, 'mac_address': bytes.fromhex(mac.hex()), 'user' : ObjectId(user),
 		'command': command, 'params': params, 'result': result,
 		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
@@ -833,6 +912,7 @@ def remove_control_action(id):
 	return remove(id, get_control_action_by_id, CONTROL_ACTIONS_COLLECTION_NAME)
 
 def update_control_actions(**kwargs):
+	check_new_foreign_key(kwargs, 'user', get_person_by_id)
 	id_fields = ['set_user', 'user']
 	return adjust_and_update(kwargs, CONTROL_ACTIONS_COLLECTION_NAME, None, id_fields)
 
@@ -879,6 +959,7 @@ def get_sensor_data_by_id(id):
 # -- manipulators
 
 def create_sensor_data(timestamp, source, event, meaning, value, units):
+	get_sensor_by_id(source)
 	id = db[SENSOR_DATA_COLLECTION_NAME].insert({'timestamp': timestamp, 'source': ObjectId(source), 'event': event,
 		'meaning': meaning, 'value': value, 'units': units, 
 		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
@@ -888,6 +969,7 @@ def remove_sensor_data(id):
 	return remove(id, get_sensor_data_by_id, SENSOR_DATA_COLLECTION_NAME)
 
 def update_sensor_data(**kwargs):
+	check_new_foreign_key(kwargs, 'source', get_sensor_by_id)
 	return adjust_and_update(kwargs, SENSOR_DATA_COLLECTION_NAME, None, None)
 
 def select_sensor_data(**kwargs):
@@ -906,6 +988,7 @@ def get_shift_state_by_id(id):
 # -- manipulators
 
 def create_shift_state(timestamp, shift, warninglevel, cartridges, air, electricity, comment):
+	get_shift_by_id(shift)
 	id = db[SHIFT_STATES_COLLECTION_NAME].insert({'timestamp': timestamp, 'shift': ObjectId(shift), 'warning_level': warninglevel,
 		'air': air, 'electricity': electricity, 'cartridges': cartridges, 'comment': comment, 
 		'__created__': datetime.datetime.now(), '__accessed__': datetime.datetime.now(), '__gaps__': [0]})
@@ -915,6 +998,7 @@ def remove_shift_state(id):
 	return remove(id, get_shift_state_by_id, SHIFT_STATES_COLLECTION_NAME)
 
 def update_shift_states(**kwargs):
+	check_new_foreign_key(kwargs, 'shift', get_shift_by_id)
 	return adjust_and_update(kwargs, SHIFT_STATES_COLLECTION_NAME, None, None)
 
 def select_shift_states(**kwargs):
@@ -942,6 +1026,8 @@ def create_operation_state(timestamp, boat, operation, status, distance, zenith,
     plutonium, americium, curium, berkelium, californium, einsteinium, fermium, mendelevium, nobelium, lawrencium, rutherfordium, dubnium,\
     seaborgium, bohrium, hassium, meitnerium, darmstadtium, roentgenium, copernicium, nihonium, flerovium, moscovium, livermorium, tennessium,\
     oganesson, comment):
+	get_operation_by_id(operation)
+	get_boat_by_id(boat)
 	id = db[OPERATION_STATES_COLLECTION_NAME].insert({'timestamp': timestamp, 'boat': ObjectId(boat), 'operation': ObjectId(operation),
 		'status': status, 'distance': distance, 'zenith': zenith, 'azimuth': azimuth,
 		'hydrogenium': hydrogenium, 'helium': helium, 'lithium': lithium, 'beryllium': beryllium, 'borum': borum, 
@@ -971,6 +1057,8 @@ def remove_operation_state(id):
 	return remove(id, get_operation_state_by_id, OPERATION_STATES_COLLECTION_NAME)
 
 def update_operation_states(**kwargs):
+	check_new_foreign_key(kwargs, 'operation', get_shift_by_id)
+	check_new_foreign_key(kwargs, 'boat', get_boat_by_id)
 	return adjust_and_update(kwargs, OPERATION_STATES_COLLECTION_NAME, None, None)
 
 def select_operation_states(**kwargs):

@@ -69,8 +69,8 @@ class UpdatePositions(graphene.Mutation):
     ok = graphene.Boolean()
 
     def mutate(self, info, id, timestamp, x, y, z, speed, attackangle, directionangle, set_x, set_y, set_z, set_speed, set_attackangle, set_directionangle):
-        cassandra_mediator.update_positions(id = parse_objectid_parameter(id), timestamp = parse_timestamp_parameter(timestamp),
-            x = x, y = y, z = z, speed = speed, attack_angle = attackangle, direction_angle = direction_angle, 
+        mongo_mediator.update_positions(id = parse_objectid_parameter(id), timestamp = parse_timestamp_parameter(timestamp),
+            x = x, y = y, z = z, speed = speed, attack_angle = attackangle, direction_angle = directionangle, 
             set_x = set_x, set_y = set_y, set_z = set_z, set_speed = set_speed, set_attack_angle = set_attackangle, 
             set_direction_angle = set_directionangle)
         ok = True

@@ -8,7 +8,7 @@ def isfloat(value):
         float(str(value))
     except ValueError: 
         return False
-    return True
+    return not isinstance(value, ObjectId)
 
 sys.path.append(os.environ.get('SPACE_SHIP_HOME') + '/relations/adapters/')
 from mongo_adapter import mongo_str_id_to_int, int_to_mongo_str_id

@@ -11,6 +11,10 @@ sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/recital/')
 
 import mongo_mediator
 
+sys.path.append(os.environ['SPACE_SHIP_HOME'] + '/logbook')
+
+from data_adapters import string_to_bytes, parse_timestamp_parameter, parse_objectid_parameter, parse_bytes_parameter
+
 config = configparser.ConfigParser()
 config.read(os.environ['SPACE_SHIP_HOME'] + '/databases.config')
 
@@ -29,10 +33,14 @@ class CreateOperation(graphene.Mutation):
     operation = graphene.Field(lambda: OperationMapper)
 
     def mutate(self, info, name, head, start, end, executors, requirements):
-        operation = OperationMapper.init_scalar(mongo_mediator.create_operation(\
-            name, head, datetime.datetime.strptime(start, TIMESTAMP_PATTERN), datetime.datetime.strptime(end, TIMESTAMP_PATTERN), executors, requirements\
-        ))
-        ok = True
+        operation = None
+        try:
+            operation = OperationMapper.init_scalar(mongo_mediator.create_operation(\
+                name, head, datetime.datetime.strptime(start, TIMESTAMP_PATTERN), datetime.datetime.strptime(end, TIMESTAMP_PATTERN), executors, requirements\
+            ))
+            ok = True
+        except IndexError:
+            ok = False
         return CreateOperation(operation = operation, ok = ok)
 
 class RemoveOperation(graphene.Mutation):
@@ -67,14 +75,17 @@ class UpdateOperations(graphene.Mutation):
     ok = graphene.Boolean()
 
     def mutate(self, info, id, name, head, start, end, executors, requirements, set_name, set_head, set_start, set_end, set_executors, set_requirements):
-        mongo_mediator.update_operations(ident = id,
-            name = name, head = head,
-            start = None if not start else datetime.datetime.strptime(start, TIMESTAMP_PATTERN), 
-            end = None if not end else datetime.datetime.strptime(end, TIMESTAMP_PATTERN), 
-            executors = executors, requirements = requirements,
-            set_name = set_name, set_head = set_head, set_start = None if not set_start else datetime.datetime.strptime(set_start, TIMESTAMP_PATTERN), 
-            set_end = None if not set_end else datetime.datetime.strptime(set_end, TIMESTAMP_PATTERN), set_executors = set_executors, 
-            set_requirements = set_requirements
-        )
-        ok = True
+        try:
+            mongo_mediator.update_operations(_id = parse_objectid_parameter(id),
+                name = name, head = head,
+                start = None if not start else datetime.datetime.strptime(start, TIMESTAMP_PATTERN), 
+                end = None if not end else datetime.datetime.strptime(end, TIMESTAMP_PATTERN), 
+                executors = executors, requirements = requirements,
+                set_name = set_name, set_head = set_head, set_start = None if not set_start else datetime.datetime.strptime(set_start, TIMESTAMP_PATTERN), 
+                set_end = None if not set_end else datetime.datetime.strptime(set_end, TIMESTAMP_PATTERN), set_executors = set_executors, 
+                set_requirements = set_requirements
+            )
+            ok = True
+        except IndexError:
+            ok = False
         return UpdateOperations(ok = ok)

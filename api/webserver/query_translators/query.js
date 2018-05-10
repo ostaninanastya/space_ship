@@ -26,6 +26,24 @@ fs.readFile(process.env.SPACE_SHIP_HOME + '/api/webserver/config.yaml', 'utf8', 
 });
 
 
+function protect_commas(str){
+	var inside = false;
+	for (var i = 0; i < str.length; i++) { 
+    	current = str.charAt(i);
+    	if (current == '\''){
+    		inside = !inside;
+    	} else if ((current == ',') && inside){
+    		str = str.substr(0, i) + '{{comma}}' + str.substr(i + 1);
+    	}
+    }
+    return str; 	
+}
+
+function remake_commas(str){
+    return str.replace(/\{\{comma\}\}/, ','); 	
+}
+
+
 function translate_query(query){
 	
 	let entity_name = query[2]
@@ -58,11 +76,13 @@ function translate_query(query){
 		return `query Query{ ${entity_name}(${where})`.replace(/\'/g, '"') + `{ ${fields} }}`.replace(/\(/g, '{').replace(/\)/g, '}')
 	} else {
 		new_set = ''
+
+		set = protect_commas(set);
 			
 		set.split(',').forEach(function(field){
 			splitted_field = split2(field, ':')
 			field_name = splitted_field[0]
-			new_set += 'set' + field_name[0].toUpperCase() + field_name.substring(1,field_name.length).toLowerCase() + ':' + splitted_field[1] + ','
+			new_set += 'set' + field_name[0].toUpperCase() + field_name.substring(1,field_name.length).toLowerCase() + ':' + remake_commas(splitted_field[1]) + ','
 		})
 
 		entity_name = capitalize(entity_name);

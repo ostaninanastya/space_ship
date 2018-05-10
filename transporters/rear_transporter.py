@@ -224,7 +224,7 @@ def inspect(collection, verbose = False):
 		frequency = get_frequency(last_timestamp = repaired_item['__accessed__'], gaps = repaired_item['__gaps__'], interval_length = CHECK_INTERVAL)
 
 		if verbose:
-			print('{0}{1} has been accessed with frequency {1} times per {2} seconds'.format(' '*(len(current_timestamp_str) + 3),
+			print('{0}{1} has been accessed with frequency {2} times per {3} seconds'.format(' '*(len(current_timestamp_str) + 3),
 			repaired_item['_id'], frequency, CHECK_INTERVAL))
 
 		if frequency < MIN_FREQUENCY:
@@ -258,27 +258,49 @@ def main():
 	once = '-o' in sys.argv
 	while True:
 		# recital
+		'''
+		
 		inspect(BOATS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(PROPERTY_TYPES_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(SYSTEM_STATES_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(SYSTEM_TYPES_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(SPECIALIZATIONS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(LOCATIONS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(SENSORS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(SYSTEMS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(PEOPLE_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(DEPARTMENTS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(PROPERTIES_COLLECTION_NAME, verbose = verbose)
 		# relations
+		
 		inspect(SHIFTS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(OPERATIONS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(REQUIREMENTS_COLLECTION_NAME, verbose = verbose)
+		
 		# logbook
+		
 		inspect(SYSTEM_TESTS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(CONTROL_ACTIONS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(POSITIONS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(SENSOR_DATA_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(SHIFT_STATES_COLLECTION_NAME, verbose = verbose)
+		'''
 		inspect(OPERATION_STATES_COLLECTION_NAME, verbose = verbose)
 		if once:
 			return
@@ -286,8 +308,8 @@ def main():
 
 
 if __name__ == '__main__':
-	#main()
-	print(get_content_on_lower())
+	main()
+	#print(get_content_on_lower())
 	#print(extract([], 'requirements'))
 	#print(extract({}, 'boats'))
 	#print(get_content_on_lower())

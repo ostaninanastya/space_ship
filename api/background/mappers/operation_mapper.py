@@ -26,7 +26,7 @@ class OperationMapper(graphene.ObjectType):
     requirements = graphene.List(RequirementMapper)
 
     def resolve_requirements(self, info):
-        return [RequirementMapper.init_scalar(mongo_mediator.get_requirement_by_id(id = id)) for id in mongo_mediator.get_operation_requirements(self.id)]
+        return [RequirementMapper.init_scalar(mongo_mediator.get_requirement_by_id(id = id)) for id in self.requirements]
 
     def resolve_head(self, info):
         return PersonMapper.init_scalar(mongo_mediator.get_person_by_id(id = self.head))

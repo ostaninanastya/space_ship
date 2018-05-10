@@ -29,10 +29,14 @@ class CreateProperty(graphene.Mutation):
     property = graphene.Field(lambda: PropertyMapper)
 
     def mutate(self, info, name, type, admission, comissioning, department):
-        property = PropertyMapper.init_scalar(mongo_mediator.create_property(\
-            name, type, datetime.datetime.strptime(admission, TIMESTAMP_PATTERN), datetime.datetime.strptime(comissioning, TIMESTAMP_PATTERN), department\
-        ))
-        ok = True
+        property = None
+        try:
+            property = PropertyMapper.init_scalar(mongo_mediator.create_property(\
+                name, type, datetime.datetime.strptime(admission, TIMESTAMP_PATTERN), datetime.datetime.strptime(comissioning, TIMESTAMP_PATTERN), department\
+            ))
+            ok = True
+        except IndexError:
+            ok = False
         return CreateProperty(property = property, ok = ok)
 
 class RemoveProperty(graphene.Mutation):
@@ -66,15 +70,19 @@ class UpdateProperties(graphene.Mutation):
     properties = graphene.List(lambda: PropertyMapper)
 
     def mutate(self, info, id, name, type, admission, comissioning, department, set_name, set_type, set_admission, set_comissioning, set_department):
-        properties = [PropertyMapper.init_scalar(item) for item in mongo_mediator.update_properties(\
-            _id = ObjectId(id) if id else None, name = name, type = ObjectId(type) if type else None, 
-            admission = datetime.datetime.strptime(admission, TIMESTAMP_PATTERN) if admission else None, 
-            comissioning = datetime.datetime.strptime(comissioning, TIMESTAMP_PATTERN) if comissioning else None, 
-            department = ObjectId(department) if department else None,
-            set_name = set_name, set_type = ObjectId(set_type) if set_type else None, 
-            set_admission = datetime.datetime.strptime(set_admission, TIMESTAMP_PATTERN) if set_admission else None, 
-            set_comissioning = datetime.datetime.strptime(set_comissioning, TIMESTAMP_PATTERN) if set_comissioning else None, 
-            set_department = ObjectId(set_department) if set_department else None
-        )]
-        ok = True
+        properties = None
+        try:
+            properties = [PropertyMapper.init_scalar(item) for item in mongo_mediator.update_properties(\
+                _id = ObjectId(id) if id else None, name = name, type = ObjectId(type) if type else None, 
+                admission = datetime.datetime.strptime(admission, TIMESTAMP_PATTERN) if admission else None, 
+                comissioning = datetime.datetime.strptime(comissioning, TIMESTAMP_PATTERN) if comissioning else None, 
+                department = ObjectId(department) if department else None,
+                set_name = set_name, set_type = ObjectId(set_type) if set_type else None, 
+                set_admission = datetime.datetime.strptime(set_admission, TIMESTAMP_PATTERN) if set_admission else None, 
+                set_comissioning = datetime.datetime.strptime(set_comissioning, TIMESTAMP_PATTERN) if set_comissioning else None, 
+                set_department = ObjectId(set_department) if set_department else None
+            )]
+            ok = True
+        except IndexError:
+            ok = False
         return UpdateProperties(properties = properties, ok = ok)

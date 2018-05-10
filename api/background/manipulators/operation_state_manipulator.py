@@ -163,20 +163,23 @@ class CreateOperationState(graphene.Mutation):
     plutonium, americium, curium, berkelium, californium, einsteinium, fermium, mendelevium, nobelium, lawrencium, rutherfordium, dubnium,\
     seaborgium, bohrium, hassium, meitnerium, darmstadtium, roentgenium, copernicium, nihonium, flerovium, moscovium, livermorium, tennessium,\
     oganesson, comment):
-
-        operation_state = OperationStateMapper.init_scalar(mongo_mediator.create_operation_state(parse_timestamp_parameter(timestamp),\
-            parse_objectid_parameter(boat), parse_objectid_parameter(operation), status, distance, zenith, azimuth, hydrogenium, helium, 
-            lithium, beryllium, borum,
-            carboneum, nitrogenium, oxygenium, fluorum, neon, natrium, magnesium, aluminium, silicium, phosphorus, sulfur, chlorum, argon, kalium, calcium,\
-            scandium, titanium, vanadium, chromium, manganum, ferrum, cobaltum, niccolum, cuprum, zincum, gallium, germanium, arsenicum, selenium, bromum,\
-            crypton, rubidium, strontium, yttrium, zirconium, niobium, molybdaenum, technetium, ruthenium, rhodium, palladium, argentum, cadmium, indium,\
-            stannum, stibium, tellurium, iodium, xenon, caesium, barium, lanthanum, cerium, praseodymium, neodymium, promethium, samarium, europium, gadolinium,\
-            terbium, dysprosium, holmium, erbium, thulium, ytterbium, lutetium, hafnium, tantalum, wolframium, rhenium, osmium, iridium, platinum, aurum,\
-            hydrargyrum, thallium, plumbum, bismuthum, polonium, astatum, radon, francium, radium, actinium, thorium, protactinium, uranium, neptunium,\
-            plutonium, americium, curium, berkelium, californium, einsteinium, fermium, mendelevium, nobelium, lawrencium, rutherfordium, dubnium,\
-            seaborgium, bohrium, hassium, meitnerium, darmstadtium, roentgenium, copernicium, nihonium, flerovium, moscovium, livermorium, tennessium,\
-            oganesson, comment))
-        ok = True
+        operation_state = None
+        try:
+            operation_state = OperationStateMapper.init_scalar(mongo_mediator.create_operation_state(parse_timestamp_parameter(timestamp),\
+                parse_objectid_parameter(boat), parse_objectid_parameter(operation), status, distance, zenith, azimuth, hydrogenium, helium, 
+                lithium, beryllium, borum,
+                carboneum, nitrogenium, oxygenium, fluorum, neon, natrium, magnesium, aluminium, silicium, phosphorus, sulfur, chlorum, argon, kalium, calcium,\
+                scandium, titanium, vanadium, chromium, manganum, ferrum, cobaltum, niccolum, cuprum, zincum, gallium, germanium, arsenicum, selenium, bromum,\
+                crypton, rubidium, strontium, yttrium, zirconium, niobium, molybdaenum, technetium, ruthenium, rhodium, palladium, argentum, cadmium, indium,\
+                stannum, stibium, tellurium, iodium, xenon, caesium, barium, lanthanum, cerium, praseodymium, neodymium, promethium, samarium, europium, gadolinium,\
+                terbium, dysprosium, holmium, erbium, thulium, ytterbium, lutetium, hafnium, tantalum, wolframium, rhenium, osmium, iridium, platinum, aurum,\
+                hydrargyrum, thallium, plumbum, bismuthum, polonium, astatum, radon, francium, radium, actinium, thorium, protactinium, uranium, neptunium,\
+                plutonium, americium, curium, berkelium, californium, einsteinium, fermium, mendelevium, nobelium, lawrencium, rutherfordium, dubnium,\
+                seaborgium, bohrium, hassium, meitnerium, darmstadtium, roentgenium, copernicium, nihonium, flerovium, moscovium, livermorium, tennessium,\
+                oganesson, comment))
+            ok = True
+        except IndexError:
+            ok = False
         return CreateOperationState(operation_state = operation_state, ok = ok)
 
 class RemoveOperationState(graphene.Mutation):
@@ -186,7 +189,7 @@ class RemoveOperationState(graphene.Mutation):
     ok = graphene.Boolean()
     operation_state = graphene.Field(lambda: OperationStateMapper)
 
-    def mutate(self, info, timestamp):
+    def mutate(self, info, id):
         operation_state = OperationStateMapper.init_scalar(mongo_mediator.remove_operation_state(id))
         ok = True
         return RemoveOperationState(operation_state = operation_state, ok = ok)
@@ -473,59 +476,62 @@ class UpdateOperationStates(graphene.Mutation):
     set_neptunium, set_plutonium, set_americium, set_curium, set_berkelium, set_californium, set_einsteinium, set_fermium, set_mendelevium,
     set_nobelium, set_lawrencium, set_rutherfordium, set_dubnium, set_seaborgium, set_bohrium, set_hassium, set_meitnerium, set_darmstadtium, 
     set_roentgenium, set_copernicium, set_nihonium, set_flerovium, set_moscovium, set_livermorium, set_tennessium, set_oganesson,set_comment, set_timestamp):
-        operation_state = mongo_mediator.update_operation_states(id = parse_objectid_parameter(id), timestamp = parse_timestamp_parameter(timestamp),
-            boat = parse_objectid_parameter(boat), operation = parse_objectid_parameter(boat), 
-            status = status, zenith = zenith, azimuth = azimuth, comment = comment, distance = distance,
-            set_boat = parse_objectid_parameter(set_boat), 
-            set_operation = parse_objectid_parameter(set_operation), 
-            set_status = set_status, set_distance = set_distance, set_zenith = set_zenith, set_azimuth = set_azimuth, set_comment = set_comment,
-            set_timestamp = parse_timestamp_parameter(set_timestamp),
-            set_hydrogenium = set_hydrogenium, hydrogenium = hydrogenium, set_helium = set_helium, helium = helium, 
-            set_lithium = set_lithium, lithium = lithium, set_beryllium = set_beryllium, beryllium = beryllium, 
-            set_borum = set_borum, borum = borum, set_carboneum = set_carboneum, carboneum = carboneum, set_nitrogenium = set_nitrogenium, 
-            nitrogenium = nitrogenium, set_oxygenium = set_oxygenium, oxygenium = oxygenium, set_fluorum = set_fluorum, fluorum = fluorum, 
-            set_neon = set_neon, neon = neon, set_natrium = set_natrium, natrium = natrium, set_magnesium = set_magnesium, magnesium = magnesium, 
-            set_aluminium = set_aluminium, aluminium = aluminium, set_silicium = set_silicium, silicium = silicium, set_phosphorus = set_phosphorus, 
-            phosphorus = phosphorus, set_sulfur = set_sulfur, sulfur = sulfur, set_chlorum = set_chlorum, chlorum = chlorum, set_argon = set_argon, 
-            argon = argon, set_kalium = set_kalium, kalium = kalium, set_calcium = set_calcium, calcium = calcium, set_scandium = set_scandium, 
-            scandium = scandium, set_titanium = set_titanium, titanium = titanium, set_vanadium = set_vanadium, vanadium = vanadium, 
-            set_chromium = set_chromium, chromium = chromium, set_manganum = set_manganum, manganum = manganum, set_ferrum = set_ferrum, 
-            ferrum = ferrum, set_cobaltum = set_cobaltum, cobaltum = cobaltum, set_niccolum = set_niccolum, niccolum = niccolum, 
-            set_cuprum = set_cuprum, cuprum = cuprum, set_zincum = set_zincum, zincum = zincum, set_gallium = set_gallium, 
-            gallium = gallium, set_germanium = set_germanium, germanium = germanium, set_arsenicum = set_arsenicum, 
-            arsenicum = arsenicum, set_selenium = set_selenium, selenium = selenium, set_bromum = set_bromum, 
-            bromum = bromum, set_crypton = set_crypton, crypton = crypton, set_rubidium = set_rubidium, rubidium = rubidium, 
-            set_strontium = set_strontium, strontium = strontium, set_yttrium = set_yttrium, yttrium = yttrium, set_zirconium = set_zirconium, 
-            zirconium = zirconium, set_niobium = set_niobium, niobium = niobium, set_molybdaenum = set_molybdaenum, molybdaenum = molybdaenum, 
-            set_technetium = set_technetium, technetium = technetium, set_ruthenium = set_ruthenium, ruthenium = ruthenium, set_rhodium = set_rhodium, 
-            rhodium = rhodium, set_palladium = set_palladium, palladium = palladium, set_argentum = set_argentum, argentum = argentum, 
-            set_cadmium = set_cadmium, cadmium = cadmium, set_indium = set_indium, indium = indium, set_stannum = set_stannum, stannum = stannum, 
-            set_stibium = set_stibium, stibium = stibium, set_tellurium = set_tellurium, tellurium = tellurium, set_iodium = set_iodium, 
-            iodium = iodium, set_xenon = set_xenon, xenon = xenon, set_caesium = set_caesium, caesium = caesium, set_barium = set_barium, 
-            barium = barium, set_lanthanum = set_lanthanum, lanthanum = lanthanum, set_cerium = set_cerium, cerium = cerium, 
-            set_praseodymium = set_praseodymium, praseodymium = praseodymium, set_neodymium = set_neodymium, neodymium = neodymium, 
-            set_promethium = set_promethium, promethium = promethium, set_samarium = set_samarium, samarium = samarium, set_europium = set_europium, 
-            europium = europium, set_gadolinium = set_gadolinium, gadolinium = gadolinium, set_terbium = set_terbium, terbium = terbium, 
-            set_dysprosium = set_dysprosium, dysprosium = dysprosium, set_holmium = set_holmium, holmium = holmium, set_erbium = set_erbium, 
-            erbium = erbium, set_thulium = set_thulium, thulium = thulium, set_ytterbium = set_ytterbium, ytterbium = ytterbium, 
-            set_lutetium = set_lutetium, lutetium = lutetium, set_hafnium = set_hafnium, hafnium = hafnium, set_tantalum = set_tantalum, 
-            tantalum = tantalum, set_wolframium = set_wolframium, wolframium = wolframium, set_rhenium = set_rhenium, rhenium = rhenium, 
-            set_osmium = set_osmium, osmium = osmium, set_iridium = set_iridium, iridium = iridium, set_platinum = set_platinum, platinum = platinum, 
-            set_aurum = set_aurum, aurum = aurum, set_hydrargyrum = set_hydrargyrum, hydrargyrum = hydrargyrum, set_thallium = set_thallium, 
-            thallium = thallium, set_plumbum = set_plumbum, plumbum = plumbum, set_bismuthum = set_bismuthum, bismuthum = bismuthum, 
-            set_polonium = set_polonium, polonium = polonium, set_astatum = set_astatum, astatum = astatum, set_radon = set_radon, radon = radon, 
-            set_francium = set_francium, francium = francium, set_radium = set_radium, radium = radium, set_actinium = set_actinium, actinium = actinium, 
-            set_thorium = set_thorium, thorium = thorium, set_protactinium = set_protactinium, protactinium = protactinium, set_uranium = set_uranium, 
-            uranium = uranium, set_neptunium = set_neptunium, neptunium = neptunium, set_plutonium = set_plutonium, plutonium = plutonium,
-            set_americium = set_americium, americium = americium, set_curium = set_curium, curium = curium, set_berkelium = set_berkelium, 
-            berkelium = berkelium, set_californium = set_californium, californium = californium, set_einsteinium = set_einsteinium, einsteinium = einsteinium, 
-            set_fermium = set_fermium, fermium = fermium, set_mendelevium = set_mendelevium, mendelevium = mendelevium, set_nobelium = set_nobelium, 
-            nobelium = nobelium, set_lawrencium = set_lawrencium, lawrencium = lawrencium, set_rutherfordium = set_rutherfordium, 
-            rutherfordium = rutherfordium, set_dubnium = set_dubnium, dubnium = dubnium, set_seaborgium = set_seaborgium, seaborgium = seaborgium, 
-            set_bohrium = set_bohrium, bohrium = bohrium, set_hassium = set_hassium, hassium = hassium, set_meitnerium = set_meitnerium, 
-            meitnerium = meitnerium, set_darmstadtium = set_darmstadtium, darmstadtium = darmstadtium, set_roentgenium = set_roentgenium, 
-            roentgenium = roentgenium, set_copernicium = set_copernicium, copernicium = copernicium, set_nihonium = set_nihonium, nihonium = nihonium, 
-            set_flerovium = set_flerovium, flerovium = flerovium, set_moscovium = set_moscovium, moscovium = moscovium, set_livermorium = set_livermorium, 
-            livermorium = livermorium, set_tennessium = set_tennessium, tennessium = tennessium, set_oganesson = set_oganesson, oganesson = oganesson)
-        ok = True
+        try:
+            operation_state = mongo_mediator.update_operation_states(_id = parse_objectid_parameter(id), timestamp = parse_timestamp_parameter(timestamp),
+                boat = parse_objectid_parameter(boat), operation = parse_objectid_parameter(boat), 
+                status = status, zenith = zenith, azimuth = azimuth, comment = comment, distance = distance,
+                set_boat = parse_objectid_parameter(set_boat), 
+                set_operation = parse_objectid_parameter(set_operation), 
+                set_status = set_status, set_distance = set_distance, set_zenith = set_zenith, set_azimuth = set_azimuth, set_comment = set_comment,
+                set_timestamp = parse_timestamp_parameter(set_timestamp),
+                set_hydrogenium = set_hydrogenium, hydrogenium = hydrogenium, set_helium = set_helium, helium = helium, 
+                set_lithium = set_lithium, lithium = lithium, set_beryllium = set_beryllium, beryllium = beryllium, 
+                set_borum = set_borum, borum = borum, set_carboneum = set_carboneum, carboneum = carboneum, set_nitrogenium = set_nitrogenium, 
+                nitrogenium = nitrogenium, set_oxygenium = set_oxygenium, oxygenium = oxygenium, set_fluorum = set_fluorum, fluorum = fluorum, 
+                set_neon = set_neon, neon = neon, set_natrium = set_natrium, natrium = natrium, set_magnesium = set_magnesium, magnesium = magnesium, 
+                set_aluminium = set_aluminium, aluminium = aluminium, set_silicium = set_silicium, silicium = silicium, set_phosphorus = set_phosphorus, 
+                phosphorus = phosphorus, set_sulfur = set_sulfur, sulfur = sulfur, set_chlorum = set_chlorum, chlorum = chlorum, set_argon = set_argon, 
+                argon = argon, set_kalium = set_kalium, kalium = kalium, set_calcium = set_calcium, calcium = calcium, set_scandium = set_scandium, 
+                scandium = scandium, set_titanium = set_titanium, titanium = titanium, set_vanadium = set_vanadium, vanadium = vanadium, 
+                set_chromium = set_chromium, chromium = chromium, set_manganum = set_manganum, manganum = manganum, set_ferrum = set_ferrum, 
+                ferrum = ferrum, set_cobaltum = set_cobaltum, cobaltum = cobaltum, set_niccolum = set_niccolum, niccolum = niccolum, 
+                set_cuprum = set_cuprum, cuprum = cuprum, set_zincum = set_zincum, zincum = zincum, set_gallium = set_gallium, 
+                gallium = gallium, set_germanium = set_germanium, germanium = germanium, set_arsenicum = set_arsenicum, 
+                arsenicum = arsenicum, set_selenium = set_selenium, selenium = selenium, set_bromum = set_bromum, 
+                bromum = bromum, set_crypton = set_crypton, crypton = crypton, set_rubidium = set_rubidium, rubidium = rubidium, 
+                set_strontium = set_strontium, strontium = strontium, set_yttrium = set_yttrium, yttrium = yttrium, set_zirconium = set_zirconium, 
+                zirconium = zirconium, set_niobium = set_niobium, niobium = niobium, set_molybdaenum = set_molybdaenum, molybdaenum = molybdaenum, 
+                set_technetium = set_technetium, technetium = technetium, set_ruthenium = set_ruthenium, ruthenium = ruthenium, set_rhodium = set_rhodium, 
+                rhodium = rhodium, set_palladium = set_palladium, palladium = palladium, set_argentum = set_argentum, argentum = argentum, 
+                set_cadmium = set_cadmium, cadmium = cadmium, set_indium = set_indium, indium = indium, set_stannum = set_stannum, stannum = stannum, 
+                set_stibium = set_stibium, stibium = stibium, set_tellurium = set_tellurium, tellurium = tellurium, set_iodium = set_iodium, 
+                iodium = iodium, set_xenon = set_xenon, xenon = xenon, set_caesium = set_caesium, caesium = caesium, set_barium = set_barium, 
+                barium = barium, set_lanthanum = set_lanthanum, lanthanum = lanthanum, set_cerium = set_cerium, cerium = cerium, 
+                set_praseodymium = set_praseodymium, praseodymium = praseodymium, set_neodymium = set_neodymium, neodymium = neodymium, 
+                set_promethium = set_promethium, promethium = promethium, set_samarium = set_samarium, samarium = samarium, set_europium = set_europium, 
+                europium = europium, set_gadolinium = set_gadolinium, gadolinium = gadolinium, set_terbium = set_terbium, terbium = terbium, 
+                set_dysprosium = set_dysprosium, dysprosium = dysprosium, set_holmium = set_holmium, holmium = holmium, set_erbium = set_erbium, 
+                erbium = erbium, set_thulium = set_thulium, thulium = thulium, set_ytterbium = set_ytterbium, ytterbium = ytterbium, 
+                set_lutetium = set_lutetium, lutetium = lutetium, set_hafnium = set_hafnium, hafnium = hafnium, set_tantalum = set_tantalum, 
+                tantalum = tantalum, set_wolframium = set_wolframium, wolframium = wolframium, set_rhenium = set_rhenium, rhenium = rhenium, 
+                set_osmium = set_osmium, osmium = osmium, set_iridium = set_iridium, iridium = iridium, set_platinum = set_platinum, platinum = platinum, 
+                set_aurum = set_aurum, aurum = aurum, set_hydrargyrum = set_hydrargyrum, hydrargyrum = hydrargyrum, set_thallium = set_thallium, 
+                thallium = thallium, set_plumbum = set_plumbum, plumbum = plumbum, set_bismuthum = set_bismuthum, bismuthum = bismuthum, 
+                set_polonium = set_polonium, polonium = polonium, set_astatum = set_astatum, astatum = astatum, set_radon = set_radon, radon = radon, 
+                set_francium = set_francium, francium = francium, set_radium = set_radium, radium = radium, set_actinium = set_actinium, actinium = actinium, 
+                set_thorium = set_thorium, thorium = thorium, set_protactinium = set_protactinium, protactinium = protactinium, set_uranium = set_uranium, 
+                uranium = uranium, set_neptunium = set_neptunium, neptunium = neptunium, set_plutonium = set_plutonium, plutonium = plutonium,
+                set_americium = set_americium, americium = americium, set_curium = set_curium, curium = curium, set_berkelium = set_berkelium, 
+                berkelium = berkelium, set_californium = set_californium, californium = californium, set_einsteinium = set_einsteinium, einsteinium = einsteinium, 
+                set_fermium = set_fermium, fermium = fermium, set_mendelevium = set_mendelevium, mendelevium = mendelevium, set_nobelium = set_nobelium, 
+                nobelium = nobelium, set_lawrencium = set_lawrencium, lawrencium = lawrencium, set_rutherfordium = set_rutherfordium, 
+                rutherfordium = rutherfordium, set_dubnium = set_dubnium, dubnium = dubnium, set_seaborgium = set_seaborgium, seaborgium = seaborgium, 
+                set_bohrium = set_bohrium, bohrium = bohrium, set_hassium = set_hassium, hassium = hassium, set_meitnerium = set_meitnerium, 
+                meitnerium = meitnerium, set_darmstadtium = set_darmstadtium, darmstadtium = darmstadtium, set_roentgenium = set_roentgenium, 
+                roentgenium = roentgenium, set_copernicium = set_copernicium, copernicium = copernicium, set_nihonium = set_nihonium, nihonium = nihonium, 
+                set_flerovium = set_flerovium, flerovium = flerovium, set_moscovium = set_moscovium, moscovium = moscovium, set_livermorium = set_livermorium, 
+                livermorium = livermorium, set_tennessium = set_tennessium, tennessium = tennessium, set_oganesson = set_oganesson, oganesson = oganesson)
+            ok = True
+        except IndexError:
+            ok = False
         return UpdateOperationStates(ok = ok)

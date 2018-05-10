@@ -77,10 +77,21 @@ def remove(collection, item):
 ## Move items according to collection and query one level up
 def extract(params, collection):
 
+	loaded = 0
+
 	# Copy items from cassandra to mongo
 
-	for item in connection.execute('select * from {0}.{1} {2};'.format(CASSANDRA_DB_NAME, collection, cassandra_dealer.querify(params, 'SELECT'))):
-		db[collection].insert_one(cassandra_dealer.repair(item))
+	query = 'select * from {0}.{1} {2};'.format(CASSANDRA_DB_NAME, collection, cassandra_dealer.querify(params, 'SELECT'))
+
+	print(query)
+
+	for item in connection.execute(query):
+		loaded += 1
+		try:
+			db[collection].insert_one(cassandra_dealer.repair(item))
+		except Exception as e:
+			#print(e)
+			pass
 
 	# Copy items from lower levels to cassandra and mongo without replacing
 
@@ -92,13 +103,14 @@ def extract(params, collection):
 			pass
 		
 		try:
+			loaded += 1
 			#item['location'] = ObjectId("5aede452d678f43e2c1db493")
 			#print('before instarting to mongo:', item)
 			db[collection].insert_one(item)
 		except Exception as e:
 			pass
 	
-	return
+	return loaded
 
 
 ## Move item one level below
@@ -158,27 +170,49 @@ def main():
 	once = '-o' in sys.argv
 	while True:
 		# recital
+		'''
+		
 		inspect(BOATS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(PROPERTY_TYPES_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(SYSTEM_STATES_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(SYSTEM_TYPES_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(SPECIALIZATIONS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(LOCATIONS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(SENSORS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(SYSTEMS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(PEOPLE_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(DEPARTMENTS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(PROPERTIES_COLLECTION_NAME, verbose = verbose)
 		# relations
+		
 		inspect(SHIFTS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(OPERATIONS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(REQUIREMENTS_COLLECTION_NAME, verbose = verbose)
+		
 		# logbook
+		
 		inspect(SYSTEM_TESTS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(CONTROL_ACTIONS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(POSITIONS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(SENSOR_DATA_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(SHIFT_STATES_COLLECTION_NAME, verbose = verbose)
+		'''
 		inspect(OPERATION_STATES_COLLECTION_NAME, verbose = verbose)
 		if once:
 			return

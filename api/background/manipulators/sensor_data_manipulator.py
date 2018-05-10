@@ -30,9 +30,13 @@ class CreateSensorData(graphene.Mutation):
     sensor_data = graphene.Field(lambda: SensorDataMapper)
 
     def mutate(self, info, timestamp, source, event, meaning, value, units):
-        sensor_data = SensorDataMapper.init_scalar(mongo_mediator.create_sensor_data(parse_timestamp_parameter(timestamp),
-            parse_objectid_parameter(source), event, meaning, value, units))
-        ok = True
+        sensor_data = None
+        try:
+            sensor_data = SensorDataMapper.init_scalar(mongo_mediator.create_sensor_data(parse_timestamp_parameter(timestamp),
+                parse_objectid_parameter(source), event, meaning, value, units))
+            ok = True
+        except IndexError:
+            ok = False
         return CreateSensorData(sensor_data = sensor_data, ok = ok)
 
 class RemoveSensorData(graphene.Mutation):
@@ -42,7 +46,7 @@ class RemoveSensorData(graphene.Mutation):
     ok = graphene.Boolean()
     sensor_data = graphene.Field(lambda: SensorDataMapper)
 
-    def mutate(self, info, timestamp):
+    def mutate(self, info, id):
         sensor_data = SensorDataMapper.init_scalar(mongo_mediator.remove_sensor_data(id))
         ok = True
         return RemoveSensorData(sensor_data = sensor_data, ok = ok)
@@ -68,9 +72,12 @@ class UpdateSensorData(graphene.Mutation):
     ok = graphene.Boolean()
 
     def mutate(self, info, id, timestamp, source, event, meaning, value, units, set_source, set_event, set_meaning, set_value, set_units, set_timestamp):
-        cassandra_mediator.update_sensor_data(id = parse_objectid_parameter(id), timestamp = parse_timestamp_parameter(timestamp),
-            source = parse_objectid_parameter(source), event = event, meaning = meaning, value = value, units = units,
-            set_source = parse_objectid_parameter(set_source), set_event = set_event, 
-            set_meaning = set_meaning, set_value = set_value, set_units = set_units, set_timestamp = parse_timestamp_parameter(set_timestamp))
-        ok = True
+        try:
+            mongo_mediator.update_sensor_data(_id = parse_objectid_parameter(id), timestamp = parse_timestamp_parameter(timestamp),
+                source = parse_objectid_parameter(source), event = event, meaning = meaning, value = value, units = units,
+                set_source = parse_objectid_parameter(set_source), set_event = set_event, 
+                set_meaning = set_meaning, set_value = set_value, set_units = set_units, set_timestamp = parse_timestamp_parameter(set_timestamp))
+            ok = True
+        except IndexError:
+            ok = False
         return UpdateSensorData(ok = ok)

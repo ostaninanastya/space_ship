@@ -2,6 +2,7 @@ import sys, os
 from neomodel import config
 import graphene
 
+from person_mapper import DepartmentMapper
 from person_mapper import PersonMapper
 from requirement_mapper import RequirementMapper
 
@@ -25,12 +26,17 @@ class ShiftMapper(graphene.ObjectType):
     chief = graphene.Field(PersonMapper)
     workers = graphene.List(PersonMapper)
     requirements = graphene.List(RequirementMapper)
+    department = graphene.Field(DepartmentMapper)
 
     def resolve_requirements(self, info):
         return [RequirementMapper.init_scalar(mongo_mediator.get_requirement_by_id(id = id)) for id in self.requirements]
 
     def resolve_chief(self, info):
         return PersonMapper.init_scalar(mongo_mediator.get_person_by_id(id = self.chief))
+
+    def resolve_department(self, info):
+        print(self.department)
+        return DepartmentMapper.init_scalar(mongo_mediator.get_department_by_id(id = self.department))
 
     def resolve_workers(self, info):
         return [PersonMapper.init_scalar(mongo_mediator.get_person_by_id(worker_id)) for worker_id in self.workers]
@@ -47,4 +53,5 @@ class ShiftMapper(graphene.ObjectType):
                            end = str(item['end']),
                            chief = item['chief'],
                            workers = item['workers'],
-                           requirements = item['requirements'])
+                           requirements = item['requirements'],
+                           department = item['department'])

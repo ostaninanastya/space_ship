@@ -26,9 +26,13 @@ class CreatePerson(graphene.Mutation):
 
     def mutate(self, info, name, surname, patronymic, phone, department, specialization):
         #print('omg')
-        new_person = mongo_mediator.create_person(name, surname, patronymic, phone, department, specialization)
-        person = PersonMapper.init_scalar(new_person)
-        ok = True
+        person = None
+        try:
+            new_person = mongo_mediator.create_person(name, surname, patronymic, phone, department, specialization)
+            person = PersonMapper.init_scalar(new_person)
+            ok = True
+        except IndexError:
+            ok = False
         return CreatePerson(person = person, ok = ok)
 
 class RemovePerson(graphene.Mutation):
@@ -79,11 +83,15 @@ class UpdatePeople(graphene.Mutation):
     def mutate(self, info, id, name, surname, patronymic, phone, department, specialization, 
         set_name, set_surname, set_patronymic, set_phone, set_department, set_specialization):
         #print('omg')
-        new_people = mongo_mediator.update_people(_id = ObjectId(id) if id else None, name = name, surname = surname, patronymic = patronymic,\
-        phone = phone, department = ObjectId(department) if department else None, specialization = ObjectId(specialization) if specialization else None,
-        set_name = set_name, set_surname = set_surname, set_patronymic = set_patronymic,\
-        set_phone = set_phone, set_department = ObjectId(set_department) if set_department else None,\
-        set_specialization = ObjectId(set_specialization) if set_specialization else None)
-        people = [PersonMapper.init_scalar(item) for item in new_people]
-        ok = True
+        people = None
+        try:
+            new_people = mongo_mediator.update_people(_id = ObjectId(id) if id else None, name = name, surname = surname, patronymic = patronymic,\
+            phone = phone, department = ObjectId(department) if department else None, specialization = ObjectId(specialization) if specialization else None,
+            set_name = set_name, set_surname = set_surname, set_patronymic = set_patronymic,\
+            set_phone = set_phone, set_department = ObjectId(set_department) if set_department else None,\
+            set_specialization = ObjectId(set_specialization) if set_specialization else None)
+            people = [PersonMapper.init_scalar(item) for item in new_people]
+            ok = True
+        except IndexError:
+            ok = False
         return UpdatePeople(people = people, ok = ok)

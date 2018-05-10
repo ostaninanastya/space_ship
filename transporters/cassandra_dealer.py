@@ -7,7 +7,7 @@ def isfloat(value):
         float(str(value))
     except ValueError: 
         return False
-    return True
+    return not isinstance(value, ObjectId)
 
 config = configparser.ConfigParser()
 config.read(os.environ.get('SPACE_SHIP_HOME') + '/databases.config')
@@ -75,7 +75,7 @@ def querify(item, mode = 'INSERT', keys = None):
 		return '(' + ', '.join([item[0] for item in querified]) + ') values (' + ', '.join([item[1] for item in querified]) + ')'
 	elif mode == 'SELECT':
 		criterias = [item[0] + ' = ' + item[1] for item in querified]
-		joined_criterias = ', '.join(criterias)
+		joined_criterias = ' and '.join(criterias)
 		return 'where {0} allow filtering'.format(joined_criterias) if (len(criterias) > 0) else joined_criterias
 	elif mode == 'DELETE':
 		return ' and '.join([item[0] + ' = ' + item[1] for item in querified])

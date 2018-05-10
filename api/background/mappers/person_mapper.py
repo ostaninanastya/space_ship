@@ -1,5 +1,6 @@
 import sys, os, re
 import graphene
+from bson.objectid import ObjectId
 
 from specialization_mapper import SpecializationMapper
 from department_mapper import DepartmentMapper
@@ -80,6 +81,7 @@ class PersonMapper(graphene.ObjectType):
     @staticmethod
     def init_scalar(item):
         return PersonMapper(id = str(item['_id']), name = item['name'], surname = item.get('surname'), 
-            patronymic = item.get('patronymic'), phone = item.get('phone'), department = item.get('department'))
+            patronymic = item.get('patronymic'), phone = item.get('phone'), department = item.get('department'),
+            specialization = item.get('specialization'))
 
 

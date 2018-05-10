@@ -196,27 +196,49 @@ def main():
 	once = '-o' in sys.argv
 	while True:
 		# recital
+		'''
+		
 		inspect(BOATS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(PROPERTY_TYPES_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(SYSTEM_STATES_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(SYSTEM_TYPES_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(SPECIALIZATIONS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(LOCATIONS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(SENSORS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(SYSTEMS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(PEOPLE_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(DEPARTMENTS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(PROPERTIES_COLLECTION_NAME, verbose = verbose)
 		# relations
+		
 		inspect(SHIFTS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(OPERATIONS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(REQUIREMENTS_COLLECTION_NAME, verbose = verbose)
+		
 		# logbook
+		
 		inspect(SYSTEM_TESTS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(CONTROL_ACTIONS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(POSITIONS_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(SENSOR_DATA_COLLECTION_NAME, verbose = verbose)
+		
 		inspect(SHIFT_STATES_COLLECTION_NAME, verbose = verbose)
+		'''
 		inspect(OPERATION_STATES_COLLECTION_NAME, verbose = verbose)
 		if once:
 			return

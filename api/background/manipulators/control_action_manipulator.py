@@ -33,9 +33,13 @@ class CreateControlAction(graphene.Mutation):
     control_action = graphene.Field(lambda: ControlActionMapper)
 
     def mutate(self, info, timestamp, mac, user, command, params, result):
-        control_action = ControlActionMapper.init_scalar(mongo_mediator.create_control_action(parse_timestamp_parameter(timestamp),
-            parse_bytes_parameter(mac), parse_objectid_parameter(user), command, params, result))
-        ok = True
+        control_action = None
+        try:
+            control_action = ControlActionMapper.init_scalar(mongo_mediator.create_control_action(parse_timestamp_parameter(timestamp),
+                parse_bytes_parameter(mac), parse_objectid_parameter(user), command, params, result))
+            ok = True
+        except IndexError:
+            ok = False
         return CreateControlAction(control_action = control_action, ok = ok)
 
 class RemoveControlAction(graphene.Mutation):
@@ -45,7 +49,7 @@ class RemoveControlAction(graphene.Mutation):
     ok = graphene.Boolean()
     control_action = graphene.Field(lambda: ControlActionMapper)
 
-    def mutate(self, info, timestamp):
+    def mutate(self, info, id):
         control_action = ControlActionMapper.init_scalar(mongo_mediator.remove_control_action(id))
         ok = True
         return RemoveControlAction(control_action = control_action, ok = ok)
@@ -70,9 +74,12 @@ class UpdateControlActions(graphene.Mutation):
     ok = graphene.Boolean()
 
     def mutate(self, info, id, timestamp, mac, user, command, params, result, set_mac, set_user, set_command, set_params, set_result):
-        cassandra_mediator.update_control_actions(id = parse_objectid_parameter(id), timestamp = parse_timestamp_parameter(timestamp),
-            user = parse_objectid_parameter(user), mac_address = parse_bytes_parameter(mac), command = command, params = params, result = result, 
-            set_user_id = parse_objectid_parameter(set_user), set_mac_address = parse_bytes_parameter(set_mac),
-            set_command = set_command, set_params = set_params, set_result = set_result)
-        ok = True
+        try:
+            mongo_mediator.update_control_actions(_id = parse_objectid_parameter(id), timestamp = parse_timestamp_parameter(timestamp),
+                user = parse_objectid_parameter(user), mac_address = parse_bytes_parameter(mac), command = command, params = params, result = result, 
+                set_user = parse_objectid_parameter(set_user), set_mac_address = parse_bytes_parameter(set_mac),
+                set_command = set_command, set_params = set_params, set_result = set_result)
+            ok = True
+        except IndexError:
+            ok = False
         return UpdateControlActions(ok = ok)
