@@ -8,9 +8,6 @@ const fs = require("fs");
 
 const yaml_js = require('yaml-js');
 
-const translate = require(process.env.SPACE_SHIP_HOME + '/api/webserver/query_translators/main.js').translate;
-const translate_post = require(process.env.SPACE_SHIP_HOME + '/api/webserver/query_translators/main.js').translate_post;
-
 
 // set global variables
 
@@ -23,10 +20,11 @@ fs.readFile(process.env.SPACE_SHIP_HOME + '/api/webserver/config.yaml', 'utf8', 
 	LAST_RESPONSE_CHUNK_SIGN = config.last_response_chunk_sign;
 });
 
-function send_response(query, res){
-	console.log(query)
+function send_response(layer, entity, res){
 
-	let python_process = spawn('python3', [process.env.SPACE_SHIP_HOME + "/api/background/main.py", query]);
+	if (!entity) entity = "";
+
+	let python_process = spawn('python3', [process.env.SPACE_SHIP_HOME + "/transporters/show_layer_content.py", layer, entity]);
 
 	res.write('')
 
@@ -45,16 +43,8 @@ function send_response(query, res){
 }
 
 
-function handle_api_request(req, res){
-	query = translate(req.originalUrl).replace(/%20/g, ' ');
-	send_response(query, res);
+function handle_data_request(req, res){
+	send_response(req.body.layer, req.body.entity, res);
 }
 
-function handle_api_post_request(req, res){
-	query = translate_post(req.body);
-	//console.log(query);
-	send_response(query, res);
-}
-
-exports.handle_api_request = handle_api_request;
-exports.handle_api_post_request = handle_api_post_request;
+exports.handle_data_post_request = handle_data_request;

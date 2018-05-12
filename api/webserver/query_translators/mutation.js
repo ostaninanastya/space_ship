@@ -13,6 +13,8 @@ const string_operators = require(process.env.SPACE_SHIP_HOME + '/api/webserver/s
 var split2 = string_operators.split2;
 var capitalize = string_operators.capitalize
 
+const stringify_list_members = require(process.env.SPACE_SHIP_HOME + '/api/webserver/query_translators/post_query_converters.js').stringify_list_members;
+const object_to_list = require(process.env.SPACE_SHIP_HOME + '/api/webserver/query_translators/post_query_converters.js').object_to_list;
 
 // set global variables
 
@@ -24,6 +26,18 @@ fs.readFile(process.env.SPACE_SHIP_HOME + '/api/webserver/config.yaml', 'utf8', 
 
 	REQUIREMENT_DELIMITER = config.requirement_delimiter;
 });
+
+function get_graphql_mutation(fields, where, action_name, entity_name){
+	if (fields.length == 0) fields = fix_fields(entity_name);
+
+	entity_name = capitalize(entity_name);
+
+	if (where.length == 0){
+		return ''
+	} else {
+		return `mutation Mutation{ ${action_name}${entity_name}(${where})`.replace(/\'/g, '"') + `{ ${fields} }}`.replace(/\(/g, '{').replace(/\)/g, '}').replace(/\%20/g, ' ')
+	}
+}
 
 
 function translate_mutation(query){
@@ -46,15 +60,18 @@ function translate_mutation(query){
 		}
 	});
 
-	if (fields.length == 0) fields = fix_fields(entity_name);
-
-	entity_name = capitalize(entity_name);
-
-	if (where.length == 0){
-		return ''
-	} else {
-		return `mutation Mutation{ ${action_name}${entity_name}(${where})`.replace(/\'/g, '"') + `{ ${fields} }}`.replace(/\(/g, '{').replace(/\)/g, '}').replace(/\%20/g, ' ')
-	}
+	return get_graphql_mutation(fields, where, action_name, entity_name);
 }
 
+function translate_post_mutation(query){
+	let entity_name = query.entity;
+	let action_name = query.operation;		
+		
+	let fields = stringify_list_members(query.fields).join(",");
+	let where = object_to_list(query.where).join(",");
+
+	return get_graphql_mutation(fields, where, action_name, entity_name);
+}
+
+exports.translate_post_mutation = translate_post_mutation;
 exports.translate_mutation = translate_mutation;

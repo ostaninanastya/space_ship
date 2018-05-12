@@ -6,6 +6,9 @@
 const translate_mutation = require(process.env.SPACE_SHIP_HOME + '/api/webserver/query_translators/mutation').translate_mutation;
 const translate_query = require(process.env.SPACE_SHIP_HOME + '/api/webserver/query_translators/query').translate_query;
 
+const translate_post_mutation = require(process.env.SPACE_SHIP_HOME + '/api/webserver/query_translators/mutation').translate_post_mutation;
+const translate_post_query = require(process.env.SPACE_SHIP_HOME + '/api/webserver/query_translators/query').translate_post_query;
+
 
 // set global variables
 
@@ -23,6 +26,13 @@ function translate_to_graphsql(original_query){
 	}
 }
 
+function translate_to_graphsql_from_post(query){
+	if (mutation_actions.includes(query.operation)){
+		return translate_post_mutation(query);
+	} else {
+		return translate_post_query(query);
+	}
+}
+
 exports.translate = translate_to_graphsql;
-exports.translate_mutation = translate_mutation;
-exports.translate_query = translate_query;
+exports.translate_post = translate_to_graphsql_from_post;

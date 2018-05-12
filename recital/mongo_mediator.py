@@ -250,7 +250,7 @@ def select(params, collection):
 	except KeyError:
 		result = db[collection].bulk_write([UpdateOne({'_id' : record['_id']}, {'$set':  { '__accessed__': current_timestamp, '__gaps__': [0]}}) for record in items])
 	
-	print([item for item in db[collection].find(parsed_params)])
+	#print([item for item in db[collection].find(parsed_params)])
 
 	#db[collection].update_many(parse_params_for_select(params), {'__accessed__': current_timestamp, '$push': { '__gaps__': int((current_timestamp - ).strftime("%s"))}})
 	return filter_by_ids(items, ids)
@@ -844,8 +844,8 @@ def update_requirements(**kwargs):
 	
 		for requirement_str_part in kwargs['set_content'].split(ID_DELIMITER):#.replace('set','')
 			specialization, quantity = requirement_str_part.split(REQ_COMPONENT_DELIMITER)
-			print(specialization)
-			print(quantity)
+			#print(specialization)
+			#print(quantity)
 			get_specialization_by_id(specialization)
 			requirement_parts.append({'specialization' : ObjectId(specialization), 'quantity' : int(quantity)})
 		

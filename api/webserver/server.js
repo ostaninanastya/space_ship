@@ -10,7 +10,11 @@ const yaml_js = require('yaml-js');
 
 const handle_docs_request = require(process.env.SPACE_SHIP_HOME + '/api/webserver/docs_handlers/main.js').handle_docs_request;
 const handle_api_request = require(process.env.SPACE_SHIP_HOME + '/api/webserver/api_handlers/main.js').handle_api_request;
+const handle_api_post_request = require(process.env.SPACE_SHIP_HOME + '/api/webserver/api_handlers/main.js').handle_api_post_request;
 
+const handle_data_post_request = require(process.env.SPACE_SHIP_HOME + '/api/webserver/data_handlers/main.js').handle_data_post_request;
+
+const bodyParser = require('body-parser');
 
 // set global variables
 
@@ -31,6 +35,7 @@ fs.readFile(process.env.SPACE_SHIP_HOME + '/api/webserver/config.yaml', 'utf8', 
 // start server
 
 const app = express();
+app.use(bodyParser.json());
 
 function start_server(){
 	app.listen(PORT, function () {
@@ -38,8 +43,15 @@ function start_server(){
  	});
 
 	app.get('/api/*', function(req, res){
-		console.log('SSS')
 		handle_api_request(req, res);
+	});
+
+	app.post('/api/*', function(req, res){
+		handle_api_post_request(req, res);
+	});
+
+	app.post('/data/*', function(req, res){
+		handle_data_post_request(req, res);
 	});
 
 	app.get('/docs/', function(req, res){ 

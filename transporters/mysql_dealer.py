@@ -46,7 +46,7 @@ def querify(item, mode = 'INSERT', keys = None):
 			querified.append([key, stringify(item[key])])
 			continue
 
-	print(querified)
+	#print(querified)
 
 	if mode == 'INSERT':
 		return '(' + ', '.join([item[0] for item in querified]) + ') values (' + ', '.join([item[1] for item in querified]) + ')'

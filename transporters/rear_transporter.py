@@ -258,9 +258,10 @@ def main():
 	once = '-o' in sys.argv
 	while True:
 		# recital
-		'''
+		
 		
 		inspect(BOATS_COLLECTION_NAME, verbose = verbose)
+		'''
 		
 		inspect(PROPERTY_TYPES_COLLECTION_NAME, verbose = verbose)
 		
@@ -300,8 +301,11 @@ def main():
 		inspect(SENSOR_DATA_COLLECTION_NAME, verbose = verbose)
 		
 		inspect(SHIFT_STATES_COLLECTION_NAME, verbose = verbose)
-		'''
+		
 		inspect(OPERATION_STATES_COLLECTION_NAME, verbose = verbose)
+		
+		inspect(OPERATION_STATES_COLLECTION_NAME, verbose = verbose)
+		'''
 		if once:
 			return
 		time.sleep(CHECK_PERIOD)

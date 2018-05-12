@@ -74,6 +74,10 @@ def remove(collection, item):
 	query = 'delete from {0}.{1} where {2};'.format(CASSANDRA_DB_NAME, collection, cassandra_dealer.querify(item, 'DELETE', keys = ['id']))
 	connection.execute(query)
 
+def extract_short(params, collection):
+	query = 'select * from {0}.{1} {2};'.format(CASSANDRA_DB_NAME, collection, cassandra_dealer.querify(params, 'SELECT'))
+	return [cassandra_dealer.repair(item) for item in connection.execute(query)]
+
 ## Move items according to collection and query one level up
 def extract(params, collection):
 
@@ -83,7 +87,7 @@ def extract(params, collection):
 
 	query = 'select * from {0}.{1} {2};'.format(CASSANDRA_DB_NAME, collection, cassandra_dealer.querify(params, 'SELECT'))
 
-	print(query)
+	#print(query)
 
 	for item in connection.execute(query):
 		loaded += 1
@@ -119,7 +123,7 @@ def immerse(item, collection, cause):
 
 	query = 'insert into {0}.{1} {2};'.format(CASSANDRA_DB_NAME, collection, cassandra_dealer.querify(item))
 
-	print(query)
+	#print(query)
 
 	connection.execute(query)
 	db[collection].delete_one({'_id': ObjectId(item['_id'])})
@@ -158,9 +162,24 @@ def get_content_on_lower():
 	result = {}
 
 	for collection in collections:
-		result[collection] = extract({}, collection)
+		result[collection] = extract_short({}, collection)
 
 	return result
+
+def get_content_on_upper():
+	collections = [BOATS_COLLECTION_NAME, PROPERTY_TYPES_COLLECTION_NAME, SYSTEM_STATES_COLLECTION_NAME, SYSTEM_TYPES_COLLECTION_NAME,
+	SPECIALIZATIONS_COLLECTION_NAME, LOCATIONS_COLLECTION_NAME, SENSORS_COLLECTION_NAME, SYSTEMS_COLLECTION_NAME, PEOPLE_COLLECTION_NAME,
+	DEPARTMENTS_COLLECTION_NAME, PROPERTIES_COLLECTION_NAME, SHIFTS_COLLECTION_NAME, OPERATIONS_COLLECTION_NAME, REQUIREMENTS_COLLECTION_NAME,
+	SYSTEM_TESTS_COLLECTION_NAME, CONTROL_ACTIONS_COLLECTION_NAME, POSITIONS_COLLECTION_NAME, SENSOR_DATA_COLLECTION_NAME,
+	SHIFT_STATES_COLLECTION_NAME, OPERATION_STATES_COLLECTION_NAME]
+
+	result = {}
+
+	for collection in collections:
+		result[collection] = [item for item in db[collection].find()]
+
+	return result
+	
 
 
 ## Start main loop
@@ -170,9 +189,10 @@ def main():
 	once = '-o' in sys.argv
 	while True:
 		# recital
-		'''
+		
 		
 		inspect(BOATS_COLLECTION_NAME, verbose = verbose)
+		'''
 		
 		inspect(PROPERTY_TYPES_COLLECTION_NAME, verbose = verbose)
 		
@@ -212,8 +232,9 @@ def main():
 		inspect(SENSOR_DATA_COLLECTION_NAME, verbose = verbose)
 		
 		inspect(SHIFT_STATES_COLLECTION_NAME, verbose = verbose)
-		'''
+		
 		inspect(OPERATION_STATES_COLLECTION_NAME, verbose = verbose)
+		'''
 		if once:
 			return
 		time.sleep(CHECK_PERIOD)

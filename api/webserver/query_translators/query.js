@@ -13,6 +13,9 @@ const string_operators = require(process.env.SPACE_SHIP_HOME + '/api/webserver/s
 var split2 = string_operators.split2;
 var capitalize = string_operators.capitalize
 
+const stringify_list_members = require(process.env.SPACE_SHIP_HOME + '/api/webserver/query_translators/post_query_converters.js').stringify_list_members;
+const object_to_list = require(process.env.SPACE_SHIP_HOME + '/api/webserver/query_translators/post_query_converters.js').object_to_list;
+
 
 // set global variables
 
@@ -43,6 +46,29 @@ function remake_commas(str){
     return str.replace(/\{\{comma\}\}/, ','); 	
 }
 
+function get_graphql_query(fields, where, set, entity_name){
+	if (fields.length == 0) fields = fix_fields(entity_name);
+
+	if ((where.length == 0) && (set.length == 0)){
+		return `query Query{ ${entity_name}{ ${fields} }}`.replace(/\(/g, '{').replace(/\)/g, '}')
+	} else if (set.length == 0){
+		return `query Query{ ${entity_name}(${where})`.replace(/\'/g, '"') + `{ ${fields} }}`.replace(/\(/g, '{').replace(/\)/g, '}')
+	} else {
+		new_set = ''
+
+		set = protect_commas(set);
+			
+		set.split(',').forEach(function(field){
+			splitted_field = split2(field, ':')
+			field_name = splitted_field[0]
+			new_set += 'set' + field_name[0].toUpperCase() + field_name.substring(1,field_name.length).toLowerCase() + ':' + remake_commas(splitted_field[1]) + ','
+		})
+
+		entity_name = capitalize(entity_name);
+
+		return `mutation Mutation{ update${entity_name}(${where}, ${new_set})`.replace(/\'/g, '"') + `{ ${fields} }}`.replace(/\(/g, '{').replace(/\)/g, '}').replace(/\%20/g, ' ')
+	}
+}
 
 function translate_query(query){
 	
@@ -68,27 +94,19 @@ function translate_query(query){
 
 	console.log(fields);
 
-	if (fields.length == 0) fields = fix_fields(entity_name);
+	return get_graphql_query(fields, where, set, entity_name);
+}
 
-	if ((where.length == 0) && (set.length == 0)){
-		return `query Query{ ${entity_name}{ ${fields} }}`.replace(/\(/g, '{').replace(/\)/g, '}')
-	} else if (set.length == 0){
-		return `query Query{ ${entity_name}(${where})`.replace(/\'/g, '"') + `{ ${fields} }}`.replace(/\(/g, '{').replace(/\)/g, '}')
-	} else {
-		new_set = ''
+function translate_post_query(query){
+	
+	let entity_name = query.entity;
 
-		set = protect_commas(set);
-			
-		set.split(',').forEach(function(field){
-			splitted_field = split2(field, ':')
-			field_name = splitted_field[0]
-			new_set += 'set' + field_name[0].toUpperCase() + field_name.substring(1,field_name.length).toLowerCase() + ':' + remake_commas(splitted_field[1]) + ','
-		})
-
-		entity_name = capitalize(entity_name);
-
-		return `mutation Mutation{ update${entity_name}(${where}, ${new_set})`.replace(/\'/g, '"') + `{ ${fields} }}`.replace(/\(/g, '{').replace(/\)/g, '}').replace(/\%20/g, ' ')
-	}
+	let fields = stringify_list_members(query.fields).join(",");
+	let where = object_to_list(query.where).join(",");
+	let set = object_to_list(query.set).join(",");
+	
+	return get_graphql_query(fields, where, set, entity_name);
 }
 
 exports.translate_query = translate_query;
+exports.translate_post_query = translate_post_query;

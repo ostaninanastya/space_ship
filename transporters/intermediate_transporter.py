@@ -156,10 +156,10 @@ def immerse(item, collection, cause):
 	delete_query = 'match (n:{0}) where space_ship.get_hex_ident(n._id) = "{1}" detach delete n;'.format(collection, cassandra_dealer.stringify(item['id'])[2:])
 	graph.run(delete_query)
 
-	print(cassandra_dealer.repair(item))
+	#print(cassandra_dealer.repair(item))
 	
 	create_query = 'create (n:{0} {{{1}}});'.format(collection, neo4j_dealer.querify(cassandra_dealer.repair(item), with_where = False, field_delimiter = ', '))
-	print(create_query)
+	#print(create_query)
 	graph.run(create_query)
 
 	#delete item from cassandra
@@ -196,9 +196,10 @@ def main():
 	once = '-o' in sys.argv
 	while True:
 		# recital
-		'''
+		
 		
 		inspect(BOATS_COLLECTION_NAME, verbose = verbose)
+		'''
 		
 		inspect(PROPERTY_TYPES_COLLECTION_NAME, verbose = verbose)
 		
@@ -238,8 +239,11 @@ def main():
 		inspect(SENSOR_DATA_COLLECTION_NAME, verbose = verbose)
 		
 		inspect(SHIFT_STATES_COLLECTION_NAME, verbose = verbose)
-		'''
+		
 		inspect(OPERATION_STATES_COLLECTION_NAME, verbose = verbose)
+		
+		inspect(OPERATION_STATES_COLLECTION_NAME, verbose = verbose)
+		'''
 		if once:
 			return
 		time.sleep(CHECK_PERIOD)
